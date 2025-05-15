@@ -1,4 +1,4 @@
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { deleteDoc, doc, getDoc, setDoc } from "firebase/firestore";
 import { InvestUserProfile } from "../../types/auth.types";
 import { db } from "../firebase";
 
@@ -43,4 +43,15 @@ export async function createDefaultProfile(uid: string, email: string | null) : 
     }
     await saveUserProfile(newProfile);
     return newProfile;
+}
+
+export async function deleteUserProfile(uid: string) {
+    try {
+        const userDocRef = doc(db, "profiles", uid);
+        await deleteDoc(userDocRef);
+        return true;
+    } catch (error) {
+        console.log("Error deleting user", error);
+        return false;
+    }
 }

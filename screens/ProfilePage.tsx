@@ -1,6 +1,9 @@
 import { View, Text, StyleSheet, Button, Modal } from "react-native";
 import { useAppDispatch, useAppSelector } from "../store/rootTypes";
-import { loggedInUserSelector } from "../store/auth/authSelector";
+import {
+  isLoadingSelector,
+  loggedInUserSelector,
+} from "../store/auth/authSelector";
 import LoadingButton from "../component/LoadingButton";
 import { authAction } from "../store/auth/authSlice";
 import { useState } from "react";
@@ -8,9 +11,20 @@ import { EditProfileScreen } from "./Profile/EditProfilePage";
 import { InvestUser } from "../types/auth.types";
 export function ProfilePageScreen() {
   const user: InvestUser = useAppSelector(loggedInUserSelector);
+  const loading = useAppSelector(isLoadingSelector);
   const userProfile = user?.UserProfile;
   const dispatch = useAppDispatch();
-  const [visible, setVisible] = useState(false);
+  const [deleteConfirmModal, setDeleteConfirmModal] = useState(false);
+  const [finalDeleteConfirm, setFinalDeleteConfirm] = useState(false);
+
+  const displayEmail = () => {
+    return (
+      <View style={styles.profileInfo}>
+        <Text style={styles.label}>Email:</Text>
+        <Text style={styles.value}>{userProfile?.email}</Text>
+      </View>
+    );
+  };
 
   const displayName = () => {
     if (!userProfile?.displayName) {
@@ -29,17 +43,30 @@ export function ProfilePageScreen() {
     );
   };
 
+  const displayAge = () => {
+    if (!userProfile?.age) {
+      return (
+        <View style={styles.profileInfo}>
+          <Text style={styles.label}>Age:</Text>
+          <Text style={styles.value}>Your age has not been set yet</Text>
+        </View>
+      );
+    }
+    return (
+      <View style={styles.profileInfo}>
+        <Text style={styles.label}>Age:</Text>
+        <Text style={styles.value}>{userProfile.age}</Text>
+      </View>
+    );
+  };
+
   return (
     <>
       <View style={styles.container}>
         <Text style={styles.title}>Welcome to your profile!</Text>
-
-        <View style={styles.profileInfo}>
-          <Text style={styles.label}>Email:</Text>
-          <Text style={styles.value}>{userProfile?.email}</Text>
-        </View>
-
+        {displayEmail()}
         {displayName()}
+        {displayAge()}
 
         <View style={styles.logoutContainer}>
           <LoadingButton
@@ -47,26 +74,45 @@ export function ProfilePageScreen() {
             onPress={() => dispatch(authAction.logoutUser())}
             isLoading={false}
           />
+
+          <View style={{ height: 20 }} />
+
+          <Button
+            title="Delete"
+            color="red"
+            onPress={() => setDeleteConfirmModal(true)}
+          ></Button>
+          <Modal
+            visible={deleteConfirmModal}
+            transparent={true}
+            animationType="fade"
+          >
+            <View style={styles.modalContainer}>
+              <View style={styles.modalView}>
+                <Text style={styles.modalTitle}>Delete Account?</Text>
+                <Text style={styles.modalText}>
+                  Are you sure you want to delete your account? This action
+                  cannot be undone.
+                </Text>
+                <LoadingButton
+                  title="Yes :("
+                  onPress={() => {
+                    setFinalDeleteConfirm(true);
+                    dispatch(authAction.deleteUser());
+                  }}
+                  isLoading={loading ?? false}
+                  color="red"
+                ></LoadingButton>
+                <View style={{ height: 20 }} />
+                <Button
+                  title="Cancel"
+                  onPress={() => setDeleteConfirmModal(false)}
+                ></Button>
+              </View>
+            </View>
+          </Modal>
         </View>
       </View>
-
-      <Button title="Test" onPress={() => setVisible((prev) => !prev)}></Button>
-      {visible && (
-        <Modal
-          visible={visible}
-          transparent={true}
-          animationType="fade"
-          onRequestClose={() => setVisible(false)}
-        >
-          <View style={styles.modalContainer}>
-            <View style={styles.modalView}>
-              <Text style={styles.modalTitle}>Title</Text>
-              <EditProfileScreen></EditProfileScreen>
-              <Button title="Close" onPress={() => setVisible(false)}></Button>
-            </View>
-          </View>
-        </Modal>
-      )}
     </>
   );
 }
@@ -114,6 +160,10 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 18,
     fontWeight: "bold",
+    marginBottom: 15,
+  },
+  modalText: {
+    textAlign: "center",
     marginBottom: 15,
   },
 });

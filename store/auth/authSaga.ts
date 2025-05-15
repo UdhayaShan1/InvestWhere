@@ -1,10 +1,10 @@
 import { takeEvery, call, put } from "redux-saga/effects";
 import { authAction } from "./authSlice";
-import { signInWithEmailAndPassword, signOut, UserCredential, createUserWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, signOut, UserCredential, createUserWithEmailAndPassword, deleteUser } from "firebase/auth";
 import { PayloadAction } from "@reduxjs/toolkit";
 import { CredentialUserProfile, FirebaseLoginRegisterProp, InvestUserProfile } from "../../types/auth.types";
 import { auth } from "../../firebase/firebase";
-import { createDefaultProfile, getUserProfile, saveUserProfile } from "../../firebase/services/profileService";
+import { createDefaultProfile, deleteUserProfile, getUserProfile, saveUserProfile } from "../../firebase/services/profileService";
 
 export function* signInWithEmailAndPasswordWorker(action : PayloadAction<FirebaseLoginRegisterProp>) : Generator<any, void, any> {
     const {email, password} = action.payload;
@@ -21,7 +21,6 @@ export function* signInWithEmailAndPasswordWorker(action : PayloadAction<Firebas
         };
 
         const retrievedProfile : InvestUserProfile = yield call(getUserProfile, credentials.user.uid, credentials.user.email || "");
-
         yield put(authAction.signInWithEmailAndPasswordSuccess({
           CredProfile: serializableCredUser,
           UserProfile: retrievedProfile
@@ -55,10 +54,26 @@ export function* createUserWithEmailAndPasswordWorker(action : PayloadAction<Fir
 
         const defaultProfile: InvestUserProfile = yield call(createDefaultProfile, serializableUser.uid, serializableUser.email);
         yield call(saveUserProfile, defaultProfile);
-        yield put(authAction.registerUserSuccess(serializableUser))
+        yield put(authAction.registerUserSuccess({CredProfile : serializableUser, UserProfile : defaultProfile}));
     } catch (error: any) {
         yield put(authAction.registerUserFail(error.message));
     }
+}
+
+export function* deleteUserWorker() {
+  try {
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
+      throw new Error("No user is currently logged in")
+    }
+    yield call(deleteUserProfile, currentUser.uid);
+    yield call(deleteUser, currentUser);
+    yield put(authAction.deleteUserSuccess());
+
+  } catch (error: any) {
+    console.error(error);
+    yield put(authAction.deleteUserProfileFail(error.message));
+  }
 }
 
 
@@ -66,4 +81,5 @@ export function* authWatcher() {
   yield takeEvery(authAction.signInWithEmailAndPassword, signInWithEmailAndPasswordWorker);
   yield takeEvery(authAction.logoutUser, logoutUserWorker);
   yield takeEvery(authAction.registerUser, createUserWithEmailAndPasswordWorker)
+  yield takeEvery(authAction.deleteUser, deleteUserWorker)
 }

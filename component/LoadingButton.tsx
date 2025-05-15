@@ -2,14 +2,20 @@ import { Button } from "react-native";
 import { ActivityIndicator } from "react-native-paper";
 
 interface LoadingButtonProps {
-    title:string;
+    title: string;
     onPress: () => void;
-    isLoading:boolean;
+    isLoading: boolean;
+    color?: string; 
 }
 
-export default function LoadingButton({title, onPress, isLoading} : LoadingButtonProps) {
+export default function LoadingButton({
+    title,
+    onPress,
+    isLoading,
+    color 
+}: LoadingButtonProps) {
     if (isLoading) {
-        return <ActivityIndicator size="small" />
+        return <ActivityIndicator size="small" />;
     }
-    return <Button title={title} onPress={onPress}></Button>
+    return <Button title={title} onPress={onPress} color={color} />;
 }
