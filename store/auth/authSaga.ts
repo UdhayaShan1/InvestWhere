@@ -2,7 +2,7 @@ import { takeEvery, call, put } from "redux-saga/effects";
 import { authAction } from "./authSlice";
 import { signInWithEmailAndPassword, signOut, UserCredential, createUserWithEmailAndPassword } from "firebase/auth";
 import { PayloadAction } from "@reduxjs/toolkit";
-import { FirebaseLoginRegisterProp, UserProfile } from "../../types/auth.types";
+import { CredentialUserProfile, FirebaseLoginRegisterProp } from "../../types/auth.types";
 import { auth } from "../../firebase/firebase";
 
 export function* signInWithEmailAndPasswordWorker(action : PayloadAction<FirebaseLoginRegisterProp>) : Generator<any, void, any> {
@@ -11,14 +11,14 @@ export function* signInWithEmailAndPasswordWorker(action : PayloadAction<Firebas
         const credentials : UserCredential = yield call(signInWithEmailAndPassword, auth, email, password);
         console.log(credentials);
         console.log("success");
-        const serializableUser : UserProfile = {
+        const serializableCredUser : CredentialUserProfile = {
             uid: credentials.user.uid,
             email: credentials.user.email,
             displayName: credentials.user.displayName,
             photoURL: credentials.user.photoURL,
-            emailVerified: credentials.user.emailVerified
+            emailVerified: credentials.user.emailVerified,
         };
-        yield put(authAction.signInWithEmailAndPasswordSuccess(serializableUser))
+        yield put(authAction.signInWithEmailAndPasswordSuccess(serializableCredUser))
     } catch (error: any) {
       console.log(error);
         yield put(authAction.signInWithEmailAndPasswordFail(error.message));
@@ -38,12 +38,12 @@ export function* createUserWithEmailAndPasswordWorker(action : PayloadAction<Fir
     const {email, password} = action.payload;
     try {
         const credentials : UserCredential = yield call(createUserWithEmailAndPassword, auth, email, password);
-        const serializableUser : UserProfile = {
+        const serializableUser : CredentialUserProfile = {
             uid: credentials.user.uid,
             email: credentials.user.email,
             displayName: credentials.user.displayName,
             photoURL: credentials.user.photoURL,
-            emailVerified: credentials.user.emailVerified
+            emailVerified: credentials.user.emailVerified,
         };
         yield put(authAction.registerUserSuccess(serializableUser))
     } catch (error: any) {

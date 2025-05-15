@@ -1,19 +1,16 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, {  } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import LoginScreen from "../screens/Login";
 import RegisterScreen from "../screens/Register";
-import HomeScreen from "../screens/Home";
 import { useAppSelector } from "../store/rootTypes";
 import { loggedInUserSelector } from "../store/auth/authSelector";
-import { UserProfile } from "../types/auth.types";
-import { onAuthStateChanged, User } from "firebase/auth";
-import { auth } from "../firebase/firebase";
+import BottomTabNavigator from "./BottomTabNavigator";
 
 export type RootStackParamList = {
   Login: undefined;
   Register: undefined;
-  Home: undefined;
+  InvestWhere: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -24,8 +21,8 @@ export default function AppNavigator() {
   return (
   <NavigationContainer>
       <Stack.Navigator>
-        {user ? (
-          <Stack.Screen name="Home" component={HomeScreen} />
+        {user.credProfile ? (
+          <Stack.Screen name="InvestWhere" component={BottomTabNavigator} />
         ) : (
           <>
             <Stack.Screen name="Login" component={LoginScreen} />
