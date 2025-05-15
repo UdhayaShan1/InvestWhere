@@ -1,4 +1,4 @@
-import React, { use, useEffect } from "react";
+import React, { useEffect } from "react";
 import { View, Text, Button } from "react-native";
 import { useAppDispatch, useAppSelector } from "../store/rootTypes";
 import {
