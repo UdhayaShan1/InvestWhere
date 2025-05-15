@@ -1,10 +1,14 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import LoginScreen from "../screens/Login";
 import RegisterScreen from "../screens/Register";
 import HomeScreen from "../screens/Home";
-import { AuthContext } from "../contexts/AuthContext";
+import { useAppSelector } from "../store/rootTypes";
+import { loggedInUserSelector } from "../store/auth/authSelector";
+import { UserProfile } from "../types/auth.types";
+import { onAuthStateChanged, User } from "firebase/auth";
+import { auth } from "../firebase/firebase";
 
 export type RootStackParamList = {
   Login: undefined;
@@ -15,7 +19,7 @@ export type RootStackParamList = {
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function AppNavigator() {
-  const { user } = useContext(AuthContext);
+  const user = useAppSelector(loggedInUserSelector);
 
   return (
   <NavigationContainer>

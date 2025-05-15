@@ -1,23 +1,38 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, TextInput, Button, Alert } from "react-native";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../firebase/firebase";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../navigation/AppNavigator";
+import { authAction } from "../store/auth/authSlice";
+import { useAppDispatch, useAppSelector } from "../store/rootTypes";
+import LoadingButton from "../component/LoadingButton";
+import { errorSelector, isLoadingSelector } from "../store/auth/authSelector";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Login">;
 
 export default function LoginScreen({ navigation }: Props) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const dispatch = useAppDispatch();
+  const isLoading = useAppSelector(isLoadingSelector) ?? false
+  const errorMessage = useAppSelector(errorSelector);
 
   const handleLogin = async () => {
-    try {
-      const credentials = await signInWithEmailAndPassword(auth, email, password);
-    } catch (error: any) {
-      Alert.alert("Login failed", error.message);
+    if (!email) {
+      Alert.alert("Email is empty");
+      return;
     }
+    if (!password) {
+      Alert.alert("Password is empty");
+      return;
+    }
+    dispatch(authAction.signInWithEmailAndPassword({email, password}));
   };
+
+  useEffect(() => {
+    if (errorMessage) {
+      Alert.alert(errorMessage);
+    }
+  }, [errorMessage]);
 
   return (
     <View style={{ padding: 20 }}>
@@ -29,7 +44,8 @@ export default function LoginScreen({ navigation }: Props) {
         value={password}
         onChangeText={setPassword}
       />
-      <Button title="Login" onPress={handleLogin} />
+      <LoadingButton title="Login" onPress={handleLogin} isLoading={isLoading} />
+      <View style={{ height: 15 }} />
       <Button title="Go to Register" onPress={() => navigation.navigate("Register")} />
     </View>
   );
