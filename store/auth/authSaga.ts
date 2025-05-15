@@ -2,8 +2,9 @@ import { takeEvery, call, put } from "redux-saga/effects";
 import { authAction } from "./authSlice";
 import { signInWithEmailAndPassword, signOut, UserCredential, createUserWithEmailAndPassword } from "firebase/auth";
 import { PayloadAction } from "@reduxjs/toolkit";
-import { FirebaseLoginRegisterProp, UserProfile } from "../../types/auth.types";
+import { CredentialUserProfile, FirebaseLoginRegisterProp, InvestUserProfile } from "../../types/auth.types";
 import { auth } from "../../firebase/firebase";
+import { createDefaultProfile, getUserProfile, saveUserProfile } from "../../firebase/services/profileService";
 
 export function* signInWithEmailAndPasswordWorker(action : PayloadAction<FirebaseLoginRegisterProp>) : Generator<any, void, any> {
     const {email, password} = action.payload;
@@ -11,14 +12,20 @@ export function* signInWithEmailAndPasswordWorker(action : PayloadAction<Firebas
         const credentials : UserCredential = yield call(signInWithEmailAndPassword, auth, email, password);
         console.log(credentials);
         console.log("success");
-        const serializableUser : UserProfile = {
+        const serializableCredUser : CredentialUserProfile = {
             uid: credentials.user.uid,
             email: credentials.user.email,
             displayName: credentials.user.displayName,
             photoURL: credentials.user.photoURL,
-            emailVerified: credentials.user.emailVerified
+            emailVerified: credentials.user.emailVerified,
         };
-        yield put(authAction.signInWithEmailAndPasswordSuccess(serializableUser))
+
+        const retrievedProfile : InvestUserProfile = yield call(getUserProfile, credentials.user.uid, credentials.user.email || "");
+
+        yield put(authAction.signInWithEmailAndPasswordSuccess({
+          CredProfile: serializableCredUser,
+          UserProfile: retrievedProfile
+        }))
     } catch (error: any) {
       console.log(error);
         yield put(authAction.signInWithEmailAndPasswordFail(error.message));
@@ -38,13 +45,16 @@ export function* createUserWithEmailAndPasswordWorker(action : PayloadAction<Fir
     const {email, password} = action.payload;
     try {
         const credentials : UserCredential = yield call(createUserWithEmailAndPassword, auth, email, password);
-        const serializableUser : UserProfile = {
+        const serializableUser : CredentialUserProfile = {
             uid: credentials.user.uid,
             email: credentials.user.email,
             displayName: credentials.user.displayName,
             photoURL: credentials.user.photoURL,
-            emailVerified: credentials.user.emailVerified
+            emailVerified: credentials.user.emailVerified,
         };
+
+        const defaultProfile: InvestUserProfile = yield call(createDefaultProfile, serializableUser.uid, serializableUser.email);
+        yield call(saveUserProfile, defaultProfile);
         yield put(authAction.registerUserSuccess(serializableUser))
     } catch (error: any) {
         yield put(authAction.registerUserFail(error.message));

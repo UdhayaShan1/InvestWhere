@@ -1,10 +1,11 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { FirebaseLoginRegisterProp, InvestUser, UserProfile } from '../../types/auth.types';
+import { AuthSuccessPayload, CredentialUserProfile, FirebaseLoginRegisterProp, InvestUser } from '../../types/auth.types';
 
 const initialState: InvestUser = {
     isLoading : false,
     error : null,
-    user : null
+    CredProfile : null,
+    UserProfile : null
 }
 
 // store logged in user information
@@ -15,12 +16,14 @@ export const authSlice = createSlice({
     signInWithEmailAndPassword : (state, actions:PayloadAction<FirebaseLoginRegisterProp>) => {
         state.isLoading = true;
         state.error = initialState.error;
-        state.user = initialState.user;
+        state.CredProfile = initialState.CredProfile;
+        state.UserProfile = initialState.UserProfile;
     },
-    signInWithEmailAndPasswordSuccess : (state, actions:PayloadAction<UserProfile>) => {
+    signInWithEmailAndPasswordSuccess : (state, actions:PayloadAction<AuthSuccessPayload>) => {
         state.isLoading = false;
         state.error = null;
-        state.user = actions.payload;
+        state.CredProfile = actions.payload.CredProfile;
+        state.UserProfile = actions.payload.UserProfile;
     },
     signInWithEmailAndPasswordFail : (state, actions:PayloadAction<string>) => {
         state.isLoading = false;
@@ -28,12 +31,13 @@ export const authSlice = createSlice({
     },
     registerUser : (state, actions:PayloadAction<FirebaseLoginRegisterProp>) => {
         state.isLoading = true;
-        state.error = null;
-        state.user = null;
+        state.error = initialState.error;
+        state.CredProfile = initialState.CredProfile;
+        state.UserProfile = initialState.UserProfile;
     },
-    registerUserSuccess : (state, actions:PayloadAction<UserProfile>) => {
+    registerUserSuccess : (state, actions:PayloadAction<CredentialUserProfile>) => {
         state.isLoading = false;
-        state.user = actions.payload;
+        state.CredProfile = actions.payload;
     },
     registerUserFail : (state, action:PayloadAction<string>) => {
         state.isLoading = false;
@@ -45,7 +49,8 @@ export const authSlice = createSlice({
     logoutUserSuccess : (state) => {
         state.isLoading = false;
         state.error = null;
-        state.user = null;
+        state.CredProfile = initialState.CredProfile;
+        state.UserProfile = initialState.UserProfile;
     },
     logoutUserFail : (state, action: PayloadAction<string>) => {
         state.isLoading = false;

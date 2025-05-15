@@ -1,7 +1,7 @@
 import { RootState } from "../rootTypes"
 
 const loggedInUserSelector = (state : RootState) => {
-    return state.auth.user;
+    return state.auth;
 }
 
 const errorSelector = (state : RootState) => {
