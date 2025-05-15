@@ -2,8 +2,9 @@ import { takeEvery, call, put } from "redux-saga/effects";
 import { authAction } from "./authSlice";
 import { signInWithEmailAndPassword, signOut, UserCredential, createUserWithEmailAndPassword } from "firebase/auth";
 import { PayloadAction } from "@reduxjs/toolkit";
-import { CredentialUserProfile, FirebaseLoginRegisterProp } from "../../types/auth.types";
+import { CredentialUserProfile, FirebaseLoginRegisterProp, InvestUserProfile } from "../../types/auth.types";
 import { auth } from "../../firebase/firebase";
+import { createDefaultProfile, getUserProfile, saveUserProfile } from "../../firebase/services/profileService";
 
 export function* signInWithEmailAndPasswordWorker(action : PayloadAction<FirebaseLoginRegisterProp>) : Generator<any, void, any> {
     const {email, password} = action.payload;
@@ -18,7 +19,13 @@ export function* signInWithEmailAndPasswordWorker(action : PayloadAction<Firebas
             photoURL: credentials.user.photoURL,
             emailVerified: credentials.user.emailVerified,
         };
-        yield put(authAction.signInWithEmailAndPasswordSuccess(serializableCredUser))
+
+        const retrievedProfile : InvestUserProfile = yield call(getUserProfile, credentials.user.uid, credentials.user.email || "");
+
+        yield put(authAction.signInWithEmailAndPasswordSuccess({
+          CredProfile: serializableCredUser,
+          UserProfile: retrievedProfile
+        }))
     } catch (error: any) {
       console.log(error);
         yield put(authAction.signInWithEmailAndPasswordFail(error.message));
@@ -45,6 +52,9 @@ export function* createUserWithEmailAndPasswordWorker(action : PayloadAction<Fir
             photoURL: credentials.user.photoURL,
             emailVerified: credentials.user.emailVerified,
         };
+
+        const defaultProfile: InvestUserProfile = yield call(createDefaultProfile, serializableUser.uid, serializableUser.email);
+        yield call(saveUserProfile, defaultProfile);
         yield put(authAction.registerUserSuccess(serializableUser))
     } catch (error: any) {
         yield put(authAction.registerUserFail(error.message));

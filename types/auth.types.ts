@@ -3,8 +3,8 @@ import { Auth, User, UserCredential } from "firebase/auth";
 export interface InvestUser {
     isLoading : boolean | null;
     error: string | null;
-    credProfile : CredentialUserProfile | null;
-    userProfile : InvestUserProfile | null;
+    CredProfile : CredentialUserProfile | null;
+    UserProfile : InvestUserProfile | null;
 
 }
 
@@ -21,9 +21,15 @@ export interface InvestUserProfile {
     email : string | null;
     displayName: string | null;
     age: number | null;
+    creationDate : string | null;
 }
 
 export interface FirebaseLoginRegisterProp {
     email: string;
     password: string;
+}
+
+export interface AuthSuccessPayload {
+    CredProfile : CredentialUserProfile | null;
+    UserProfile : InvestUserProfile | null;
 }

@@ -21,7 +21,7 @@ export default function AppNavigator() {
   return (
   <NavigationContainer>
       <Stack.Navigator>
-        {user.credProfile ? (
+        {user.CredProfile ? (
           <Stack.Screen name="InvestWhere" component={BottomTabNavigator} />
         ) : (
           <>

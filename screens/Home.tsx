@@ -10,7 +10,7 @@ import { CredentialUserProfile, InvestUser } from "../types/auth.types";
 export default function HomeScreen() {
   const dispatch = useAppDispatch();
   const user : InvestUser = useAppSelector(loggedInUserSelector);
-  const userProfile = user.userProfile;
+  const userProfile = user.UserProfile;
   const loading = useAppSelector(isLoadingSelector) ?? false;
   useEffect(() => {console.log(userProfile)}, [userProfile])
   return (
