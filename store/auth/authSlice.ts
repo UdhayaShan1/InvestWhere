@@ -1,6 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { FirebaseLoginProp, FirebaseLoginSuccess, InvestUser, UserProfile } from '../../types/auth.types';
-import { UserCredential } from 'firebase/auth';
+import { FirebaseLoginRegisterProp, InvestUser, UserProfile } from '../../types/auth.types';
 
 const initialState: InvestUser = {
     isLoading : false,
@@ -13,7 +12,7 @@ export const authSlice = createSlice({
   name: 'slice',
   initialState,
   reducers: {
-    signInWithEmailAndPassword : (state, actions:PayloadAction<FirebaseLoginProp>) => {
+    signInWithEmailAndPassword : (state, actions:PayloadAction<FirebaseLoginRegisterProp>) => {
         state.isLoading = true;
         state.error = initialState.error;
         state.user = initialState.user;
@@ -26,6 +25,31 @@ export const authSlice = createSlice({
     signInWithEmailAndPasswordFail : (state, actions:PayloadAction<string>) => {
         state.isLoading = false;
         state.error = actions.payload;
+    },
+    registerUser : (state, actions:PayloadAction<FirebaseLoginRegisterProp>) => {
+        state.isLoading = true;
+        state.error = null;
+        state.user = null;
+    },
+    registerUserSuccess : (state, actions:PayloadAction<UserProfile>) => {
+        state.isLoading = false;
+        state.user = actions.payload;
+    },
+    registerUserFail : (state, action:PayloadAction<string>) => {
+        state.isLoading = false;
+        state.error = action.payload;
+    },
+    logoutUser : (state) => {
+        state.isLoading = true;
+    },
+    logoutUserSuccess : (state) => {
+        state.isLoading = false;
+        state.error = null;
+        state.user = null;
+    },
+    logoutUserFail : (state, action: PayloadAction<string>) => {
+        state.isLoading = false;
+        state.error = action.payload;
     },
   }
 })

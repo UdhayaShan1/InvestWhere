@@ -14,15 +14,7 @@ export interface UserProfile {
     emailVerified: boolean;
 }
 
-export interface FirebaseLoginProp {
+export interface FirebaseLoginRegisterProp {
     email: string;
     password: string;
-}
-
-export interface FirebaseLoginSuccess {
-    Credentials : UserCredential;
-}
-
-export interface FirebaseLoginFail {
-    Error : string;
 }

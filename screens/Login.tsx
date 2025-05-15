@@ -1,7 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, Button, Alert } from "react-native";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../firebase/firebase";
+import { View, Text, TextInput, Button } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../navigation/AppNavigator";
 import { authAction } from "../store/auth/authSlice";
@@ -15,12 +13,7 @@ export default function LoginScreen({ navigation }: Props) {
   const dispatch = useAppDispatch();
 
   const handleLogin = async () => {
-    try {
-      //const credentials = await signInWithEmailAndPassword(auth, email, password);
-      dispatch(authAction.signInWithEmailAndPassword({email, password}));
-    } catch (error: any) {
-      Alert.alert("Login failed", error.message);
-    }
+    dispatch(authAction.signInWithEmailAndPassword({email, password}));
   };
 
   return (

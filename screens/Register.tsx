@@ -4,19 +4,18 @@ import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase/firebase";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../navigation/AppNavigator";
+import { useAppDispatch } from "../store/rootTypes";
+import { authAction } from "../store/auth/authSlice";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Register">;
 
 export default function RegisterScreen({ navigation }: Props) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const dispatch = useAppDispatch();
 
   const handleRegister = async () => {
-    try {
-      await createUserWithEmailAndPassword(auth, email, password);
-    } catch (error: any) {
-      Alert.alert("Registration failed", error.message);
-    }
+    dispatch(authAction.registerUser({email, password}))
   };
 
   return (
