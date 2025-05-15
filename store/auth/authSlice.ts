@@ -35,9 +35,10 @@ export const authSlice = createSlice({
         state.CredProfile = initialState.CredProfile;
         state.UserProfile = initialState.UserProfile;
     },
-    registerUserSuccess : (state, actions:PayloadAction<CredentialUserProfile>) => {
+    registerUserSuccess : (state, actions:PayloadAction<AuthSuccessPayload>) => {
         state.isLoading = false;
-        state.CredProfile = actions.payload;
+        state.CredProfile = actions.payload.CredProfile;
+        state.UserProfile = actions.payload.UserProfile;
     },
     registerUserFail : (state, action:PayloadAction<string>) => {
         state.isLoading = false;
@@ -56,6 +57,19 @@ export const authSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload;
     },
+    deleteUser: (state) => {
+        state.isLoading = true;
+    },
+    deleteUserSuccess: (state) => {
+        state.isLoading = false;
+        state.error = null;
+        state.CredProfile = initialState.CredProfile;
+        state.UserProfile = initialState.UserProfile;
+    },
+    deleteUserProfileFail: (state, action: PayloadAction<string>) => {
+    state.isLoading = false;
+    state.error = action.payload;
+    }
   }
 })
 

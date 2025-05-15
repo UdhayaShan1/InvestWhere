@@ -13,7 +13,7 @@ export default function LoginScreen({ navigation }: Props) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const dispatch = useAppDispatch();
-  const isLoading = useAppSelector(isLoadingSelector) ?? false
+  const isLoading = useAppSelector(isLoadingSelector) ?? false;
   const errorMessage = useAppSelector(errorSelector);
 
   const handleLogin = async () => {
@@ -25,7 +25,7 @@ export default function LoginScreen({ navigation }: Props) {
       Alert.alert("Password is empty");
       return;
     }
-    dispatch(authAction.signInWithEmailAndPassword({email, password}));
+    dispatch(authAction.signInWithEmailAndPassword({ email, password }));
   };
 
   useEffect(() => {
@@ -44,9 +44,16 @@ export default function LoginScreen({ navigation }: Props) {
         value={password}
         onChangeText={setPassword}
       />
-      <LoadingButton title="Login" onPress={handleLogin} isLoading={isLoading} />
-      <View style={{ height: 15 }} />
-      <Button title="Go to Register" onPress={() => navigation.navigate("Register")} />
+      <LoadingButton
+        title="Login"
+        onPress={handleLogin}
+        isLoading={isLoading}
+      />
+      <View style={{ height: 20 }} />
+      <Button
+        title="Create an account!"
+        onPress={() => navigation.navigate("Register")}
+      />
     </View>
   );
 }
