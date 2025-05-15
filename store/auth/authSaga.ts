@@ -20,6 +20,7 @@ export function* signInWithEmailAndPasswordWorker(action : PayloadAction<Firebas
         };
         yield put(authAction.signInWithEmailAndPasswordSuccess(serializableUser))
     } catch (error: any) {
+      console.log(error);
         yield put(authAction.signInWithEmailAndPasswordFail(error.message));
     }
 }

@@ -4,6 +4,16 @@ const loggedInUserSelector = (state : RootState) => {
     return state.auth.user;
 }
 
+const errorSelector = (state : RootState) => {
+    return state.auth.error;
+}
+
+const isLoadingSelector = (state : RootState) => {
+    return state.auth.isLoading;
+}
+
 export {
-    loggedInUserSelector
+    loggedInUserSelector,
+    isLoadingSelector,
+    errorSelector
 }
