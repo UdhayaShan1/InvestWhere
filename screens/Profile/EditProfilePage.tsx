@@ -17,7 +17,7 @@ export function EditProfileScreen({ UserProfile }: EditProfileProps) {
   const loading = useAppSelector(isLoadingSelector);
   const dispatch = useAppDispatch();
 
-  useEffect(() => console.log(form), [form]);
+  useEffect(() => {}, [form]);
   return (
     <>
       <Button
