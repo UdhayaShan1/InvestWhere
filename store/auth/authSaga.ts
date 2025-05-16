@@ -76,10 +76,25 @@ export function* deleteUserWorker() {
   }
 }
 
+export function* editUserProfileWorker(action: PayloadAction<InvestUserProfile>): Generator<any, void, any> {
+  try {
+    const editResult : boolean = yield call(saveUserProfile, action.payload);
+    if (!editResult) {
+      throw new Error("Failed to save profile");
+    }
+    yield put(authAction.editUserProfileSuccess(action.payload));
+
+  } catch (error: any) {
+    console.error(error);
+    yield put(authAction.editUserProfileFail(error.message));
+  }
+}
+
 
 export function* authWatcher() {
   yield takeEvery(authAction.signInWithEmailAndPassword, signInWithEmailAndPasswordWorker);
   yield takeEvery(authAction.logoutUser, logoutUserWorker);
   yield takeEvery(authAction.registerUser, createUserWithEmailAndPasswordWorker)
   yield takeEvery(authAction.deleteUser, deleteUserWorker)
+  yield takeEvery(authAction.editUserProfile, editUserProfileWorker)
 }

@@ -1,5 +1,3 @@
-import { Auth, User, UserCredential } from "firebase/auth";
-
 export interface InvestUser {
     isLoading : boolean | null;
     error: string | null;

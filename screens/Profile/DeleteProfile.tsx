@@ -1,23 +1,17 @@
 import { Button, Modal, Text, View } from "react-native";
 import { styles } from "./ProfilePage";
 import LoadingButton from "../../component/LoadingButton";
-import { useAppDispatch } from "../../store/rootTypes";
+import { useAppDispatch, useAppSelector } from "../../store/rootTypes";
 import { authAction } from "../../store/auth/authSlice";
+import { useState } from "react";
+import { isLoadingSelector } from "../../store/auth/authSelector";
 
-interface DeleteProfileProps {
-  loading?: boolean;
-  deleteConfirmModal: boolean;
-  setDeleteConfirmModal: (value: boolean) => void;
-  setFinalDeleteConfirm: (value: boolean) => void;
-}
 
-export function DeleteProfile({
-  loading,
-  deleteConfirmModal,
-  setDeleteConfirmModal,
-  setFinalDeleteConfirm,
-}: DeleteProfileProps) {
+export function DeleteProfile() {
   const dispatch = useAppDispatch();
+  const loading = useAppSelector(isLoadingSelector);
+  const [deleteConfirmModal, setDeleteConfirmModal] = useState(false);
+  const [finalDeleteConfirm, setFinalDeleteConfirm] = useState(false);
   return (
     <>
       <Button
