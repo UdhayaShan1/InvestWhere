@@ -34,12 +34,12 @@ export function EditProfileScreen({ UserProfile }: EditProfileProps) {
               <Text style={styles.label}>Name:</Text>
               <TextInput
                 style={styles.modalInput}
-                placeholder={
-                  UserProfile.displayName ?? "Set a name"
-                }
+                placeholder={UserProfile.displayName ?? "Set a name"}
                 value={form.displayName ?? ""}
                 autoCapitalize="words"
-                onChangeText={(e) => setForm((prev) => ({ ...prev, displayName: e }))}
+                onChangeText={(e) =>
+                  setForm((prev) => ({ ...prev, displayName: e }))
+                }
               />
             </View>
 
@@ -52,16 +52,33 @@ export function EditProfileScreen({ UserProfile }: EditProfileProps) {
                     ? UserProfile.age.toString()
                     : "Set an age"
                 }
-                value={form.age !== null && form.age !== undefined ? String(form.age) : ""}
+                value={
+                  form.age !== null && form.age !== undefined
+                    ? String(form.age)
+                    : ""
+                }
                 keyboardType="numeric"
-                onChangeText={(e) => setForm((prev) => ({ ...prev, age: Number(e) }))}
+                onChangeText={(e) =>
+                  setForm((prev) => ({ ...prev, age: Number(e) }))
+                }
                 maxLength={3}
               />
             </View>
-            
-            <LoadingButton title="Submit" isLoading={loading ?? false} onPress={() => {dispatch(authAction.editUserProfile(form)); setEditModal(false); }}></LoadingButton>
+
+            <LoadingButton
+              title="Submit"
+              isLoading={loading ?? false}
+              onPress={() => {
+                dispatch(authAction.editUserProfile(form));
+                setEditModal(false);
+              }}
+            ></LoadingButton>
             <View style={{ height: 20 }} />
-            <Button color={"red"} title="Cancel" onPress={() => setEditModal(false)}></Button>
+            <Button
+              color={"red"}
+              title="Cancel"
+              onPress={() => setEditModal(false)}
+            ></Button>
           </View>
         </View>
       </Modal>
