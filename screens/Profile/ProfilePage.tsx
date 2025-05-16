@@ -1,14 +1,13 @@
-import { View, Text, StyleSheet, Button, Modal } from "react-native";
-import { useAppDispatch, useAppSelector } from "../store/rootTypes";
+import { View, Text, StyleSheet } from "react-native";
+import { useAppDispatch, useAppSelector } from "../../store/rootTypes";
 import {
   isLoadingSelector,
   loggedInUserSelector,
-} from "../store/auth/authSelector";
-import LoadingButton from "../component/LoadingButton";
-import { authAction } from "../store/auth/authSlice";
+} from "../../store/auth/authSelector";
 import { useState } from "react";
-import { EditProfileScreen } from "./Profile/EditProfilePage";
-import { InvestUser } from "../types/auth.types";
+import { InvestUser } from "../../types/auth.types";
+import { DeleteProfile } from "./DeleteProfile";
+
 export function ProfilePageScreen() {
   const user: InvestUser = useAppSelector(loggedInUserSelector);
   const loading = useAppSelector(isLoadingSelector);
@@ -68,56 +67,20 @@ export function ProfilePageScreen() {
         {displayName()}
         {displayAge()}
 
-        <View style={styles.logoutContainer}>
-          <LoadingButton
-            title="Logout"
-            onPress={() => dispatch(authAction.logoutUser())}
-            isLoading={false}
-          />
-
-          <View style={{ height: 20 }} />
-
-          <Button
-            title="Delete"
-            color="red"
-            onPress={() => setDeleteConfirmModal(true)}
-          ></Button>
-          <Modal
-            visible={deleteConfirmModal}
-            transparent={true}
-            animationType="fade"
-          >
-            <View style={styles.modalContainer}>
-              <View style={styles.modalView}>
-                <Text style={styles.modalTitle}>Delete Account?</Text>
-                <Text style={styles.modalText}>
-                  Are you sure you want to delete your account? This action
-                  cannot be undone.
-                </Text>
-                <LoadingButton
-                  title="Yes :("
-                  onPress={() => {
-                    setFinalDeleteConfirm(true);
-                    dispatch(authAction.deleteUser());
-                  }}
-                  isLoading={loading ?? false}
-                  color="red"
-                ></LoadingButton>
-                <View style={{ height: 20 }} />
-                <Button
-                  title="Cancel"
-                  onPress={() => setDeleteConfirmModal(false)}
-                ></Button>
-              </View>
-            </View>
-          </Modal>
+        <View style={styles.deleteContainer}>
+          <DeleteProfile
+            loading={loading ?? false}
+            deleteConfirmModal={deleteConfirmModal}
+            setDeleteConfirmModal={setDeleteConfirmModal}
+            setFinalDeleteConfirm={setFinalDeleteConfirm}
+          ></DeleteProfile>
         </View>
       </View>
     </>
   );
 }
 
-const styles = StyleSheet.create({
+export const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
@@ -138,7 +101,7 @@ const styles = StyleSheet.create({
   value: {
     flex: 1,
   },
-  logoutContainer: {
+  deleteContainer: {
     marginTop: 40,
   },
   modalContainer: {
