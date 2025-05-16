@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { AuthSuccessPayload, CredentialUserProfile, FirebaseLoginRegisterProp, InvestUser } from '../../types/auth.types';
+import { AuthSuccessPayload, CredentialUserProfile, FirebaseLoginRegisterProp, InvestUser, InvestUserProfile } from '../../types/auth.types';
 
 const initialState: InvestUser = {
     isLoading : false,
@@ -67,9 +67,21 @@ export const authSlice = createSlice({
         state.UserProfile = initialState.UserProfile;
     },
     deleteUserProfileFail: (state, action: PayloadAction<string>) => {
-    state.isLoading = false;
-    state.error = action.payload;
-    }
+        state.isLoading = false;
+        state.error = action.payload;
+    },
+    editUserProfile: (state, action: PayloadAction<InvestUserProfile>) => {
+        state.isLoading = true;
+    },
+    editUserProfileSuccess: (state, action: PayloadAction<InvestUserProfile>) => {
+        state.isLoading = false;
+        state.error = initialState.error;
+        state.UserProfile = action.payload;
+    },
+    editUserProfileFail: (state, action: PayloadAction<string>) => {
+        state.isLoading = false;
+        state.error = action.payload;
+    },
   }
 })
 
