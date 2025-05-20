@@ -53,7 +53,7 @@ export function ProfilePageScreen() {
       return (
         <View style={styles.profileInfo}>
           <Text style={styles.label}>Age:</Text>
-          <Text style={styles.value}>Your birthday has not been set yet</Text>
+          <Text style={styles.value}>Please set a birthday first</Text>
         </View>
       );
     }
