@@ -1,13 +1,10 @@
 import { View, Text, StyleSheet } from "react-native";
-import { useAppDispatch, useAppSelector } from "../../store/rootTypes";
-import {
-  isLoadingSelector,
-  loggedInUserSelector,
-} from "../../store/auth/authSelector";
-import { useState } from "react";
+import { useAppSelector } from "../../store/rootTypes";
+import { loggedInUserSelector } from "../../store/auth/authSelector";
 import { InvestUser } from "../../types/auth.types";
 import { DeleteProfile } from "./DeleteProfile";
 import { EditProfileScreen } from "./EditProfilePage";
+import { parseDate, yearDifference } from "../../constants/helper";
 
 export function ProfilePageScreen() {
   const user: InvestUser = useAppSelector(loggedInUserSelector);
@@ -34,19 +31,39 @@ export function ProfilePageScreen() {
     );
   };
 
-  const displayAge = () => {
-    if (!userProfile?.age) {
+  const displayBirthday = () => {
+    if (!userProfile?.birthday) {
       return (
         <View style={styles.profileInfo}>
-          <Text style={styles.label}>Age:</Text>
-          <Text style={styles.value}>Your age has not been set yet</Text>
+          <Text style={styles.label}>Birthday:</Text>
+          <Text style={styles.value}>Your birthday has not been set yet</Text>
         </View>
       );
     }
     return (
       <View style={styles.profileInfo}>
+        <Text style={styles.label}>Birthday:</Text>
+        <Text style={styles.value}>{userProfile.birthday}</Text>
+      </View>
+    );
+  };
+
+  const displayAge = () => {
+    if (!userProfile?.birthday) {
+      return (
+        <View style={styles.profileInfo}>
+          <Text style={styles.label}>Age:</Text>
+          <Text style={styles.value}>Please set a birthday first</Text>
+        </View>
+      );
+    }
+
+    const years = yearDifference(userProfile.birthday);
+
+    return (
+      <View style={styles.profileInfo}>
         <Text style={styles.label}>Age:</Text>
-        <Text style={styles.value}>{userProfile.age}</Text>
+        <Text style={styles.value}>{years}</Text>
       </View>
     );
   };
@@ -57,6 +74,7 @@ export function ProfilePageScreen() {
       <View style={styles.profileCard}>
         {displayEmail()}
         {displayName()}
+        {displayBirthday()}
         {displayAge()}
       </View>
       <View style={styles.deleteContainer}>

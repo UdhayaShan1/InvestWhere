@@ -22,8 +22,8 @@ export async function saveUserProfile(profile: InvestUserProfile) : Promise<bool
         await setDoc(userDocRef, {
             uid: profile.uid,
             email: profile.email,
+            birthday: profile.birthday,
             displayName: profile.displayName,
-            age: profile.age,
             creationDate: profile.creationDate
         })
         return true;
@@ -38,7 +38,7 @@ export async function createDefaultProfile(uid: string, email: string | null) : 
         uid,
         email,
         displayName : null,
-        age : null,
+        birthday : null,
         creationDate : new Date().toISOString()
     }
     await saveUserProfile(newProfile);
