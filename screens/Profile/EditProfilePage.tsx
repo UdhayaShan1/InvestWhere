@@ -1,4 +1,12 @@
-import { Button, Modal, Text, TextInput, View } from "react-native";
+import {
+  Button,
+  Modal,
+  Platform,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { InvestUserProfile } from "../../types/auth.types";
 import { useEffect, useState } from "react";
 import { styles } from "./ProfilePage";
@@ -6,6 +14,8 @@ import LoadingButton from "../../component/LoadingButton";
 import { useAppDispatch, useAppSelector } from "../../store/rootTypes";
 import { isLoadingSelector } from "../../store/auth/authSelector";
 import { authAction } from "../../store/auth/authSlice";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import { parseDate } from "../../constants/helper";
 
 interface EditProfileProps {
   UserProfile: InvestUserProfile;
@@ -14,10 +24,38 @@ interface EditProfileProps {
 export function EditProfileScreen({ UserProfile }: EditProfileProps) {
   const [editModal, setEditModal] = useState(false);
   const [form, setForm] = useState<InvestUserProfile>({ ...UserProfile });
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const loading = useAppSelector(isLoadingSelector);
   const dispatch = useAppDispatch();
 
-  useEffect(() => {}, [form]);
+  useEffect(() => {
+    setForm(() => ({ ...UserProfile }));
+  }, [editModal]);
+
+
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) {
+      return "Not set";
+    }
+    return parseDate(dateString).toLocaleDateString();
+  };
+
+  const onDateChange = (_event: any, selectedDate?: Date) => {
+    setShowDatePicker(Platform.OS === "ios");
+
+    if (selectedDate && !isNaN(selectedDate.getTime())) {
+      const day = selectedDate.getDate().toString().padStart(2, "0");
+      const month = (selectedDate.getMonth() + 1).toString().padStart(2, "0");
+      const year = selectedDate.getFullYear();
+
+      const formattedDate = `${day}-${month}-${year}`;
+      setForm((prev) => ({
+        ...prev,
+        birthday: formattedDate,
+      }));
+    }
+  };
+
   return (
     <>
       <Button
@@ -44,26 +82,28 @@ export function EditProfileScreen({ UserProfile }: EditProfileProps) {
             </View>
 
             <View style={styles.profileInfo}>
-              <Text style={styles.label}>Age:</Text>
-              <TextInput
+              <Text style={styles.label}>Birthday:</Text>
+              <TouchableOpacity
                 style={styles.modalInput}
-                placeholder={
-                  UserProfile.age !== null && UserProfile.age !== undefined
-                    ? UserProfile.age.toString()
-                    : "Set an age"
-                }
-                value={
-                  form.age !== null && form.age !== undefined
-                    ? String(form.age)
-                    : ""
-                }
-                keyboardType="numeric"
-                onChangeText={(e) =>
-                  setForm((prev) => ({ ...prev, age: Number(e) }))
-                }
-                maxLength={3}
-              />
+                onPress={() => setShowDatePicker(true)}
+              >
+                <Text style={{ fontSize: 16 }}>
+                  {form.birthday
+                    ? formatDate(form.birthday)
+                    : "Set your birthday"}
+                </Text>
+              </TouchableOpacity>
             </View>
+
+            {showDatePicker && (
+              <DateTimePicker
+                value={parseDate(form.birthday)}
+                mode="date"
+                display="default"
+                onChange={onDateChange}
+                maximumDate={new Date()}
+              />
+            )}
 
             <LoadingButton
               title="Submit"

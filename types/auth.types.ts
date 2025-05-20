@@ -18,7 +18,7 @@ export interface InvestUserProfile {
     uid : string;
     email : string | null;
     displayName: string | null;
-    age: number | null;
+    birthday: string| null;
     creationDate : string | null;
 }
 
