@@ -21,9 +21,9 @@ export interface AssetAllocations {
     Robos : {
         Syfe : SyfeInterface
     };
-    Investments : {[key : string] : number};
-    CPF : {[key : string] : number};
-    Crypto : {[key : string] : number};
+    Investments : {[key : string] : InvestmentItems};
+    CPF : {[key : string] : CPFItems};
+    Crypto : {[key : string] : InvestmentItems};
     Others: {
     [key: string]: OtherAssetItem
     };
@@ -40,6 +40,18 @@ export interface BankItems {
     fixed_deposit: number;
     [key: string]: number;
 }
+
+export interface InvestmentItems {
+    broker:string;
+    amount:number;
+}
+
+export interface CPFItems {
+  OA: number; 
+  SA: number;
+  MA: number;
+}
+
 
 export interface SyfeInterface {
   core?: {
@@ -130,18 +142,14 @@ export const formatCurrency = (amount: number) => {
   }).format(amount);
 };
 
-export const calculatePercentage = (value: number, total: number) => {
-  if (total === 0) return 0;
-  return (value / total) * 100;
-};
-
-export function isJsonObject(value : any) {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    !Array.isArray(value)
-  );
-}
+export const PORTFOLIO_COLORS = [
+  "blue", // Bank (blue)
+  "red", // Robos (red)
+  "teal", // Investments (teal)
+  "yellow", // CPF (yellow)
+  "purple", // Crypto (purple)
+  "green", // Others (green)
+];
 
 
 export const portFolioStyles = StyleSheet.create({
