@@ -17,7 +17,7 @@ export interface NetWorthSummary {
 
 export interface AssetAllocations {
     uid: string;
-    Bank : BankInterface
+    Bank : {[key: string]: BankItems};
     Robos : {
         Syfe : SyfeInterface
     };
@@ -35,13 +35,10 @@ export interface OtherAssetItem {
   notes?: string;
 }
 
-export interface BankInterface {
-    [key: string]: BankItems;
-}
-
 export interface BankItems {
-    savings?:number;
-    fixed_deposit?:number;
+    savings: number;
+    fixed_deposit: number;
+    [key: string]: number;
 }
 
 export interface SyfeInterface {
