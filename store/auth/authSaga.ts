@@ -5,13 +5,13 @@ import { PayloadAction } from "@reduxjs/toolkit";
 import { CredentialUserProfile, FirebaseLoginRegisterProp, InvestUserProfile } from "../../types/auth.types";
 import { auth } from "../../firebase/firebase";
 import { createDefaultProfile, deleteUserProfile, getUserProfile, saveUserProfile } from "../../firebase/services/profileService";
+import { portfolioAction } from "../portfolio/portfolioSlice";
+import { deleteWealthProfile } from "../../firebase/services/portfolioService";
 
 export function* signInWithEmailAndPasswordWorker(action : PayloadAction<FirebaseLoginRegisterProp>) : Generator<any, void, any> {
     const {email, password} = action.payload;
     try {
         const credentials : UserCredential = yield call(signInWithEmailAndPassword, auth, email, password);
-        console.log(credentials);
-        console.log("success");
         const serializableCredUser : CredentialUserProfile = {
             uid: credentials.user.uid,
             email: credentials.user.email,
@@ -54,6 +54,9 @@ export function* createUserWithEmailAndPasswordWorker(action : PayloadAction<Fir
 
         const defaultProfile: InvestUserProfile = yield call(createDefaultProfile, serializableUser.uid, serializableUser.email);
         yield call(saveUserProfile, defaultProfile);
+
+        yield put(portfolioAction.loadWealthProfile(serializableUser.uid));
+        
         yield put(authAction.registerUserSuccess({CredProfile : serializableUser, UserProfile : defaultProfile}));
     } catch (error: any) {
         yield put(authAction.registerUserFail(error.message));
@@ -63,11 +66,15 @@ export function* createUserWithEmailAndPasswordWorker(action : PayloadAction<Fir
 export function* deleteUserWorker() {
   try {
     const currentUser = auth.currentUser;
+    const uid = currentUser?.uid;
     if (!currentUser) {
       throw new Error("No user is currently logged in")
     }
-    yield call(deleteUserProfile, currentUser.uid);
-    yield call(deleteUser, currentUser);
+    if (currentUser && uid) {
+      yield call(deleteWealthProfile, currentUser.uid)
+      yield call(deleteUserProfile, uid);
+      yield call(deleteUser, currentUser);
+    }
     yield put(authAction.deleteUserSuccess());
 
   } catch (error: any) {

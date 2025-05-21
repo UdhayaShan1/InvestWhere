@@ -1,5 +1,5 @@
 import { Button, Modal, Text, View } from "react-native";
-import { styles } from "./ProfilePage";
+import { styles } from "./styles";
 import LoadingButton from "../../component/LoadingButton";
 import { useAppDispatch, useAppSelector } from "../../store/rootTypes";
 import { authAction } from "../../store/auth/authSlice";

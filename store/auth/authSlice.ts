@@ -5,7 +5,8 @@ const initialState: InvestUser = {
     isLoading : false,
     error : null,
     CredProfile : null,
-    UserProfile : null
+    UserProfile : null,
+    WealthProfile : null
 }
 
 // store logged in user information

@@ -1,14 +1,18 @@
 import { deleteDoc, doc, getDoc, setDoc } from "firebase/firestore";
 import { InvestUserProfile } from "../../types/auth.types";
 import { db } from "../firebase";
+import { getCurrentDateString } from "../../constants/date_helper";
 
 export async function getUserProfile(uid: string, email: string): Promise<InvestUserProfile | null> {
     try {
+        console.log("Get user profile", email);
         const userDocRef = doc(db, "profiles", uid);
         const userDoc = await getDoc(userDocRef);
+        console.log(userDoc);
+        console.log(userDoc.exists());
         if (userDoc.exists()) {
             return userDoc.data() as InvestUserProfile;
-        } 
+        }
         return createDefaultProfile(uid, email);
     } catch (error) {
         console.log("Error retrieving user profile", error);
@@ -24,7 +28,8 @@ export async function saveUserProfile(profile: InvestUserProfile) : Promise<bool
             email: profile.email,
             birthday: profile.birthday,
             displayName: profile.displayName,
-            creationDate: profile.creationDate
+            creationDate: profile.creationDate,
+            lastUpdated : getCurrentDateString()
         })
         return true;
     } catch (error) {
@@ -39,7 +44,8 @@ export async function createDefaultProfile(uid: string, email: string | null) : 
         email,
         displayName : null,
         birthday : null,
-        creationDate : new Date().toISOString()
+        creationDate : getCurrentDateString(),
+        lastUpdated : getCurrentDateString()
     }
     await saveUserProfile(newProfile);
     return newProfile;
