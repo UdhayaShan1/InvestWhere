@@ -100,9 +100,8 @@ export function BankPortfolio({
           if (standardBankKeys.includes(key) || bank[key] === undefined) {
             return null;
           }
-          console.log("YMPA", key, bank[key]);
           return (
-            <View style={styles.assetItem}>
+            <View key={key} style={styles.assetItem}>
               <View style={styles.assetInfoRow}>
                 <View
                   style={[
@@ -199,7 +198,6 @@ export function BankPortfolio({
                 )}
               </View>
             ))}
-            {/* You can add other bank platforms here in the future */}
           </View>
         )}
       </View>

@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { auth } from "../../firebase/firebase";
 import {
   View,
   Text,
-  StyleSheet,
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
@@ -16,7 +14,6 @@ import {
 } from "../../store/portfolio/portfolioSelector";
 import { Ionicons } from "@expo/vector-icons";
 import { portfolioAction } from "../../store/portfolio/portfolioSlice";
-import { PieChart } from "react-native-chart-kit";
 import { Dimensions } from "react-native";
 import {
   formatCurrency,
@@ -32,6 +29,7 @@ import {
 } from "../../constants/helper";
 import { BankPortfolio } from "./BankPortfolio";
 import { SummaryPortfolio } from "./SummaryPortfolio";
+import { RoboPortfolio } from "./RoboPortfolio";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -66,10 +64,7 @@ export function UserPortfolio() {
     ? calculateCategoryTotalRecursively(assetAllocation.Bank)
     : 0;
 
-  const syfeTotal = assetAllocation?.Robos?.Syfe
-    ? calculateCategoryTotalRecursively(assetAllocation.Robos.Syfe)
-    : 0;
-  const roboTotal = syfeTotal; //additional in future
+  const roboTotal = assetAllocation?.Robos ? calculateCategoryTotalRecursively(assetAllocation?.Robos) : 0; //additional in future
 
   const investmentsTotal = assetAllocation?.Investments
     ? calculateCategoryTotalRecursively(assetAllocation.Investments)
@@ -175,199 +170,199 @@ export function UserPortfolio() {
     );
   }
 
-  const renderCategorySection = (
-    title: string,
-    total: number,
-    color: string,
-    items:
-      | { [key: string]: number }
-      | { [key: string]: { amount: number; label?: string; notes?: string } }
-      | SyfeInterface
-      | undefined,
-    isRobo = false
-  ) => {
-    const expanded = expandedSections[title];
-    const percentage = calculatePercentage(total, totalNetWorth);
-    if (!items || Object.keys(items).length === 0) {
-      return null;
-    }
+//   const renderCategorySection = (
+//     title: string,
+//     total: number,
+//     color: string,
+//     items:
+//       | { [key: string]: number }
+//       | { [key: string]: { amount: number; label?: string; notes?: string } }
+//       | SyfeInterface
+//       | undefined,
+//     isRobo = false
+//   ) => {
+//     const expanded = expandedSections[title];
+//     const percentage = calculatePercentage(total, totalNetWorth);
+//     if (!items || Object.keys(items).length === 0) {
+//       return null;
+//     }
 
-    return (
-      <View style={styles.categoryContainer}>
-        <TouchableOpacity
-          style={[
-            styles.categoryHeader,
-            { borderLeftColor: color, borderLeftWidth: 5 },
-          ]}
-          onPress={() => toggleSection(title, setExpandedSections)}
-        >
-          <View style={{ flex: 1 }}>
-            <Text style={styles.categoryTitle}>{title}</Text>
-            <Text style={styles.categoryPercentage}>
-              {percentage.toFixed(1)}% of portfolio
-            </Text>
-          </View>
-          <Text style={styles.categoryValue}>{formatCurrency(total)}</Text>
-          <Ionicons
-            name={expanded ? "chevron-up" : "chevron-down"}
-            size={24}
-            color="#555"
-            style={styles.expandIcon}
-          />
-        </TouchableOpacity>
+//     return (
+//       <View style={styles.categoryContainer}>
+//         <TouchableOpacity
+//           style={[
+//             styles.categoryHeader,
+//             { borderLeftColor: color, borderLeftWidth: 5 },
+//           ]}
+//           onPress={() => toggleSection(title, setExpandedSections)}
+//         >
+//           <View style={{ flex: 1 }}>
+//             <Text style={styles.categoryTitle}>{title}</Text>
+//             <Text style={styles.categoryPercentage}>
+//               {percentage.toFixed(1)}% of portfolio
+//             </Text>
+//           </View>
+//           <Text style={styles.categoryValue}>{formatCurrency(total)}</Text>
+//           <Ionicons
+//             name={expanded ? "chevron-up" : "chevron-down"}
+//             size={24}
+//             color="#555"
+//             style={styles.expandIcon}
+//           />
+//         </TouchableOpacity>
 
-        {expanded && (
-          <View style={styles.categoryDetails}>
-            {isRobo
-              ? // Special handling for Syfe
-                renderSyfeDetails(items as SyfeInterface)
-              : // Normal handling for other categories
-                Object.entries(items).map(([key, value]) => {
-                  // Handle different item formats
-                  const itemValue =
-                    typeof value === "number" ? value : value.amount;
-                  const itemLabel =
-                    typeof value === "number" ? key : value.label || key;
-                  const itemNote =
-                    typeof value === "number" ? undefined : value.notes;
+//         {expanded && (
+//           <View style={styles.categoryDetails}>
+//             {isRobo
+//               ? // Special handling for Syfe
+//                 renderSyfeDetails(items as SyfeInterface)
+//               : // Normal handling for other categories
+//                 Object.entries(items).map(([key, value]) => {
+//                   // Handle different item formats
+//                   const itemValue =
+//                     typeof value === "number" ? value : value.amount;
+//                   const itemLabel =
+//                     typeof value === "number" ? key : value.label || key;
+//                   const itemNote =
+//                     typeof value === "number" ? undefined : value.notes;
 
-                  return (
-                    <View key={key} style={styles.assetItem}>
-                      <View style={styles.assetInfo}>
-                        <Text style={styles.assetName}>{itemLabel}</Text>
-                        {itemNote && (
-                          <Text style={styles.assetNote}>{itemNote}</Text>
-                        )}
-                      </View>
-                      <Text style={styles.assetValue}>
-                        {formatCurrency(itemValue)}
-                      </Text>
-                    </View>
-                  );
-                })}
-          </View>
-        )}
-      </View>
-    );
-  };
+//                   return (
+//                     <View key={key} style={styles.assetItem}>
+//                       <View style={styles.assetInfo}>
+//                         <Text style={styles.assetName}>{itemLabel}</Text>
+//                         {itemNote && (
+//                           <Text style={styles.assetNote}>{itemNote}</Text>
+//                         )}
+//                       </View>
+//                       <Text style={styles.assetValue}>
+//                         {formatCurrency(itemValue)}
+//                       </Text>
+//                     </View>
+//                   );
+//                 })}
+//           </View>
+//         )}
+//       </View>
+//     );
+//   };
 
-  const renderSyfeDetails = (syfe: SyfeInterface) => {
-    if (!syfe) return null;
+//   const renderSyfeDetails = (syfe: SyfeInterface) => {
+//     if (!syfe) return null;
 
-    return (
-      <>
-        {syfe.core && Object.keys(syfe.core).length > 0 && (
-          <View style={styles.syfeGroup}>
-            <Text style={styles.syfeGroupTitle}>Core</Text>
-            {typeof syfe.core.equity100 === "number" &&
-              syfe.core.equity100 > 0 && (
-                <View style={styles.assetItem}>
-                  <Text style={styles.assetName}>Equity100</Text>
-                  <Text style={styles.assetValue}>
-                    {formatCurrency(syfe.core.equity100)}
-                  </Text>
-                </View>
-              )}
+//     return (
+//       <>
+//         {syfe.core && Object.keys(syfe.core).length > 0 && (
+//           <View style={styles.syfeGroup}>
+//             <Text style={styles.syfeGroupTitle}>Core</Text>
+//             {typeof syfe.core.equity100 === "number" &&
+//               syfe.core.equity100 > 0 && (
+//                 <View style={styles.assetItem}>
+//                   <Text style={styles.assetName}>Equity100</Text>
+//                   <Text style={styles.assetValue}>
+//                     {formatCurrency(syfe.core.equity100)}
+//                   </Text>
+//                 </View>
+//               )}
 
-            {typeof syfe.core.growth === "number" && syfe.core.growth > 0 && (
-              <View style={styles.assetItem}>
-                <Text style={styles.assetName}>Growth</Text>
-                <Text style={styles.assetValue}>
-                  {formatCurrency(syfe.core.growth)}
-                </Text>
-              </View>
-            )}
-          </View>
-        )}
+//             {typeof syfe.core.growth === "number" && syfe.core.growth > 0 && (
+//               <View style={styles.assetItem}>
+//                 <Text style={styles.assetName}>Growth</Text>
+//                 <Text style={styles.assetValue}>
+//                   {formatCurrency(syfe.core.growth)}
+//                 </Text>
+//               </View>
+//             )}
+//           </View>
+//         )}
 
-        {/* Similar blocks for incomePlus, thematic, downsideProtected, cashManagement */}
-        {/* (Abbreviated for space - include all Syfe portfolio types here) */}
-      </>
-    );
-  };
+//         {/* Similar blocks for incomePlus, thematic, downsideProtected, cashManagement */}
+//         {/* (Abbreviated for space - include all Syfe portfolio types here) */}
+//       </>
+//     );
+//   };
 
-  const renderRoboAdvisors = () => {
-    const expanded = expandedSections["Robos"];
-    const percentage = calculatePercentage(roboTotal, totalNetWorth);
+//   const renderRoboAdvisors = () => {
+//     const expanded = expandedSections["Robos"];
+//     const percentage = calculatePercentage(roboTotal, totalNetWorth);
 
-    if (!assetAllocation?.Robos || roboTotal === 0) {
-      return null;
-    }
+//     if (!assetAllocation?.Robos || roboTotal === 0) {
+//       return null;
+//     }
 
-    return (
-      <View style={styles.categoryContainer}>
-        <TouchableOpacity
-          style={[
-            styles.categoryHeader,
-            { borderLeftColor: PORTFOLIO_COLORS[1], borderLeftWidth: 5 },
-          ]}
-          onPress={() => toggleSection("Robos", setExpandedSections)}
-        >
-          <View style={{ flex: 1 }}>
-            <Text style={styles.categoryTitle}>RoboAdvisors</Text>
-            <Text style={styles.categoryPercentage}>
-              {percentage.toFixed(1)}% of portfolio
-            </Text>
-          </View>
-          <Text style={styles.categoryValue}>{formatCurrency(roboTotal)}</Text>
-          <Ionicons
-            name={expanded ? "chevron-up" : "chevron-down"}
-            size={24}
-            color="#555"
-            style={styles.expandIcon}
-          />
-        </TouchableOpacity>
+//     return (
+//       <View style={styles.categoryContainer}>
+//         <TouchableOpacity
+//           style={[
+//             styles.categoryHeader,
+//             { borderLeftColor: PORTFOLIO_COLORS[1], borderLeftWidth: 5 },
+//           ]}
+//           onPress={() => toggleSection("Robos", setExpandedSections)}
+//         >
+//           <View style={{ flex: 1 }}>
+//             <Text style={styles.categoryTitle}>RoboAdvisors</Text>
+//             <Text style={styles.categoryPercentage}>
+//               {percentage.toFixed(1)}% of portfolio
+//             </Text>
+//           </View>
+//           <Text style={styles.categoryValue}>{formatCurrency(roboTotal)}</Text>
+//           <Ionicons
+//             name={expanded ? "chevron-up" : "chevron-down"}
+//             size={24}
+//             color="#555"
+//             style={styles.expandIcon}
+//           />
+//         </TouchableOpacity>
 
-        {/* Expanded view shows robo platform details */}
-        {expanded && (
-          <View style={styles.categoryDetails}>
-            {/* Syfe Platform Row */}
-            <View style={styles.platformContainer}>
-              <TouchableOpacity
-                style={styles.platformHeader}
-                onPress={() => toggleSection("Syfe", setRoboSelections)}
-              >
-                <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  <View
-                    style={[
-                      styles.platformIcon,
-                      { backgroundColor: PORTFOLIO_COLORS[1] },
-                    ]}
-                  >
-                    <Text style={styles.platformIconText}>S</Text>
-                  </View>
-                  <Text style={styles.platformName}>Syfe</Text>
-                </View>
-                <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  <Text style={styles.platformValue}>
-                    {formatCurrency(syfeTotal)}
-                  </Text>
-                  <Ionicons
-                    name={
-                      roboSelections["Syfe"] ? "chevron-up" : "chevron-down"
-                    }
-                    size={20}
-                    color="#555"
-                    style={{ marginLeft: 8 }}
-                  />
-                </View>
-              </TouchableOpacity>
+//         {/* Expanded view shows robo platform details */}
+//         {expanded && (
+//           <View style={styles.categoryDetails}>
+//             {/* Syfe Platform Row */}
+//             <View style={styles.platformContainer}>
+//               <TouchableOpacity
+//                 style={styles.platformHeader}
+//                 onPress={() => toggleSection("Syfe", setRoboSelections)}
+//               >
+//                 <View style={{ flexDirection: "row", alignItems: "center" }}>
+//                   <View
+//                     style={[
+//                       styles.platformIcon,
+//                       { backgroundColor: PORTFOLIO_COLORS[1] },
+//                     ]}
+//                   >
+//                     <Text style={styles.platformIconText}>S</Text>
+//                   </View>
+//                   <Text style={styles.platformName}>Syfe</Text>
+//                 </View>
+//                 <View style={{ flexDirection: "row", alignItems: "center" }}>
+//                   <Text style={styles.platformValue}>
+//                     {formatCurrency(syfeTotal)}
+//                   </Text>
+//                   <Ionicons
+//                     name={
+//                       roboSelections["Syfe"] ? "chevron-up" : "chevron-down"
+//                     }
+//                     size={20}
+//                     color="#555"
+//                     style={{ marginLeft: 8 }}
+//                   />
+//                 </View>
+//               </TouchableOpacity>
 
-              {/* Expanded Syfe Details */}
-              {roboSelections["Syfe"] && (
-                <View style={styles.nestedDetails}>
-                  {renderSyfeDetails(assetAllocation.Robos.Syfe)}
-                </View>
-              )}
-            </View>
+//               {/* Expanded Syfe Details */}
+//               {roboSelections["Syfe"] && (
+//                 <View style={styles.nestedDetails}>
+//                   {renderSyfeDetails(assetAllocation.Robos.Syfe)}
+//                 </View>
+//               )}
+//             </View>
 
-            {/* You can add other robo platforms here in the future */}
-            {/* Example: StashAway, Endowus, etc. */}
-          </View>
-        )}
-      </View>
-    );
-  };
+//             {/* You can add other robo platforms here in the future */}
+//             {/* Example: StashAway, Endowus, etc. */}
+//           </View>
+//         )}
+//       </View>
+//     );
+//   };
   return (
     <ScrollView
       style={styles.container}
@@ -393,7 +388,15 @@ export function UserPortfolio() {
         expandedSections={expandedSections}
         setExpandedSections={setExpandedSections}
       />
-      {renderRoboAdvisors()}
+      <RoboPortfolio
+        expandedSections={expandedSections}
+        setExpandedSections={setExpandedSections}
+        roboSelections={roboSelections}
+        setRoboSelections={setRoboSelections}
+        assetAllocation={assetAllocation}
+        roboTotal={roboTotal}
+        totalNetWorth={totalNetWorth}
+      />
     </ScrollView>
   );
 }
