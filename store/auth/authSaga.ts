@@ -25,6 +25,8 @@ export function* signInWithEmailAndPasswordWorker(action : PayloadAction<Firebas
           CredProfile: serializableCredUser,
           UserProfile: retrievedProfile
         }))
+
+        yield put(portfolioAction.loadWealthProfile(serializableCredUser.uid));
     } catch (error: any) {
       console.log(error);
         yield put(authAction.signInWithEmailAndPasswordFail(error.message));
