@@ -42,8 +42,8 @@ export interface BankItems {
 }
 
 export interface InvestmentItems {
-    broker:string;
     amount:number;
+    [key: string]: number;
 }
 
 export interface CPFItems {
@@ -111,6 +111,10 @@ export const defaultSyfe: SyfeInterface = {
     }
 };
 
+
+export interface BankEditForm {
+  [key: string]: number | string;
+}
 export function defaultAssetAllocations(uid: string): AssetAllocations {
     return {
         uid,
@@ -292,22 +296,7 @@ export const portFolioStyles = StyleSheet.create({
     marginHorizontal: 16,
     marginVertical: 24,
   },
-  actionButton: {
-    backgroundColor: "#4A6FA5",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    flex: 0.48,
-  },
-  actionButtonText: {
-    color: "#fff",
-    fontSize: 15,
-    fontWeight: "500",
-    marginLeft: 6,
-  },
+
   platformContainer: {
   borderRadius: 8,
   overflow: 'hidden',
@@ -367,5 +356,211 @@ accountTypeLabel: {
   fontSize: 12,
   color: '#888',
   marginTop: 2,
-}
+},
+
+dropdownContainer: {
+  position: 'relative',
+  zIndex: 1000,
+},
+dropdownButton: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  paddingVertical: 12,
+  paddingHorizontal: 15,
+  backgroundColor: '#fff',
+  borderWidth: 1,
+  borderColor: '#ccc',
+  borderRadius: 8,
+},
+dropdownButtonText: {
+  fontSize: 16,
+  color: '#333',
+},
+dropdownMenu: {
+  position: 'absolute',
+  top: '100%',
+  left: 0,
+  right: 0,
+  backgroundColor: '#fff',
+  borderWidth: 1,
+  borderColor: '#ddd',
+  borderRadius: 8,
+  marginTop: 4,
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.1,
+  shadowRadius: 4,
+  elevation: 3,
+  maxHeight: 200,
+},
+dropdownItem: {
+  paddingVertical: 12,
+  paddingHorizontal: 15,
+  borderBottomWidth: 1,
+  borderBottomColor: '#f0f0f0',
+},
+dropdownItemSelected: {
+  backgroundColor: '#f0f5ff',
+},
+dropdownItemText: {
+  fontSize: 16,
+  color: '#333',
+},
+dropdownItemTextSelected: {
+  color: '#4A6FA5',
+  fontWeight: '500',
+},
+accountIndicator: {
+  width: 12,
+  height: 12,
+  borderRadius: 6,
+  marginRight: 8,
+},
+inputLabel: {
+  fontSize: 16,
+  fontWeight: '500',
+  color: '#444',
+},
+inputWrapper: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  backgroundColor: '#fff',
+  borderRadius: 8,
+  borderWidth: 1,
+  borderColor: '#d1d5db',
+  height: 50,
+  paddingHorizontal: 12,
+},
+currencySymbol: {
+  fontSize: 16,
+  fontWeight: '500',
+  color: '#666',
+  marginRight: 4,
+},
+formInput: {
+  flex: 1,
+  height: 46,
+  fontSize: 16,
+  color: '#333',
+},
+currentValueContainer: {
+  flexDirection: 'row',
+  marginTop: 6,
+  alignItems: 'center',
+},
+currentValueLabel: {
+  fontSize: 12,
+  color: '#666',
+  marginRight: 4,
+},
+currentValue: {
+  fontSize: 12,
+  color: '#888',
+},
+buttonRow: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+},
+actionButton: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'center',
+  paddingVertical: 12,
+  paddingHorizontal: 16,
+  borderRadius: 8,
+  flex: 0.48,
+},
+deleteButton: {
+  backgroundColor: '#e53e3e',
+},
+cancelButton: {
+  backgroundColor: '#718096',
+},
+actionButtonText: {
+  color: '#fff',
+  fontSize: 14,
+  fontWeight: '500',
+  marginLeft: 6,
+},
+compactModalView: {
+  width: "92%",
+  maxWidth: 500,
+  paddingHorizontal: 18,
+  paddingVertical: 20,
+  paddingBottom: 15,
+  alignItems: 'stretch',
+},
+modalScrollView: {
+  maxHeight: '75%',  
+  width: '100%',
+},
+scrollViewContent: {
+  paddingBottom: 15, 
+},
+formContainer: {
+  backgroundColor: '#f9fafc',
+  borderRadius: 10,
+  padding: 14,
+  marginTop: 12,
+  marginBottom: 12,
+  borderWidth: 1,
+  borderColor: '#eaeef2',
+},
+profileInfo: {
+  marginBottom: 12,
+},
+inputContainer: {
+  marginBottom: 16,
+},
+formActions: {
+  marginTop: 16,
+},
+selectedBankTitle: {
+  fontSize: 17,
+  fontWeight: '600',
+  color: '#333',
+  marginBottom: 12,
+  paddingBottom: 8,
+  borderBottomWidth: 1,
+  borderBottomColor: '#eaeef2',
+  flexDirection: 'row',
+  alignItems: 'center',
+},
+labelContainer: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  marginBottom: 6,
+},
+
+sectionHeader: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  marginBottom: 8,
+},
+addButton: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  paddingVertical: 6,
+  paddingHorizontal: 10,
+},
+addButtonText: {
+  color: '#4A6FA5',
+  fontSize: 16,
+  fontWeight: '500',
+  marginLeft: 4,
+},
+newItemForm: {
+  marginTop: 8,
+  marginBottom: 16,
+  backgroundColor: '#f0f4f8',
+  borderRadius: 8,
+  padding: 12,
+  borderWidth: 1,
+  borderColor: '#e0e5eb',
+},
+saveButton: {
+  backgroundColor: '#4A6FA5',
+},
 });

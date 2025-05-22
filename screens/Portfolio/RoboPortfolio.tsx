@@ -12,16 +12,11 @@ import {
   toggleSection,
 } from "../../constants/helper";
 import { Ionicons } from "@expo/vector-icons";
+import { useState } from "react";
 
 interface RoboPortfolioProps {
   expandedSections: { [key: string]: boolean };
   setExpandedSections: React.Dispatch<
-    React.SetStateAction<{
-      [key: string]: boolean;
-    }>
-  >;
-  roboSelections: { [key: string]: boolean };
-  setRoboSelections: React.Dispatch<
     React.SetStateAction<{
       [key: string]: boolean;
     }>
@@ -34,12 +29,17 @@ interface RoboPortfolioProps {
 export function RoboPortfolio({
   expandedSections,
   setExpandedSections,
-  roboSelections,
-  setRoboSelections,
   roboTotal,
   totalNetWorth,
   assetAllocation,
 }: RoboPortfolioProps) {
+  const [roboSelections, setRoboSelections] = useState<{
+    [key: string]: boolean;
+  }>({
+    Syfe: false,
+    Endowus: false,
+    Stashaway: false,
+  });
   const syfeTotal = calculateCategoryTotalRecursively(
     assetAllocation.Robos.Syfe
   );
