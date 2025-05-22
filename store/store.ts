@@ -3,12 +3,14 @@ import { configureStore } from '@reduxjs/toolkit';
 const createSagaMiddleware = require('redux-saga').default;
 import { rootSaga } from './rootSaga';
 import authReducer from './auth/authSlice'
+import portfolioReducer from './portfolio/portfolioSlice'
 
 const sagaMiddleware = createSagaMiddleware();
 
 const store = configureStore({
   reducer: {
-    auth : authReducer
+    auth : authReducer,
+    portfolio : portfolioReducer
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({ thunk: false }).concat(sagaMiddleware),

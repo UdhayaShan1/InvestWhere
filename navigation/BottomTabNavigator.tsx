@@ -2,10 +2,12 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import HomeScreen from "../screens/Home";
 import { ProfilePageScreen } from "../screens/Profile/ProfilePage";
 import { MaterialIcons } from "@expo/vector-icons";
+import { UserPortfolio } from "../screens/Portfolio/UserPortfolio";
 
 export type BottomTabParamList = {
   HomeTab: undefined;
   ProfileTab: undefined;
+  PortfolioTab: undefined;
 };
 
 const Tab = createBottomTabNavigator<BottomTabParamList>();
@@ -20,6 +22,8 @@ export default function BottomTabNavigator() {
             iconName = "home";
           } else if (route.name === "ProfileTab") {
             iconName = "person";
+          } else if (route.name === "PortfolioTab") {
+            iconName = 'money';
           }
           return (
             <MaterialIcons name={iconName as any} size={size} color={color} />
@@ -35,6 +39,13 @@ export default function BottomTabNavigator() {
         component={HomeScreen}
         options={{ title: "Home" }}
       ></Tab.Screen>
+
+      <Tab.Screen
+        name="PortfolioTab"
+        component={UserPortfolio}
+        options={{ title: "Portfolio" }}
+      ></Tab.Screen>
+
       <Tab.Screen
         name="ProfileTab"
         component={ProfilePageScreen}
