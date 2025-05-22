@@ -55,18 +55,16 @@ export function EditBankPortfolio({
       setEditForm(newFormValues);
     }
     console.log(editForm);
-  }, [bankSelected, assetAllocation?.Bank]); // Only depend on bankSelected and Bank data
+  }, [bankSelected, assetAllocation?.Bank]);
 
   useEffect(() => {
     if (assetAllocation && bankSelected) {
-      const allAccountKeys = new Set([
-        ...Object.keys(assetAllocation.Bank[bankSelected]),
-        ...Object.keys(editForm).filter((key) => key !== "Bank"),
-      ]);
-      setAllAccountKeys(Array.from(allAccountKeys));
+      const editFormKeys = Object.keys(editForm).filter(
+        (key) => key !== "Bank"
+      );
+      setAllAccountKeys(Array.from(editFormKeys));
     }
-    console.log(editForm);
-  }, [editForm]);
+  }, [editForm, bankSelected, assetAllocation]);
 
   useEffect(() => {
     if (assetAllocation?.Bank) {
@@ -109,6 +107,14 @@ export function EditBankPortfolio({
     setNewBankAccountName("");
     setNewBankAccountAmount(0);
     setAddingBankAccount(false);
+  };
+
+  const handleDeleteAccount = (key: string) => {
+    setEditForm((prev) => {
+      const updatedForm = { ...prev };
+      delete updatedForm[key];
+      return updatedForm;
+    });
   };
 
   return (
@@ -270,8 +276,6 @@ export function EditBankPortfolio({
                   {(() => {
                     return allAccountKeys.length > 0 ? (
                       Array.from(allAccountKeys).map((key: string) => {
-                        const isStandardAccount =
-                          key === "savings" || key === "fixed_deposit";
                         const accountLabel =
                           key === "savings"
                             ? "Savings Account"
@@ -297,16 +301,29 @@ export function EditBankPortfolio({
 
                         return (
                           <View key={key} style={styles.inputContainer}>
-                            <View style={styles.labelContainer}>
-                              <View
-                                style={[
-                                  styles.accountIndicator,
-                                  { backgroundColor: accountColor },
-                                ]}
-                              />
-                              <Text style={styles.inputLabel}>
-                                {accountLabel}
-                              </Text>
+                            <View style={styles.accountHeader}>
+                              <View style={styles.labelContainer}>
+                                <View
+                                  style={[
+                                    styles.accountIndicator,
+                                    { backgroundColor: accountColor },
+                                  ]}
+                                />
+                                <Text style={styles.inputLabel}>
+                                  {accountLabel}
+                                </Text>
+                              </View>
+                              
+                              <TouchableOpacity
+                                style={styles.deleteAccountButton}
+                                onPress={() => handleDeleteAccount(key)}
+                              >
+                                <Ionicons
+                                  name="close-circle"
+                                  size={22}
+                                  color="#e53e3e"
+                                />
+                              </TouchableOpacity>
                             </View>
 
                             <View style={styles.inputWrapper}>

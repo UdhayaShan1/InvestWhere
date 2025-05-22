@@ -563,4 +563,15 @@ newItemForm: {
 saveButton: {
   backgroundColor: '#4A6FA5',
 },
+accountHeader: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  marginBottom: 6,
+},
+deleteAccountButton: {
+  padding: 4,
+  marginLeft: 8,
+  borderRadius: 12,
+},
 });
