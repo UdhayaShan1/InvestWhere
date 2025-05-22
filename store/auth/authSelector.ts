@@ -19,5 +19,6 @@ const isLoadingSelector = (state : RootState) => {
 export {
     loggedInUserSelector,
     isLoadingSelector,
-    errorSelector
+    errorSelector,
+    currentUidSelector
 }

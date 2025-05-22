@@ -5,11 +5,8 @@ import { getCurrentDateString } from "../../constants/date_helper";
 
 export async function getUserProfile(uid: string, email: string): Promise<InvestUserProfile | null> {
     try {
-        console.log("Get user profile", email);
         const userDocRef = doc(db, "profiles", uid);
         const userDoc = await getDoc(userDocRef);
-        console.log(userDoc);
-        console.log(userDoc.exists());
         if (userDoc.exists()) {
             return userDoc.data() as InvestUserProfile;
         }

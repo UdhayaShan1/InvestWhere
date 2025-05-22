@@ -36,8 +36,6 @@ export interface OtherAssetItem {
 }
 
 export interface BankItems {
-    savings: number;
-    fixed_deposit: number;
     [key: string]: number;
 }
 

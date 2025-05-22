@@ -1,6 +1,8 @@
 import { deleteDoc, doc, getDoc, setDoc } from "firebase/firestore";
 import { AssetAllocations, defaultAssetAllocations, defaultNetWorthSummary, NetWorthSummary } from "../../types/wealth.types"
 import { db } from "../firebase";
+import { calculateCategoryTotalRecursively } from "../../constants/helper";
+import { all } from "redux-saga/effects";
 
 
 export async function getNetWorthSummary(uid: string) {
@@ -79,4 +81,8 @@ export async function deleteWealthProfile(uid : string) {
         console.log("Error deleting wealth profile", error);
         return false;
     }
+}
+
+export function calculateTotalNetWorth(allocations : AssetAllocations) {
+    return calculateCategoryTotalRecursively(allocations);
 }

@@ -1,31 +1,24 @@
 import {
   Button,
-  Modal,
-  ScrollView,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
 import {
-  BankEditForm,
   BankItems,
   formatCurrency,
   PORTFOLIO_COLORS,
   portFolioStyles as styles,
 } from "../../types/wealth.types";
-import { styles as portfolioStyles } from "../Profile/styles";
 import { useAppSelector } from "../../store/rootTypes";
 import { assetAllocationSelector } from "../../store/portfolio/portfolioSelector";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   calculateCategoryTotalRecursively,
   calculatePercentage,
   toggleSection,
 } from "../../constants/helper";
 import { Ionicons } from "@expo/vector-icons";
-import LoadingButton from "../../component/LoadingButton";
-import { all } from "redux-saga/effects";
 import { EditBankPortfolio } from "./EditBankPortfolio";
 
 interface BankPortfolioProps {

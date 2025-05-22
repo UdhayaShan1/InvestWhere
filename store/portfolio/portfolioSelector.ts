@@ -7,3 +7,7 @@ export const netWorthSelector = (state : RootState) => {
 export const assetAllocationSelector = (state : RootState) => {
     return state.portfolio.Allocations;
 }
+
+export const isLoadingSelector = (state : RootState) => {
+    return state.portfolio.isLoading;
+}

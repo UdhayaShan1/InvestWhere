@@ -1,4 +1,11 @@
-import { Modal, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import {
+  Alert,
+  Modal,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import {
   BankEditForm,
   formatCurrency,
@@ -7,11 +14,16 @@ import {
 } from "../../types/wealth.types";
 import { styles as portfolioStyles } from "../Profile/styles";
 import { useEffect, useState } from "react";
-import { useAppSelector } from "../../store/rootTypes";
-import { assetAllocationSelector } from "../../store/portfolio/portfolioSelector";
+import { useAppDispatch, useAppSelector } from "../../store/rootTypes";
+import {
+  assetAllocationSelector,
+  isLoadingSelector,
+} from "../../store/portfolio/portfolioSelector";
 import { Ionicons } from "@expo/vector-icons";
 import { TextInput } from "react-native";
 import LoadingButton from "../../component/LoadingButton";
+import { portfolioAction } from "../../store/portfolio/portfolioSlice";
+import { currentUidSelector } from "../../store/auth/authSelector";
 
 interface EditBankPortfolioProps {
   editModal: boolean;
@@ -22,7 +34,11 @@ export function EditBankPortfolio({
   editModal,
   setEditModal,
 }: EditBankPortfolioProps) {
+  const dispatch = useAppDispatch();
+  const saveLoading = useAppSelector(isLoadingSelector);
   const assetAllocation = useAppSelector(assetAllocationSelector);
+  const uid = useAppSelector(currentUidSelector);
+
   const [availBanks, setAvailBanks] = useState<string[]>([]);
   const [bankSelected, setBankSelected] = useState<string | null>(null);
 
@@ -31,11 +47,15 @@ export function EditBankPortfolio({
     [key: string]: boolean;
   }>({ dropdownOpen: false });
 
+  const [addNewBank, setAddNewBank] = useState(false);
+  const [newBankName, setNewBankName] = useState("");
+
   const [addingBankAccount, setAddingBankAccount] = useState(false);
   const [newBankAccountName, setNewBankAccountName] = useState("");
   const [newBankAccountAmount, setNewBankAccountAmount] = useState(0);
   const [allAccountKeys, setAllAccountKeys] = useState<string[]>([]);
 
+  //populate avail banks for droplist
   useEffect(() => {
     let availBanksList: string[] = [];
     Object.keys(assetAllocation?.Bank || {}).forEach((bankName) =>
@@ -44,6 +64,7 @@ export function EditBankPortfolio({
     setAvailBanks(availBanksList as string[]);
   }, [assetAllocation?.Bank]);
 
+  //populate initial edit form with current bank accounts
   useEffect(() => {
     if (bankSelected && assetAllocation?.Bank[bankSelected]) {
       const newFormValues: BankEditForm = { Bank: bankSelected };
@@ -54,9 +75,10 @@ export function EditBankPortfolio({
 
       setEditForm(newFormValues);
     }
-    console.log(editForm);
+
   }, [bankSelected, assetAllocation?.Bank]);
 
+  //Get all bank account names
   useEffect(() => {
     if (assetAllocation && bankSelected) {
       const editFormKeys = Object.keys(editForm).filter(
@@ -75,6 +97,26 @@ export function EditBankPortfolio({
       setBankSelections(initialSelections);
     }
   }, [assetAllocation?.Bank]);
+
+  const handleAddNewBank = () => {
+    if (!newBankName || newBankName.trim() === "") {
+      alert("Please enter a bank name");
+      return;
+    }
+
+    if (availBanks.includes(newBankName)) {
+      alert("A bank with this name already exists");
+      return;
+    }
+    setBankSelected(newBankName);
+    setAddNewBank(false);
+    setEditForm({ Bank: newBankName });
+  };
+
+//   useEffect(() => {
+//     console.log("Avail bank", availBanks);
+//     console.log("Edit form", editForm);
+//   }, [availBanks, editForm]);
 
   const handleAddNewBankAccount = () => {
     // Validation
@@ -115,6 +157,27 @@ export function EditBankPortfolio({
       delete updatedForm[key];
       return updatedForm;
     });
+  };
+
+  const handleSave = () => {
+    try {
+      if (uid) {
+        const bankPayload = {
+          ...editForm,
+          uid: uid,
+        };
+        dispatch(portfolioAction.saveBankDetails(bankPayload));
+      } else {
+        alert("Authentication issue, try again");
+      }
+
+      setTimeout(() => {
+        setEditModal(false);
+      }, 500);
+    } catch (error) {
+      console.error("Error saving bank details", error);
+      alert("Failed to save bank data. Please try again.");
+    }
   };
 
   return (
@@ -199,60 +262,177 @@ export function EditBankPortfolio({
                         },
                       ]}
                     >
-                      {availBanks.length > 0 ? (
-                        availBanks.map((bank) => (
-                          <TouchableOpacity
-                            key={bank}
-                            onPress={() => {
-                              setBankSelected(bank);
-                              setBankSelections((prev) => ({
-                                ...prev,
-                                dropdownOpen: false,
-                              }));
-                            }}
-                            style={[
-                              styles.dropdownItem,
-                              bankSelected === bank &&
-                                styles.dropdownItemSelected,
-                            ]}
-                          >
-                            <View
-                              style={{
-                                flexDirection: "row",
-                                alignItems: "center",
+                      {addNewBank ? (
+                        <View style={styles.newItemForm}>
+                          <TextInput
+                            style={styles.formInput}
+                            placeholder="Enter Bank Name"
+                            value={newBankName}
+                            onChangeText={setNewBankName}
+                          />
+
+                          <View style={styles.buttonRow}>
+                            <TouchableOpacity
+                              style={[
+                                styles.actionButton,
+                                { backgroundColor: "#28a745" },
+                              ]}
+                              onPress={() => handleAddNewBank()}
+                            >
+                              <Ionicons
+                                name="checkmark"
+                                size={18}
+                                color="#fff"
+                              />
+                            </TouchableOpacity>
+
+                            <TouchableOpacity
+                              style={[
+                                styles.actionButton,
+                                { backgroundColor: "#b0aca5" },
+                              ]}
+                              onPress={() => {
+                                setNewBankName("");
+                                setAddNewBank(false);
                               }}
                             >
-                              <View
+                              <Ionicons name="close" size={18} color="#fff" />
+                            </TouchableOpacity>
+                          </View>
+                        </View>
+                      ) : (
+                        <>
+                          {availBanks.length > 0 ? (
+                            <>
+                              {availBanks.map((bank) => (
+                                <TouchableOpacity
+                                  key={bank}
+                                  onPress={() => {
+                                    setBankSelected(bank);
+                                    setBankSelections((prev) => ({
+                                      ...prev,
+                                      dropdownOpen: false,
+                                    }));
+                                  }}
+                                  style={[
+                                    styles.dropdownItem,
+                                    bankSelected === bank &&
+                                      styles.dropdownItemSelected,
+                                  ]}
+                                >
+                                  <View
+                                    style={{
+                                      flexDirection: "row",
+                                      alignItems: "center",
+                                    }}
+                                  >
+                                    <View
+                                      style={[
+                                        styles.platformIcon,
+                                        {
+                                          backgroundColor: PORTFOLIO_COLORS[0],
+                                          width: 24,
+                                          height: 24,
+                                          marginRight: 10,
+                                        },
+                                      ]}
+                                    >
+                                      <Text style={styles.platformIconText}>
+                                        {bank.charAt(0)}
+                                      </Text>
+                                    </View>
+                                    <Text
+                                      style={[
+                                        styles.dropdownItemText,
+                                        bankSelected === bank &&
+                                          styles.dropdownItemTextSelected,
+                                      ]}
+                                    >
+                                      {bank}
+                                    </Text>
+                                  </View>
+                                </TouchableOpacity>
+                              ))}
+
+                              <TouchableOpacity
                                 style={[
-                                  styles.platformIcon,
+                                  styles.dropdownItem,
                                   {
-                                    backgroundColor: PORTFOLIO_COLORS[0],
-                                    width: 24,
-                                    height: 24,
-                                    marginRight: 10,
+                                    borderTopWidth: 1,
+                                    borderTopColor: "#e0e5eb",
                                   },
                                 ]}
+                                onPress={() => setAddNewBank(true)}
                               >
-                                <Text style={styles.platformIconText}>
-                                  {bank.charAt(0)}
-                                </Text>
-                              </View>
-                              <Text
-                                style={[
-                                  styles.dropdownItemText,
-                                  bankSelected === bank &&
-                                    styles.dropdownItemTextSelected,
-                                ]}
-                              >
-                                {bank}
+                                <View
+                                  style={{
+                                    flexDirection: "row",
+                                    alignItems: "center",
+                                  }}
+                                >
+                                  <View
+                                    style={[
+                                      styles.platformIcon,
+                                      {
+                                        backgroundColor: "#4A6FA5",
+                                        width: 24,
+                                        height: 24,
+                                        marginRight: 10,
+                                      },
+                                    ]}
+                                  >
+                                    <Ionicons
+                                      name="add"
+                                      size={16}
+                                      color="#fff"
+                                    />
+                                  </View>
+                                  <Text style={styles.dropdownItemText}>
+                                    Add New Bank
+                                  </Text>
+                                </View>
+                              </TouchableOpacity>
+                            </>
+                          ) : (
+                            <>
+                              <Text style={{ color: "#888" }}>
+                                No banks available
                               </Text>
-                            </View>
-                          </TouchableOpacity>
-                        ))
-                      ) : (
-                        <Text style={{ color: "#888" }}>
-                          No banks available
-                        </Text>
+                              <TouchableOpacity
+                                style={[
+                                  styles.dropdownItem,
+                                  {
+                                    borderTopWidth: 1,
+                                    borderTopColor: "#e0e5eb",
+                                  },
+                                ]}
+                                onPress={() => setAddNewBank(true)}
+                              >
+                                <View
+                                  style={{
+                                    flexDirection: "row",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                  }}
+                                >
+                                  <Ionicons
+                                    name="add-circle"
+                                    size={20}
+                                    color="#4A6FA5"
+                                  />
+                                  <Text
+                                    style={[
+                                      styles.dropdownItemText,
+                                      { marginLeft: 8 },
+                                    ]}
+                                  >
+                                    Add New Bank
+                                  </Text>
+                                </View>
+                              </TouchableOpacity>
+                            </>
+                          )}
+                        </>
                       )}
                     </View>
                   )}
@@ -313,7 +493,7 @@ export function EditBankPortfolio({
                                   {accountLabel}
                                 </Text>
                               </View>
-                              
+
                               <TouchableOpacity
                                 style={styles.deleteAccountButton}
                                 onPress={() => handleDeleteAccount(key)}
@@ -437,8 +617,8 @@ export function EditBankPortfolio({
             <View style={styles.formActions}>
               <LoadingButton
                 title="Save"
-                onPress={() => {}}
-                isLoading={false}
+                onPress={() => handleSave()}
+                isLoading={saveLoading ?? false}
                 color="#4A6FA5"
               />
               <View style={{ height: 15 }} />
