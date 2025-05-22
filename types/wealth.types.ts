@@ -390,7 +390,11 @@ dropdownMenu: {
   shadowOpacity: 0.1,
   shadowRadius: 4,
   elevation: 3,
-  maxHeight: 200,
+  maxHeight: 220, // This remains the total height for the dropdown
+  // --- Add these two lines ---
+  display: 'flex',
+  flexDirection: 'column',
+  // ---------------------------
 },
 dropdownItem: {
   paddingVertical: 12,
@@ -571,5 +575,66 @@ deleteAccountButton: {
   padding: 4,
   marginLeft: 8,
   borderRadius: 12,
+},
+dropdownScrollView: {
+  maxHeight: 180, // Adjusted: Reduced to allow space for the "Add New Bank" button
+  flexGrow:0,
+                  // (e.g., if button is ~40-50px, 200 - 50 = 150)
+  // flexShrink: 1, // Optional: consider adding if using flex layout for dropdownMenu's children
+},
+bankModalContainer: {
+  flex: 1,
+  justifyContent: 'flex-end',
+  backgroundColor: 'rgba(0, 0, 0, 0.5)',
+},
+bankModalContent: {
+  backgroundColor: '#fff',
+  borderTopLeftRadius: 20,
+  borderTopRightRadius: 20,
+  paddingBottom: 20,
+  maxHeight: '70%',
+},
+bankModalHeader: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  padding: 16,
+  borderBottomWidth: 1,
+  borderBottomColor: '#eaeef2',
+},
+bankModalTitle: {
+  fontSize: 18,
+  fontWeight: '600',
+  color: '#333',
+},
+bankModalCloseButton: {
+  padding: 4,
+},
+bankModalList: {
+  maxHeight: '80%',
+},
+bankModalItem: {
+  paddingVertical: 16,
+  paddingHorizontal: 20,
+  borderBottomWidth: 1,
+  borderBottomColor: '#f0f0f0',
+},
+bankModalItemSelected: {
+  backgroundColor: '#f0f5ff',
+},
+bankModalItemText: {
+  fontSize: 16,
+  color: '#333',
+},
+addNewBankButton: {
+  padding: 16,
+  borderTopWidth: 1,
+  borderTopColor: '#eaeef2',
+  backgroundColor: '#f9fafc',
+},
+addNewBankText: {
+  fontSize: 16,
+  color: '#4A6FA5',
+  fontWeight: '500',
 },
 });

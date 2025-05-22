@@ -21,6 +21,7 @@ export function* loadWealthProfileWorker(actions : PayloadAction<string>) {
 
 export function* saveNewBankDetailsWorker(actions : PayloadAction<BankEditForm>) {
     try {
+        console.log("saga", actions.payload);
         const bankDetail = actions.payload;
         const uid = bankDetail['uid'] as string;
         if (!uid) {
@@ -39,13 +40,14 @@ export function* saveNewBankDetailsWorker(actions : PayloadAction<BankEditForm>)
         if (!updatedAllocations.Bank) {
             updatedAllocations.Bank = {};
         }
-        
-        if (!updatedAllocations.Bank[bankName]) {
-            updatedAllocations.Bank[bankName] = {};
-        }
+        updatedAllocations.Bank[bankName] = {};
+    
         Object.keys(bankDetail).forEach((key) => {
             updatedAllocations.Bank[bankName][key] = Number(bankDetail[key]);
         });
+
+
+        console.log("saga updated", updatedAllocations);
         
         yield call(saveAssetAllocations, updatedAllocations);
 
@@ -71,8 +73,58 @@ export function* saveNewBankDetailsWorker(actions : PayloadAction<BankEditForm>)
     }
 }
 
+export function* deleteBankWorker(actions : PayloadAction<BankEditForm>) {
+    try {
+        const bankDetail = actions.payload;
+        const uid = bankDetail['uid'] as string;
+        if (!uid) {
+            throw new Error("User ID is missing");
+        }
+
+        const currentAssetAllocations: AssetAllocations = yield call(getAssetAllocations, uid);
+        if (!currentAssetAllocations) {
+            throw new Error("Failed to retrieve current asset allocations");
+        }
+        const updatedAllocations = {...currentAssetAllocations};
+        const bankName = bankDetail['Bank'] as string;
+
+        delete bankDetail['Bank']
+        delete bankDetail["uid"]
+        if (!updatedAllocations.Bank) {
+            updatedAllocations.Bank = {};
+        }
+
+        delete updatedAllocations.Bank[bankName];
+        
+        yield call(saveAssetAllocations, updatedAllocations);
+
+        const netWorthSummary: NetWorthSummary = yield call(getNetWorthSummary, uid);
+        if (netWorthSummary) {
+        const newTotal = calculateCategoryTotalRecursively(updatedAllocations);
+        netWorthSummary.Total = newTotal;
+        
+        const today = getCurrentDateString();
+        netWorthSummary.LastUpdated = today;
+        netWorthSummary.History[today] = newTotal;
+
+        yield call(saveNetWorthSummary, netWorthSummary);
+        yield put(portfolioAction.saveBankDetailsSuccess(bankDetail));
+
+        //load everything for ui
+        yield put(portfolioAction.loadWealthProfile(uid));
+    }
+    } catch (error) {
+        console.log("Error deleting bank in saga", error);
+        const errorMessage = (error instanceof Error) ? error.message : String(error);
+        yield put(portfolioAction.saveBankDetailsFail(errorMessage));
+    }
+}
+
+
+
 
 export function* portfolioWatcher() {
     yield takeEvery(portfolioAction.loadWealthProfile, loadWealthProfileWorker);
-    yield takeEvery(portfolioAction.saveBankDetails, saveNewBankDetailsWorker)
+    yield takeEvery(portfolioAction.saveBankDetails, saveNewBankDetailsWorker);
+    yield takeEvery(portfolioAction.deleteBankDetails, deleteBankWorker);
 }

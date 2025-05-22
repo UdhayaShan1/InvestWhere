@@ -1,9 +1,4 @@
-import {
-  Button,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Button, Text, TouchableOpacity, View } from "react-native";
 import {
   BankItems,
   formatCurrency,
@@ -205,6 +200,7 @@ export function BankPortfolio({
             <EditBankPortfolio
               editModal={editModal}
               setEditModal={setEditModal}
+              setMainBankSelections={setBankSelections}
             ></EditBankPortfolio>
           </View>
         )}

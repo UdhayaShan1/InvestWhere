@@ -14,7 +14,7 @@ export const portfolioSlice = createSlice({
   name: 'portfolio',
   initialState,
   reducers: {
-    loadWealthProfile : (state, actions:PayloadAction<string>) => {
+    loadWealthProfile : (state, _actions:PayloadAction<string>) => {
         state.isLoading = true;
     },
     loadWealthProfileSuccess : (state, actions:PayloadAction<WealthProfile>) => {
@@ -28,16 +28,26 @@ export const portfolioSlice = createSlice({
         state.NetWorth = null;
         state.Allocations = null;
     },
-    saveBankDetails : (state, actions:PayloadAction<BankEditForm>) => {
+    saveBankDetails : (state, _actions:PayloadAction<BankEditForm>) => {
       state.isLoading = true;
     },
-    saveBankDetailsSuccess : (state, actions:PayloadAction<BankEditForm>) => {
+    saveBankDetailsSuccess : (state, _actions:PayloadAction<BankEditForm>) => {
       state.isLoading = false;
     },
     saveBankDetailsFail : (state, actions:PayloadAction<string>) => {
       state.isLoading = false;
       state.error = actions.payload;
     },
+    deleteBankDetails : (state, _actions: PayloadAction<BankEditForm>) => {
+      state.isLoading = true;
+    },
+    deleteBankDetailsSuccess : (state, _actions: PayloadAction<BankEditForm>) => {
+      state.isLoading = false;
+    },
+    deleteBankDetailsFail : (state, actions: PayloadAction<string>) => {
+      state.isLoading = false;
+      state.error = actions.payload;
+    }
     
   }
 })
