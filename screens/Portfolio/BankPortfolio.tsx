@@ -7,7 +7,7 @@ import {
 } from "../../types/wealth.types";
 import { useAppSelector } from "../../store/rootTypes";
 import { assetAllocationSelector } from "../../store/portfolio/portfolioSelector";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   calculateCategoryTotalRecursively,
   calculatePercentage,
@@ -41,6 +41,10 @@ export function BankPortfolio({
   const [bankSelections, setBankSelections] = useState<{
     [key: string]: boolean;
   }>({ dropdownOpen: false });
+
+  useEffect(() => {
+    console.log("hihi", assetAllocation);
+  }, [bankSelections]);
 
   const renderBankDetails = (bank: BankItems) => {
     if (!bank) {
@@ -118,7 +122,7 @@ export function BankPortfolio({
   const renderBank = () => {
     const expanded = expandedSections["Bank"];
     const percentage = calculatePercentage(bankTotal, totalNetWorth);
-    if (!assetAllocation?.Bank || bankTotal === 0) {
+    if (!assetAllocation?.Bank) {
       return null;
     }
 

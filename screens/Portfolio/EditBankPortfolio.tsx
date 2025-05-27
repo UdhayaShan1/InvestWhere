@@ -64,7 +64,6 @@ export function EditBankPortfolio({
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [lastSavedBank, setLastSavedBank] = useState("");
 
-  // Add this new state for the bank selection modal
   const [bankModalVisible, setBankModalVisible] = useState(false);
 
   useEffect(() => {
@@ -297,7 +296,6 @@ export function EditBankPortfolio({
               </View>
             </View>
 
-            {/* Bank Selection Modal */}
             <Modal
               visible={bankModalVisible}
               transparent={true}
@@ -319,11 +317,14 @@ export function EditBankPortfolio({
                   {addNewBank ? (
                     <View style={styles.newItemForm}>
                       <TextInput
-                        style={styles.formInput}
+                        
                         placeholder="Bank Name"
                         value={newBankName}
                         onChangeText={setNewBankName}
                       />
+
+                      {/* Add space between input and buttons */}
+                      <View style={{ height: 20 }} />
 
                       <View style={styles.buttonRow}>
                         <TouchableOpacity
@@ -337,6 +338,8 @@ export function EditBankPortfolio({
                           }}
                         >
                           <Ionicons name="checkmark" size={18} color="#fff" />
+
+                          <Text style={styles.actionButtonText}>Add</Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity
@@ -350,6 +353,8 @@ export function EditBankPortfolio({
                           }}
                         >
                           <Ionicons name="close" size={18} color="#fff" />
+
+                          <Text style={styles.actionButtonText}>Cancel</Text>
                         </TouchableOpacity>
                       </View>
                     </View>
@@ -630,14 +635,30 @@ export function EditBankPortfolio({
               <View style={{ height: 15 }} />
               <View style={styles.buttonRow}>
                 <TouchableOpacity
-                  style={[styles.actionButton, styles.deleteButton]}
+                  style={[
+                    styles.actionButton,
+                    styles.deleteButton,
+                    !bankSelected && { backgroundColor: "#ccc" },
+                  ]}
                   onPress={() => setConfirmDelete(true)}
+                  disabled={!bankSelected}
                 >
                   <Ionicons name="trash-outline" size={18} color="#fff" />
-                  <Text style={styles.actionButtonText}>Delete</Text>
+                  <Text
+                    style={[
+                      styles.actionButtonText,
+                      !bankSelected && { color: "#888" },
+                    ]}
+                  >
+                    Delete
+                  </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  style={[styles.actionButton, styles.cancelButton]}
+                  style={[
+                    styles.actionButton,
+                    styles.cancelButton,
+                    { backgroundColor: "#D5451B" },
+                  ]}
                   onPress={() => setEditModal(false)}
                 >
                   <Ionicons name="close-outline" size={18} color="#fff" />

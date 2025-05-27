@@ -445,6 +445,7 @@ formInput: {
   height: 46,
   fontSize: 16,
   color: '#333',
+  paddingVertical: 8,
 },
 currentValueContainer: {
   flexDirection: 'row',
@@ -558,7 +559,8 @@ newItemForm: {
   marginBottom: 16,
   backgroundColor: '#f0f4f8',
   borderRadius: 8,
-  padding: 12,
+  padding: 16,  // Increased from 12
+  paddingBottom: 20, // Extra padding at bottom
   borderWidth: 1,
   borderColor: '#e0e5eb',
 },
@@ -637,4 +639,5 @@ addNewBankText: {
   color: '#4A6FA5',
   fontWeight: '500',
 },
+
 });
