@@ -77,6 +77,7 @@ export interface SyfeInterface {
   };
   cashManagement?: {
     cashPlusFlexi?: number;
+    cashPlusGuranteed?: number;
   };
 }
 
@@ -106,6 +107,7 @@ export const defaultSyfe: SyfeInterface = {
     },
     cashManagement: {
         cashPlusFlexi: 0,
+        cashPlusGuranteed : 0,
     }
 };
 

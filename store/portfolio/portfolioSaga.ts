@@ -11,6 +11,7 @@ export function* loadWealthProfileWorker(actions : PayloadAction<string>) {
         const uid = actions.payload;
         const netWorthSummary : NetWorthSummary = yield call(getNetWorthSummary, uid);
         const assetSummary : AssetAllocations = yield call(getAssetAllocations, uid);
+        console.log("test", assetSummary, assetSummary.Robos.Syfe.cashManagement);
         yield put(portfolioAction.loadWealthProfileSuccess({NetWorth : netWorthSummary, Allocations : assetSummary}));
     } catch (error) {
         console.log("Error loading wealth profile in saga");

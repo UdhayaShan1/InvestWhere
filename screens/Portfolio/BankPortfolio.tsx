@@ -53,44 +53,6 @@ export function BankPortfolio({
 
     return (
       <View style={styles.bankDetailsContainer}>
-        {bank.savings !== undefined && (
-          <View style={styles.assetItem}>
-            <View style={styles.assetInfoRow}>
-              <View
-                style={[
-                  styles.accountTypeIndicator,
-                  { backgroundColor: "#4A90E2" },
-                ]}
-              />
-              <View>
-                <Text style={styles.assetName}>Savings Account</Text>
-              </View>
-            </View>
-            <Text style={styles.assetValue}>
-              {formatCurrency(bank.savings)}
-            </Text>
-          </View>
-        )}
-
-        {bank.fixed_deposit !== undefined && (
-          <View style={styles.assetItem}>
-            <View style={styles.assetInfoRow}>
-              <View
-                style={[
-                  styles.accountTypeIndicator,
-                  { backgroundColor: "#F5A623" },
-                ]}
-              />
-              <View>
-                <Text style={styles.assetName}>Fixed Deposit</Text>
-              </View>
-            </View>
-            <Text style={styles.assetValue}>
-              {formatCurrency(bank.fixed_deposit)}
-            </Text>
-          </View>
-        )}
-
         {Object.keys(bank).map((key) => {
           const standardBankKeys = ["savings", "fixed_deposit"];
           if (standardBankKeys.includes(key) || bank[key] === undefined) {

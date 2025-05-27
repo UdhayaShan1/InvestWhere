@@ -1,4 +1,4 @@
-import { Text, TouchableOpacity, View } from "react-native";
+import { Button, Text, TouchableOpacity, View } from "react-native";
 import {
   AssetAllocations,
   formatCurrency,
@@ -12,7 +12,8 @@ import {
   toggleSection,
 } from "../../constants/helper";
 import { Ionicons } from "@expo/vector-icons";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { EditSyfePortfolio } from "./EditSyfePortfolio";
 
 interface RoboPortfolioProps {
   expandedSections: { [key: string]: boolean };
@@ -44,12 +45,22 @@ export function RoboPortfolio({
     assetAllocation.Robos.Syfe
   );
 
+  const [editModal, setEditModal] = useState(false);
+
+  useEffect(() => {
+    console.log(
+      "FUCK",
+      assetAllocation,
+      assetAllocation.Robos.Syfe.cashManagement
+    );
+  }, [assetAllocation]);
+
   const renderSyfeDetails = (syfe: SyfeInterface) => {
     if (!syfe) return null;
 
     return (
       <>
-        {syfe.core && Object.keys(syfe.core).length > 0 && (
+        {syfe.core && calculateCategoryTotalRecursively(syfe.core) > 0 && (
           <View style={styles.syfeGroup}>
             <Text style={styles.syfeGroupTitle}>Core</Text>
             {typeof syfe.core.equity100 === "number" &&
@@ -70,11 +81,63 @@ export function RoboPortfolio({
                 </Text>
               </View>
             )}
+
+            {typeof syfe.core.balanced === "number" &&
+              syfe.core.balanced > 0 && (
+                <View style={styles.assetItem}>
+                  <Text style={styles.assetName}>Balanced</Text>
+                  <Text style={styles.assetValue}>
+                    {formatCurrency(syfe.core.balanced)}
+                  </Text>
+                </View>
+              )}
+
+            {typeof syfe.core.defensive === "number" &&
+              syfe.core.defensive > 0 && (
+                <View style={styles.assetItem}>
+                  <Text style={styles.assetName}>Defensive</Text>
+                  <Text style={styles.assetValue}>
+                    {formatCurrency(syfe.core.defensive)}
+                  </Text>
+                </View>
+              )}
           </View>
         )}
 
+        {syfe.cashManagement &&
+          calculateCategoryTotalRecursively(syfe.cashManagement) > 0 && (
+            <View style={styles.syfeGroup}>
+              <Text style={styles.syfeGroupTitle}>Cash Management</Text>
+              {typeof syfe.cashManagement.cashPlusFlexi === "number" &&
+                syfe.cashManagement.cashPlusFlexi > 0 && (
+                  <View style={styles.assetItem}>
+                    <Text style={styles.assetName}>Cash+ Flexi</Text>
+                    <Text style={styles.assetValue}>
+                      {formatCurrency(syfe.cashManagement.cashPlusFlexi)}
+                    </Text>
+                  </View>
+                )}
+
+              {typeof syfe.cashManagement.cashPlusGuranteed === "number" &&
+                syfe.cashManagement.cashPlusGuranteed > 0 && (
+                  <View style={styles.assetItem}>
+                    <Text style={styles.assetName}>Cash+ Guaranteed</Text>
+                    <Text style={styles.assetValue}>
+                      {formatCurrency(syfe.cashManagement.cashPlusGuranteed)}
+                    </Text>
+                  </View>
+                )}
+            </View>
+          )}
+
         {/* Similar blocks for incomePlus, thematic, downsideProtected, cashManagement */}
         {/* (Abbreviated for space - include all Syfe portfolio types here) */}
+        <Button
+          color="green"
+          title="Edit"
+          onPress={() => setEditModal(true)}
+        ></Button>
+        <EditSyfePortfolio editModal={editModal} setEditModal={setEditModal} syfeAllocation={syfe} />
       </>
     );
   };
@@ -111,10 +174,8 @@ export function RoboPortfolio({
           />
         </TouchableOpacity>
 
-        {/* Expanded view shows robo platform details */}
         {expanded && (
           <View style={styles.categoryDetails}>
-            {/* Syfe Platform Row */}
             <View style={styles.platformContainer}>
               <TouchableOpacity
                 style={styles.platformHeader}
@@ -146,7 +207,6 @@ export function RoboPortfolio({
                 </View>
               </TouchableOpacity>
 
-              {/* Expanded Syfe Details */}
               {roboSelections["Syfe"] && (
                 <View style={styles.nestedDetails}>
                   {renderSyfeDetails(assetAllocation.Robos.Syfe)}
