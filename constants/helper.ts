@@ -12,6 +12,20 @@ export function calculateCategoryTotalRecursively(obj: any): number {
   return sum;
 }
 
+export function calculateSpecificCategoryTotalRecursively(obj: any, find : string, parent : string): number {
+  if (typeof obj === 'number' && !isNaN(obj) && parent === find) {
+    return obj;
+  }
+  if (!isJsonObject(obj)) {
+    return 0;
+  }
+  let found = 0;
+  for (const key in obj) {
+    found = Math.max(calculateSpecificCategoryTotalRecursively(obj[key], find, key), found);
+  }
+  return found;
+}
+
 export const calculatePercentage = (value: number, total: number) => {
     if (total === 0) return 0;
     return (value / total) * 100;

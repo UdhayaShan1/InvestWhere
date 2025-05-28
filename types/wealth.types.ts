@@ -115,6 +115,12 @@ export const defaultSyfe: SyfeInterface = {
 export interface BankEditForm {
   [key: string]: number | string;
 }
+
+export interface SyfeSaveRequest {
+  uid : string,
+  syfeAllocation : SyfeInterface
+}
+
 export function defaultAssetAllocations(uid: string): AssetAllocations {
     return {
         uid,

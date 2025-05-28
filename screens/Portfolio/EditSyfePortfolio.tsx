@@ -5,13 +5,20 @@ import {
   PORTFOLIO_COLORS,
   portFolioStyles as styles,
   SyfeInterface,
+  SyfeSaveRequest,
 } from "../../types/wealth.types";
 import { styles as portfolioStyles } from "../Profile/styles";
 import { Ionicons } from "@expo/vector-icons";
 import LoadingButton from "../../component/LoadingButton";
-import { calculateCategoryTotalRecursively } from "../../constants/helper";
+import {
+  calculateCategoryTotalRecursively,
+  calculateSpecificCategoryTotalRecursively,
+} from "../../constants/helper";
 import { TextInput } from "react-native";
 import { useEffect, useState } from "react";
+import { useAppDispatch, useAppSelector } from "../../store/rootTypes";
+import { portfolioAction } from "../../store/portfolio/portfolioSlice";
+import { currentUidSelector } from "../../store/auth/authSelector";
 
 interface EditSyfePortfolioProps {
   editModal: boolean;
@@ -24,19 +31,19 @@ export function EditSyfePortfolio({
   setEditModal,
   syfeAllocation,
 }: EditSyfePortfolioProps) {
+  const dispatch = useAppDispatch();
   const [editForm, setEditForm] = useState<SyfeInterface>(syfeAllocation);
-  const [componentSelected, setComponentSelected] = useState("");
+  const [componentSelected, setComponentSelected] = useState<string>("");
   const [componentModalVisible, setComponentModalVisible] = useState(false);
+  const uid = useAppSelector(currentUidSelector);
 
   // Add missing state variables
   const [availComponents, setAvailComponents] = useState<string[]>(
     "Core, Cash Management, Income Plus, Thematic".split(", ")
   );
-  const [bankSelected, setBankSelected] = useState<string | null>(null);
-  const [bankModalVisible, setBankModalVisible] = useState(false);
 
   useEffect(() => {
-    console.log(editForm.core, "@@@");
+    console.log(editForm, "@@@");
   }, [editForm]);
 
   useEffect(() => {
@@ -45,128 +52,117 @@ export function EditSyfePortfolio({
     }
     console.log(editModal, "##");
   }, [editModal]);
-  const renderSyfeEditDetails = (syfe: SyfeInterface) => {
-    if (!syfe) return null;
+
+
+  const handleSave = () => {
+    const saveRequest : SyfeSaveRequest = {uid : uid ?? "", syfeAllocation : editForm};
+    console.log("Saving", saveRequest)
+
+    dispatch(portfolioAction.saveSyfePortfolio(saveRequest));
+
+    setTimeout(() => {setEditModal(false)}, 500);
+  }
+
+  const renderSyfeEditDetails = () => {
+    if (!componentSelected) {
+      return null;
+    }
+    const firstComponent = (
+      <Text style={styles.selectedBankTitle}>
+        <Ionicons
+          name="briefcase-outline"
+          size={18}
+          color="#4A6FA5"
+          style={{ marginRight: 6 }}
+        />
+        {componentSelected}
+      </Text>
+    );
+    let accountKeys: { portfolio: string; accountKeys: string[] } = {
+      portfolio: "",
+      accountKeys: [],
+    };
+    if (componentSelected === "Core") {
+      accountKeys = {
+        portfolio: "core",
+        accountKeys: ["equity100", "growth", "balanced", "defensive"],
+      };
+    } else if (componentSelected === "Cash Management") {
+      accountKeys = {
+        portfolio: "cashManagement",
+        accountKeys: ["cashPlusFlexi", "cashPlusGuranteed"],
+      };
+    }
+    const secondComponent =
+      accountKeys.accountKeys.length > 0 &&
+      accountKeys.accountKeys.map((key) => (
+        <View key={key} style={styles.inputContainer}>
+          <View style={styles.accountHeader}>
+            <View style={styles.labelContainer}>
+              <View
+                style={[
+                  styles.accountIndicator,
+                  { backgroundColor: PORTFOLIO_COLORS[0] },
+                ]}
+              />
+              <Text style={styles.inputLabel}>{key}</Text>
+            </View>
+          </View>
+
+          <View style={styles.inputWrapper}>
+            <Text style={styles.currencySymbol}>S$</Text>
+            <TextInput
+              style={styles.formInput}
+              placeholderTextColor="#999"
+              placeholder={(() => {
+                const portfolioKey =
+                  accountKeys.portfolio as keyof SyfeInterface;
+                const portfolioAllocation = syfeAllocation[portfolioKey];
+                const value =
+                  portfolioAllocation?.[
+                    key as keyof typeof portfolioAllocation
+                  ];
+                return formatCurrency(value !== undefined ? value : 0)
+                                  .replace("SGD", "")
+                                  .trim()
+              })()}
+              value={(() => {
+                const portfolioKey =
+                  accountKeys.portfolio as keyof typeof editForm;
+                const portfolioAllocation = editForm[portfolioKey] || {};
+                const value =
+                  portfolioAllocation[key as keyof typeof portfolioAllocation];
+                return value !== undefined ? String(value) : "";
+              })()}
+              keyboardType="numeric"
+              onChangeText={(text) => {
+                setEditForm((prev) => {
+                  const portfolioKey =
+                    accountKeys.portfolio as keyof typeof prev;
+                  let newValue = text ? Number(text) : undefined;
+                  if (!text) {
+                    newValue = 0;
+                  }
+                  return {
+                    ...prev,
+                    [portfolioKey]: {
+                      ...((prev[portfolioKey] as object) || {}),
+                      [key]: newValue,
+                    },
+                  };
+                });
+              }}
+            />
+          </View>
+        </View>
+      ));
 
     return (
       <>
-        {syfe.core && calculateCategoryTotalRecursively(syfe.core) > 0 && (
-          <View style={styles.syfeGroup}>
-            <Text style={styles.syfeGroupTitle}>Core</Text>
-            {typeof syfe.core.equity100 === "number" &&
-              syfe.core.equity100 > 0 && (
-                <View style={styles.formContainer}>
-                  <View style={styles.inputContainer}>
-                    <View style={styles.accountHeader}>
-                      <View style={styles.labelContainer}>
-                        <View style={[styles.accountIndicator]} />
-                        <Text style={styles.inputLabel}>Test</Text>
-                      </View>
-                    </View>
-                  </View>
-
-                  <View style={styles.assetItem}>
-                    <Text style={styles.assetName}>Equity100</Text>
-                    <TextInput
-                      value={
-                        editForm.core?.equity100 !== undefined
-                          ? String(editForm.core.equity100)
-                          : ""
-                      }
-                      placeholder="Enter Amount"
-                      keyboardType="numeric"
-                      onChangeText={(text) => {
-                        const value = text === "" ? 0 : Number(text);
-                        setEditForm((prev) => ({
-                          ...prev,
-                          core: {
-                            ...prev.core,
-                            equity100: isNaN(value) ? 0 : value,
-                          },
-                        }));
-                      }}
-                    />
-                  </View>
-                </View>
-              )}
-            {typeof syfe.core.growth === "number" && syfe.core.growth > 0 && (
-              <View style={styles.assetItem}>
-                <Text style={styles.assetName}>Growth</Text>
-                <TextInput
-                  value={
-                    editForm.core?.growth !== undefined
-                      ? String(editForm.core.growth)
-                      : ""
-                  }
-                  placeholder="Enter Amount"
-                  keyboardType="numeric"
-                  onChangeText={(text) => {
-                    const value = text === "" ? 0 : Number(text);
-                    setEditForm((prev) => ({
-                      ...prev,
-                      core: {
-                        ...prev.core,
-                        growth: isNaN(value) ? 0 : value,
-                      },
-                    }));
-                  }}
-                />
-              </View>
-            )}
-
-            {typeof syfe.core.balanced === "number" &&
-              syfe.core.balanced > 0 && (
-                <View style={styles.assetItem}>
-                  <Text style={styles.assetName}>Balanced</Text>
-                  <TextInput
-                    value={
-                      editForm.core?.balanced !== undefined
-                        ? String(editForm.core.balanced)
-                        : ""
-                    }
-                    placeholder="Enter Amount"
-                    keyboardType="numeric"
-                    onChangeText={(text) => {
-                      const value = text === "" ? 0 : Number(text);
-                      setEditForm((prev) => ({
-                        ...prev,
-                        core: {
-                          ...prev.core,
-                          balanced: isNaN(value) ? 0 : value,
-                        },
-                      }));
-                    }}
-                  />
-                </View>
-              )}
-
-            {typeof syfe.core.defensive === "number" &&
-              syfe.core.defensive > 0 && (
-                <View style={styles.assetItem}>
-                  <Text style={styles.assetName}>Defensive</Text>
-                  <TextInput
-                    value={
-                      editForm.core?.defensive !== undefined
-                        ? String(editForm.core.defensive)
-                        : ""
-                    }
-                    placeholder="Enter Amount"
-                    keyboardType="numeric"
-                    onChangeText={(text) => {
-                      const value = text === "" ? 0 : Number(text);
-                      setEditForm((prev) => ({
-                        ...prev,
-                        core: {
-                          ...prev.core,
-                          defensive: isNaN(value) ? 0 : value,
-                        },
-                      }));
-                    }}
-                  />
-                </View>
-              )}
-          </View>
-        )}
+        <View style={styles.formContainer}>
+          {firstComponent}
+          {secondComponent}
+        </View>
       </>
     );
   };
@@ -305,12 +301,12 @@ export function EditSyfePortfolio({
               </View>
             </Modal>
 
-            {renderSyfeEditDetails(syfeAllocation)}
+            {renderSyfeEditDetails()}
 
             <View style={styles.formActions}>
               <LoadingButton
                 title="Save"
-                onPress={() => true}
+                onPress={() => handleSave()}
                 isLoading={false}
                 color="#4A6FA5"
               />
@@ -321,7 +317,7 @@ export function EditSyfePortfolio({
                   styles.cancelButton,
                   { backgroundColor: "#D5451B" },
                 ]}
-                onPress={() => setEditModal(false)}
+                onPress={() => {setEditModal(false)}}
               >
                 <Ionicons name="close-outline" size={18} color="#fff" />
                 <Text style={styles.actionButtonText}>Cancel</Text>

@@ -1,7 +1,7 @@
 import { PayloadAction } from "@reduxjs/toolkit";
 import { call, put, takeEvery } from "redux-saga/effects";
 import { portfolioAction } from "./portfolioSlice";
-import { AssetAllocations, BankEditForm, NetWorthSummary } from "../../types/wealth.types";
+import { AssetAllocations, BankEditForm, NetWorthSummary, SyfeInterface, SyfeSaveRequest } from "../../types/wealth.types";
 import { getAssetAllocations, getNetWorthSummary, saveAssetAllocations, saveNetWorthSummary } from "../../firebase/services/portfolioService";
 import { calculateCategoryTotalRecursively } from "../../constants/helper";
 import { getCurrentDateString } from "../../constants/date_helper";
@@ -121,6 +121,51 @@ export function* deleteBankWorker(actions : PayloadAction<BankEditForm>) {
     }
 }
 
+export function* saveNewSyfePortfolioWorker(actions : PayloadAction<SyfeSaveRequest>) {
+    try {
+        console.log("saga SYFE", actions.payload);
+        const syfeDetail = actions.payload;
+        const uid = syfeDetail['uid'] as string;
+        if (!uid) {
+            throw new Error("User ID is missing");
+        }
+
+        const currentAssetAllocations: AssetAllocations = yield call(getAssetAllocations, uid);
+        if (!currentAssetAllocations) {
+            throw new Error("Failed to retrieve current asset allocations");
+        }
+        const updatedAllocations = {...currentAssetAllocations};
+        const syfeAllocation : SyfeInterface = syfeDetail.syfeAllocation;
+
+        if (!updatedAllocations.Robos) {
+            updatedAllocations.Robos = { Syfe: {} };
+        }
+
+        updatedAllocations.Robos.Syfe = syfeAllocation;
+        console.log("saga updated", updatedAllocations);
+        
+        yield call(saveAssetAllocations, updatedAllocations);
+
+        const netWorthSummary: NetWorthSummary = yield call(getNetWorthSummary, uid);
+        if (netWorthSummary) {
+        const newTotal = calculateCategoryTotalRecursively(updatedAllocations);
+        netWorthSummary.Total = newTotal;
+        
+        const today = getCurrentDateString();
+        netWorthSummary.LastUpdated = today;
+        netWorthSummary.History[today] = newTotal;
+
+        yield call(saveNetWorthSummary, netWorthSummary);
+        yield put(portfolioAction.saveSyfePortfolioSuccess());
+        //load everything for ui
+        yield put(portfolioAction.loadWealthProfile(uid));
+    }
+    } catch (error) {
+        console.log("Error saving bank details in saga", error);
+        const errorMessage = (error instanceof Error) ? error.message : String(error);
+        yield put(portfolioAction.saveBankDetailsFail(errorMessage));
+    }
+}
 
 
 
@@ -128,4 +173,5 @@ export function* portfolioWatcher() {
     yield takeEvery(portfolioAction.loadWealthProfile, loadWealthProfileWorker);
     yield takeEvery(portfolioAction.saveBankDetails, saveNewBankDetailsWorker);
     yield takeEvery(portfolioAction.deleteBankDetails, deleteBankWorker);
+    yield takeEvery(portfolioAction.saveSyfePortfolio, saveNewSyfePortfolioWorker);
 }
