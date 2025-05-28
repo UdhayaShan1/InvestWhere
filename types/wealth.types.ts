@@ -50,35 +50,47 @@ export interface CPFItems {
   MA: number;
 }
 
+export function isCustomSyfePortfolio(key : string) {
+  return !SYFE_INTERFACE_KEYS.includes(key as keyof SyfeInterface);
+}
 
+export const SYFE_INTERFACE_KEYS: (keyof SyfeInterface)[] = [
+  "core",
+  "reitPlus",
+  "incomePlus",
+  "thematic",
+  "downsideProtected",
+  "cashManagement"
+];
 export interface SyfeInterface {
-  core?: {
+  core: {
     equity100?: number;
     growth?: number;
     balanced?: number;
     defensive?: number;
   };
-  reitPlus?: {
+  reitPlus: {
     standard?: number;
     withRiskManagement?: number;
   };
-  incomePlus?: {
+  incomePlus: {
     preserve?: number;
     enhance?: number;
   };
-  thematic?: {
+  thematic: {
     chinaGrowth?: number;
     esgCleanEnergy?: number;
     disruptiveTechnology?: number;
     healthcareInnovation?: number;
   };
-  downsideProtected?: {
-    protectedSP500: number;
+  downsideProtected: {
+    protectedSP500?: number;
   };
-  cashManagement?: {
+  cashManagement: {
     cashPlusFlexi?: number;
     cashPlusGuranteed?: number;
   };
+  [key: string]: { [key: string]: number | undefined };
 }
 
 export const defaultSyfe: SyfeInterface = { 

@@ -2,6 +2,7 @@ import { Modal, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import {
   BankEditForm,
   formatCurrency,
+  isCustomSyfePortfolio,
   PORTFOLIO_COLORS,
   portFolioStyles as styles,
   SyfeInterface,
@@ -39,17 +40,39 @@ export function EditSyfePortfolio({
   const [editForm, setEditForm] = useState<SyfeInterface>(syfeAllocation);
   const [componentSelected, setComponentSelected] = useState<string>("");
   const [componentModalVisible, setComponentModalVisible] = useState(false);
+  const [addNewPortfolio, setAddNewPortfolio] = useState<boolean>(false);
+  const [newPortfolioName, setNewPortfolioName] = useState("");
   const uid = useAppSelector(currentUidSelector);
 
-  const [availComponents, setAvailComponents] = useState<string[]>(
-    "Core, Cash Management, Income Plus, Thematic, REIT+, Downside Protection".split(
-      ", "
-    )
-  );
+  const [availComponents, setAvailComponents] = useState<string[]>([]);
+  const [availAccounts, setAvailAccounts] = useState<string[]>([]);
+  const [addingCustomAccount, setAddingCustomAccount] =
+    useState<boolean>(false);
+  const [newCustomAccountName, setNewCustomAccountName] = useState<string>("");
+  const [newCustomAccountAmount, setNewCustomAccountAmount] = useState(0);
 
   useEffect(() => {
+    console.log("Check", availComponents);
+  }, [availComponents]);
+
+  useEffect(() => {
+    let newComponents: string[] = [];
+    Object.keys(syfeAllocation).forEach((key) => {
+      newComponents.push(key);
+    });
+    setAvailComponents(newComponents);
+  }, [syfeAllocation]);
+
+  useEffect(() => {
+    let accountKeys: string[] = [];
+    if (componentSelected && editForm[componentSelected]) {
+      Object.keys(editForm[componentSelected]).forEach((key) => {
+        accountKeys.push(key);
+      });
+    }
+    setAvailAccounts(accountKeys);
     console.log(editForm, "@@@");
-  }, [editForm]);
+  }, [editForm, componentSelected]);
 
   useEffect(() => {
     if (editModal) {
@@ -78,6 +101,53 @@ export function EditSyfePortfolio({
     }, 500);
   };
 
+  const handleAddNewPortfolio = () => {
+    console.log("Adding new profile");
+
+    setEditForm((prev) => ({
+      ...prev,
+      [newPortfolioName]: {}, // Initialize empty object for the new portfolio
+    }));
+    setComponentSelected(newPortfolioName);
+    setAvailComponents((prev) => {
+      return [...prev, newPortfolioName];
+    });
+  };
+
+  const handleAddNewAccount = () => {
+    if (!newCustomAccountName || newCustomAccountName.trim() === "") {
+      alert("Please enter an account name");
+      return;
+    }
+
+    if (!newCustomAccountAmount || isNaN(Number(newCustomAccountAmount))) {
+      alert("Please enter a valid amount");
+      return;
+    }
+
+    if (
+      editForm[componentSelected] &&
+      editForm[componentSelected][newCustomAccountName] !== undefined
+    ) {
+      alert("An account with this name already exists");
+      return;
+    }
+
+    setEditForm((prev) => {
+      return {
+        ...prev,
+        [componentSelected]: {
+          ...((prev[componentSelected] as object) || {}),
+          [newCustomAccountName]: newCustomAccountAmount,
+        },
+      };
+    });
+
+    setNewCustomAccountName("");
+    setNewCustomAccountAmount(0);
+    setAddingCustomAccount(false);
+  };
+
   const renderSyfeEditDetails = () => {
     if (!componentSelected) {
       return null;
@@ -94,108 +164,78 @@ export function EditSyfePortfolio({
       </Text>
     );
     let accountKeys: { portfolio: string; accountKeys: string[] } = {
-      portfolio: "",
-      accountKeys: [],
+      portfolio: componentSelected,
+      accountKeys: availAccounts,
     };
-    if (componentSelected === "Core") {
-      accountKeys = {
-        portfolio: "core",
-        accountKeys: ["equity100", "growth", "balanced", "defensive"],
-      };
-    } else if (componentSelected === "Cash Management") {
-      accountKeys = {
-        portfolio: "cashManagement",
-        accountKeys: ["cashPlusFlexi", "cashPlusGuranteed"],
-      };
-    } else if (componentSelected === "REIT+") {
-      accountKeys = {
-        portfolio: "reitPlus",
-        accountKeys: ["standard", "withRiskManagement"],
-      };
-    } else if (componentSelected === "Income Plus") {
-      accountKeys = {
-        portfolio: "incomePlus",
-        accountKeys: ["preserve", "enhance"],
-      };
-    } else if (componentSelected === "Thematic") {
-      accountKeys = {
-        portfolio: "thematic",
-        accountKeys: [
-          "chinaGrowth",
-          "esgCleanEnergy",
-          "disruptiveTechnology",
-          "healthcareInnovation",
-        ],
-      };
-    } else if (componentSelected === "Downside Protection") {
-      accountKeys = {
-        portfolio: "downsideProtected",
-        accountKeys: ["protectedSP500"],
-      };
-    }
+
     const secondComponent =
-      accountKeys.accountKeys.length > 0 &&
-      accountKeys.accountKeys.map((key) => (
-        <View key={key} style={styles.inputContainer}>
-          <View style={styles.accountHeader}>
-            <View style={styles.labelContainer}>
-              <View
-                style={[
-                  styles.accountIndicator,
-                  { backgroundColor: getComponentColor(componentSelected) },
-                ]}
+      accountKeys.accountKeys.length > 0 ? (
+        accountKeys.accountKeys.map((key) => (
+          <View key={key} style={styles.inputContainer}>
+            <View style={styles.accountHeader}>
+              <View style={styles.labelContainer}>
+                <View
+                  style={[
+                    styles.accountIndicator,
+                    { backgroundColor: getComponentColor(componentSelected) },
+                  ]}
+                />
+                <Text style={styles.inputLabel}>{key}</Text>
+              </View>
+            </View>
+
+            <View style={styles.inputWrapper}>
+              <Text style={styles.currencySymbol}>S$</Text>
+              <TextInput
+                style={styles.formInput}
+                placeholderTextColor="#999"
+                placeholder={(() => {
+                  const portfolioKey =
+                    accountKeys.portfolio as keyof SyfeInterface;
+                  const portfolioAllocation = syfeAllocation[portfolioKey];
+                  const value =
+                    portfolioAllocation?.[
+                      key as keyof typeof portfolioAllocation
+                    ];
+                  return formatCurrency(value !== undefined ? value : 0)
+                    .replace("SGD", "")
+                    .trim();
+                })()}
+                value={(() => {
+                  const portfolioKey =
+                    accountKeys.portfolio as keyof typeof editForm;
+                  const portfolioAllocation = editForm[portfolioKey] || {};
+                  const value =
+                    portfolioAllocation[
+                      key as keyof typeof portfolioAllocation
+                    ];
+                  return value !== undefined ? String(value) : "";
+                })()}
+                keyboardType="numeric"
+                onChangeText={(text) => {
+                  setEditForm((prev) => {
+                    const portfolioKey =
+                      accountKeys.portfolio as keyof typeof prev;
+                    let newValue = text ? Number(text) : undefined;
+                    if (!text) {
+                      newValue = 0;
+                    }
+                    return {
+                      ...prev,
+                      [portfolioKey]: {
+                        ...((prev[portfolioKey] as object) || {}),
+                        [key]: newValue,
+                      },
+                    };
+                  });
+                }}
               />
-              <Text style={styles.inputLabel}>{key}</Text>
             </View>
           </View>
-
-          <View style={styles.inputWrapper}>
-            <Text style={styles.currencySymbol}>S$</Text>
-            <TextInput
-              style={styles.formInput}
-              placeholderTextColor="#999"
-              placeholder={(() => {
-                const portfolioKey =
-                  accountKeys.portfolio as keyof SyfeInterface;
-                const portfolioAllocation = syfeAllocation[portfolioKey];
-                const value =
-                  portfolioAllocation?.[
-                    key as keyof typeof portfolioAllocation
-                  ];
-                return formatCurrency(value !== undefined ? value : 0)
-                  .replace("SGD", "")
-                  .trim();
-              })()}
-              value={(() => {
-                const portfolioKey =
-                  accountKeys.portfolio as keyof typeof editForm;
-                const portfolioAllocation = editForm[portfolioKey] || {};
-                const value =
-                  portfolioAllocation[key as keyof typeof portfolioAllocation];
-                return value !== undefined ? String(value) : "";
-              })()}
-              keyboardType="numeric"
-              onChangeText={(text) => {
-                setEditForm((prev) => {
-                  const portfolioKey =
-                    accountKeys.portfolio as keyof typeof prev;
-                  let newValue = text ? Number(text) : undefined;
-                  if (!text) {
-                    newValue = 0;
-                  }
-                  return {
-                    ...prev,
-                    [portfolioKey]: {
-                      ...((prev[portfolioKey] as object) || {}),
-                      [key]: newValue,
-                    },
-                  };
-                });
-              }}
-            />
-          </View>
-        </View>
-      ));
+        ))
+      ) : (
+        <Text>Start by adding accounts!</Text>
+      );
 
     return (
       <>
@@ -203,6 +243,71 @@ export function EditSyfePortfolio({
           {firstComponent}
           {secondComponent}
         </View>
+
+        {isCustomSyfePortfolio(componentSelected) && (
+          <View style={styles.formActions}>
+            {!addingCustomAccount ? (
+              <TouchableOpacity
+                style={styles.addButton}
+                onPress={() => setAddingCustomAccount(true)}
+              >
+                <Ionicons name="add-circle" size={20} color="#4A6FA5" />
+                <Text style={styles.addButtonText}>Add a new account</Text>
+              </TouchableOpacity>
+            ) : (
+              <View style={styles.newItemForm}>
+                <View style={styles.inputWrapper}>
+                  <TextInput
+                    style={styles.formInput}
+                    placeholder="Enter Portfolio Account Name"
+                    value={newCustomAccountName}
+                    onChangeText={setNewCustomAccountName}
+                  />
+                </View>
+                <View style={{ height: 20 }} />
+                <View style={styles.inputWrapper}>
+                  <Text style={styles.currencySymbol}>S$</Text>
+                  <TextInput
+                    style={styles.formInput}
+                    placeholder="Enter Amount"
+                    value={String(newCustomAccountAmount)}
+                    onChangeText={(text) =>
+                      setNewCustomAccountAmount(Number(text))
+                    }
+                    keyboardType="numeric"
+                  />
+                </View>
+                <View style={{ height: 20 }} />
+                <View style={styles.buttonRow}>
+                  <TouchableOpacity
+                    style={[
+                      styles.actionButton,
+                      { backgroundColor: "#28a745" },
+                    ]}
+                    onPress={handleAddNewAccount}
+                  >
+                    <Ionicons name="checkmark" size={18} color="#fff" />
+                    <Text style={styles.actionButtonText}>Add</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[
+                      styles.actionButton,
+                      { backgroundColor: "#b0aca5" },
+                    ]}
+                    onPress={() => {
+                      setNewCustomAccountName("");
+                      setNewCustomAccountAmount(0);
+                      setAddingCustomAccount(false);
+                    }}
+                  >
+                    <Ionicons name="close" size={18} color="#fff" />
+                    <Text style={styles.actionButtonText}>Cancel</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            )}
+          </View>
+        )}
       </>
     );
   };
@@ -304,59 +409,130 @@ export function EditSyfePortfolio({
                       <Ionicons name="close" size={24} color="#333" />
                     </TouchableOpacity>
                   </View>
+                  {addNewPortfolio ? (
+                    <View style={styles.newItemForm}>
+                      <TextInput
+                        placeholder="Portfolio Name"
+                        value={newPortfolioName}
+                        onChangeText={setNewPortfolioName}
+                      />
 
-                  <ScrollView style={styles.bankModalList}>
-                    {availComponents.length > 0 ? (
-                      availComponents.map((item: string) => (
+                      {/* Add space between input and buttons */}
+                      <View style={{ height: 20 }} />
+
+                      <View style={styles.buttonRow}>
                         <TouchableOpacity
-                          key={item}
+                          style={[
+                            styles.actionButton,
+                            { backgroundColor: "#28a745" },
+                          ]}
                           onPress={() => {
-                            setComponentSelected(item);
+                            handleAddNewPortfolio();
                             setComponentModalVisible(false);
                           }}
-                          style={[
-                            styles.bankModalItem,
-                            componentSelected === item &&
-                              styles.bankModalItemSelected,
-                          ]}
                         >
-                          <View
-                            style={{
-                              flexDirection: "row",
-                              alignItems: "center",
+                          <Ionicons name="checkmark" size={18} color="#fff" />
+
+                          <Text style={styles.actionButtonText}>Add</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                          style={[
+                            styles.actionButton,
+                            { backgroundColor: "#b0aca5" },
+                          ]}
+                          onPress={() => {
+                            setNewPortfolioName("");
+                            setAddNewPortfolio(false);
+                          }}
+                        >
+                          <Ionicons name="close" size={18} color="#fff" />
+
+                          <Text style={styles.actionButtonText}>Cancel</Text>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  ) : (
+                    <ScrollView style={styles.bankModalList}>
+                      {availComponents.length > 0 ? (
+                        availComponents.map((item: string) => (
+                          <TouchableOpacity
+                            key={item}
+                            onPress={() => {
+                              setComponentSelected(item);
+                              setComponentModalVisible(false);
                             }}
+                            style={[
+                              styles.bankModalItem,
+                              componentSelected === item &&
+                                styles.bankModalItemSelected,
+                            ]}
                           >
                             <View
-                              style={[
-                                styles.platformIcon,
-                                {
-                                  backgroundColor: PORTFOLIO_COLORS[0],
-                                  width: 24,
-                                  height: 24,
-                                  marginRight: 10,
-                                },
-                              ]}
+                              style={{
+                                flexDirection: "row",
+                                alignItems: "center",
+                              }}
                             >
-                              <Text style={styles.platformIconText}>
-                                {item.charAt(0)}
+                              <View
+                                style={[
+                                  styles.platformIcon,
+                                  {
+                                    backgroundColor: PORTFOLIO_COLORS[0],
+                                    width: 24,
+                                    height: 24,
+                                    marginRight: 10,
+                                  },
+                                ]}
+                              >
+                                <Text style={styles.platformIconText}>
+                                  {item.charAt(0)}
+                                </Text>
+                              </View>
+                              <Text
+                                style={[
+                                  styles.bankModalItemText,
+                                  componentSelected === item &&
+                                    styles.dropdownItemTextSelected,
+                                ]}
+                              >
+                                {item}
                               </Text>
                             </View>
-                            <Text
-                              style={[
-                                styles.bankModalItemText,
-                                componentSelected === item &&
-                                  styles.dropdownItemTextSelected,
-                              ]}
-                            >
-                              {item}
-                            </Text>
+                          </TouchableOpacity>
+                        ))
+                      ) : (
+                        <Text>No components available</Text>
+                      )}
+
+                      {/* Add New Portfolio button */}
+                      <TouchableOpacity
+                        style={styles.addNewBankButton}
+                        onPress={() => setAddNewPortfolio(true)}
+                      >
+                        <View
+                          style={{ flexDirection: "row", alignItems: "center" }}
+                        >
+                          <View
+                            style={[
+                              styles.platformIcon,
+                              {
+                                backgroundColor: "#4A6FA5",
+                                width: 24,
+                                height: 24,
+                                marginRight: 10,
+                              },
+                            ]}
+                          >
+                            <Ionicons name="add" size={16} color="#fff" />
                           </View>
-                        </TouchableOpacity>
-                      ))
-                    ) : (
-                      <Text>No components available</Text>
-                    )}
-                  </ScrollView>
+                          <Text style={styles.addNewBankText}>
+                            Add Custom Portfolio
+                          </Text>
+                        </View>
+                      </TouchableOpacity>
+                    </ScrollView>
+                  )}
                 </View>
               </View>
             </Modal>

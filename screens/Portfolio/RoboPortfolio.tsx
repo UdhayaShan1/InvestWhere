@@ -2,6 +2,7 @@ import { Button, Text, TouchableOpacity, View } from "react-native";
 import {
   AssetAllocations,
   formatCurrency,
+  isCustomSyfePortfolio,
   PORTFOLIO_COLORS,
   SyfeInterface,
 } from "../../types/wealth.types";
@@ -54,6 +55,41 @@ export function RoboPortfolio({
       assetAllocation.Robos.Syfe.cashManagement
     );
   }, [assetAllocation]);
+
+  const renderCustomAccount = (syfe: SyfeInterface) => {
+    const components = [];
+    for (const key in syfe) {
+      if (
+        !isCustomSyfePortfolio(key) ||
+        calculateCategoryTotalRecursively(syfe[key]) === 0
+      ) {
+        continue;
+      }
+      for (const subKey in syfe[key]) {
+        if (
+          typeof syfe[key][subKey] === "number" &&
+          syfe[key][subKey] > 0 &&
+          calculateCategoryTotalRecursively(syfe[key][subKey])
+        ) {
+          components.push(
+            <View key={`${key}-${subKey}`} style={styles.assetItem}>
+              <Text style={styles.assetName}>{subKey}</Text>
+              <Text style={styles.assetValue}>
+                {formatCurrency(syfe[key][subKey])}
+              </Text>
+            </View>
+          );
+        }
+      }
+      const finalComponents = (
+        <View style={styles.syfeGroup}>
+          <Text style={styles.syfeGroupTitle}>Core</Text>
+          {components}
+        </View>
+      );
+      return finalComponents;
+    }
+  };
 
   const renderSyfeDetails = (syfe: SyfeInterface) => {
     if (!syfe) return null;
@@ -249,6 +285,9 @@ export function RoboPortfolio({
                 )}
             </View>
           )}
+
+        {/* CUSTOM ADDED PROTECTION PORTFOLIO */}
+        {renderCustomAccount(syfe)}
 
         <Button
           color="green"
