@@ -18,7 +18,10 @@ import { TextInput } from "react-native";
 import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../store/rootTypes";
 import { portfolioAction } from "../../store/portfolio/portfolioSlice";
-import { currentUidSelector } from "../../store/auth/authSelector";
+import {
+  currentUidSelector,
+  isLoadingSelector,
+} from "../../store/auth/authSelector";
 
 interface EditSyfePortfolioProps {
   editModal: boolean;
@@ -32,14 +35,16 @@ export function EditSyfePortfolio({
   syfeAllocation,
 }: EditSyfePortfolioProps) {
   const dispatch = useAppDispatch();
+  const isLoading = useAppSelector(isLoadingSelector);
   const [editForm, setEditForm] = useState<SyfeInterface>(syfeAllocation);
   const [componentSelected, setComponentSelected] = useState<string>("");
   const [componentModalVisible, setComponentModalVisible] = useState(false);
   const uid = useAppSelector(currentUidSelector);
 
-  // Add missing state variables
   const [availComponents, setAvailComponents] = useState<string[]>(
-    "Core, Cash Management, Income Plus, Thematic".split(", ")
+    "Core, Cash Management, Income Plus, Thematic, REIT+, Downside Protection".split(
+      ", "
+    )
   );
 
   useEffect(() => {
@@ -53,15 +58,25 @@ export function EditSyfePortfolio({
     console.log(editModal, "##");
   }, [editModal]);
 
-
   const handleSave = () => {
-    const saveRequest : SyfeSaveRequest = {uid : uid ?? "", syfeAllocation : editForm};
-    console.log("Saving", saveRequest)
+    const saveRequest: SyfeSaveRequest = {
+      uid: uid ?? "",
+      syfeAllocation: editForm,
+    };
+    console.log("Saving Syfe Portfolio:", saveRequest);
+
+    Object.keys(editForm).forEach((portfolio) => {
+      const portfolioData = editForm[portfolio as keyof SyfeInterface];
+      if (portfolioData && typeof portfolioData === "object") {
+        console.log(`Portfolio ${portfolio} contains:`, portfolioData);
+      }
+    });
 
     dispatch(portfolioAction.saveSyfePortfolio(saveRequest));
-
-    setTimeout(() => {setEditModal(false)}, 500);
-  }
+    setTimeout(() => {
+      setEditModal(false);
+    }, 500);
+  };
 
   const renderSyfeEditDetails = () => {
     if (!componentSelected) {
@@ -92,6 +107,31 @@ export function EditSyfePortfolio({
         portfolio: "cashManagement",
         accountKeys: ["cashPlusFlexi", "cashPlusGuranteed"],
       };
+    } else if (componentSelected === "REIT+") {
+      accountKeys = {
+        portfolio: "reitPlus",
+        accountKeys: ["standard", "withRiskManagement"],
+      };
+    } else if (componentSelected === "Income Plus") {
+      accountKeys = {
+        portfolio: "incomePlus",
+        accountKeys: ["preserve", "enhance"],
+      };
+    } else if (componentSelected === "Thematic") {
+      accountKeys = {
+        portfolio: "thematic",
+        accountKeys: [
+          "chinaGrowth",
+          "esgCleanEnergy",
+          "disruptiveTechnology",
+          "healthcareInnovation",
+        ],
+      };
+    } else if (componentSelected === "Downside Protection") {
+      accountKeys = {
+        portfolio: "downsideProtected",
+        accountKeys: ["protectedSP500"],
+      };
     }
     const secondComponent =
       accountKeys.accountKeys.length > 0 &&
@@ -102,7 +142,7 @@ export function EditSyfePortfolio({
               <View
                 style={[
                   styles.accountIndicator,
-                  { backgroundColor: PORTFOLIO_COLORS[0] },
+                  { backgroundColor: getComponentColor(componentSelected) },
                 ]}
               />
               <Text style={styles.inputLabel}>{key}</Text>
@@ -123,8 +163,8 @@ export function EditSyfePortfolio({
                     key as keyof typeof portfolioAllocation
                   ];
                 return formatCurrency(value !== undefined ? value : 0)
-                                  .replace("SGD", "")
-                                  .trim()
+                  .replace("SGD", "")
+                  .trim();
               })()}
               value={(() => {
                 const portfolioKey =
@@ -167,6 +207,26 @@ export function EditSyfePortfolio({
     );
   };
 
+  // Add this function to get consistent colors for each component type
+  const getComponentColor = (component: string): string => {
+    switch (component) {
+      case "Core":
+        return PORTFOLIO_COLORS[0]; // blue
+      case "Cash Management":
+        return PORTFOLIO_COLORS[1]; // red
+      case "REIT+":
+        return PORTFOLIO_COLORS[2]; // teal
+      case "Income Plus":
+        return PORTFOLIO_COLORS[3]; // yellow
+      case "Thematic":
+        return PORTFOLIO_COLORS[4]; // purple
+      case "Downside Protection":
+        return PORTFOLIO_COLORS[5]; // green
+      default:
+        return PORTFOLIO_COLORS[0];
+    }
+  };
+
   return (
     <Modal visible={editModal} transparent={true} animationType="fade">
       <View style={portfolioStyles.modalContainer}>
@@ -181,7 +241,7 @@ export function EditSyfePortfolio({
             contentContainerStyle={styles.scrollViewContent}
           >
             <View style={portfolioStyles.profileInfo}>
-              <Text style={portfolioStyles.label}>Select Component:</Text>
+              <Text style={portfolioStyles.label}>Select Portfolio:</Text>
               <View style={{ marginVertical: 10 }}>
                 <TouchableOpacity
                   style={[
@@ -307,7 +367,7 @@ export function EditSyfePortfolio({
               <LoadingButton
                 title="Save"
                 onPress={() => handleSave()}
-                isLoading={false}
+                isLoading={isLoading ?? false}
                 color="#4A6FA5"
               />
               <View style={{ height: 15 }} />
@@ -317,7 +377,9 @@ export function EditSyfePortfolio({
                   styles.cancelButton,
                   { backgroundColor: "#D5451B" },
                 ]}
-                onPress={() => {setEditModal(false)}}
+                onPress={() => {
+                  setEditModal(false);
+                }}
               >
                 <Ionicons name="close-outline" size={18} color="#fff" />
                 <Text style={styles.actionButtonText}>Cancel</Text>

@@ -60,6 +60,7 @@ export function RoboPortfolio({
 
     return (
       <>
+        {/* CORE PORTFOLIO */}
         {syfe.core && calculateCategoryTotalRecursively(syfe.core) > 0 && (
           <View style={styles.syfeGroup}>
             <Text style={styles.syfeGroupTitle}>Core</Text>
@@ -104,6 +105,7 @@ export function RoboPortfolio({
           </View>
         )}
 
+        {/* CASH MANAGEMENT PORTFOLIO */}
         {syfe.cashManagement &&
           calculateCategoryTotalRecursively(syfe.cashManagement) > 0 && (
             <View style={styles.syfeGroup}>
@@ -130,14 +132,134 @@ export function RoboPortfolio({
             </View>
           )}
 
-        {/* Similar blocks for incomePlus, thematic, downsideProtected, cashManagement */}
-        {/* (Abbreviated for space - include all Syfe portfolio types here) */}
+        {/* REIT+ PORTFOLIO */}
+        {syfe.reitPlus &&
+          calculateCategoryTotalRecursively(syfe.reitPlus) > 0 && (
+            <View style={styles.syfeGroup}>
+              <Text style={styles.syfeGroupTitle}>REIT+</Text>
+              {typeof syfe.reitPlus.standard === "number" &&
+                syfe.reitPlus.standard > 0 && (
+                  <View style={styles.assetItem}>
+                    <Text style={styles.assetName}>Standard</Text>
+                    <Text style={styles.assetValue}>
+                      {formatCurrency(syfe.reitPlus.standard)}
+                    </Text>
+                  </View>
+                )}
+
+              {typeof syfe.reitPlus.withRiskManagement === "number" &&
+                syfe.reitPlus.withRiskManagement > 0 && (
+                  <View style={styles.assetItem}>
+                    <Text style={styles.assetName}>With Risk Management</Text>
+                    <Text style={styles.assetValue}>
+                      {formatCurrency(syfe.reitPlus.withRiskManagement)}
+                    </Text>
+                  </View>
+                )}
+            </View>
+          )}
+
+        {/* INCOME PLUS PORTFOLIO */}
+        {syfe.incomePlus &&
+          calculateCategoryTotalRecursively(syfe.incomePlus) > 0 && (
+            <View style={styles.syfeGroup}>
+              <Text style={styles.syfeGroupTitle}>Income Plus</Text>
+              {typeof syfe.incomePlus.preserve === "number" &&
+                syfe.incomePlus.preserve > 0 && (
+                  <View style={styles.assetItem}>
+                    <Text style={styles.assetName}>Preserve</Text>
+                    <Text style={styles.assetValue}>
+                      {formatCurrency(syfe.incomePlus.preserve)}
+                    </Text>
+                  </View>
+                )}
+
+              {typeof syfe.incomePlus.enhance === "number" &&
+                syfe.incomePlus.enhance > 0 && (
+                  <View style={styles.assetItem}>
+                    <Text style={styles.assetName}>Enhance</Text>
+                    <Text style={styles.assetValue}>
+                      {formatCurrency(syfe.incomePlus.enhance)}
+                    </Text>
+                  </View>
+                )}
+            </View>
+          )}
+
+        {/* THEMATIC PORTFOLIO */}
+        {syfe.thematic &&
+          calculateCategoryTotalRecursively(syfe.thematic) > 0 && (
+            <View style={styles.syfeGroup}>
+              <Text style={styles.syfeGroupTitle}>Thematic</Text>
+              {typeof syfe.thematic.chinaGrowth === "number" &&
+                syfe.thematic.chinaGrowth > 0 && (
+                  <View style={styles.assetItem}>
+                    <Text style={styles.assetName}>China Growth</Text>
+                    <Text style={styles.assetValue}>
+                      {formatCurrency(syfe.thematic.chinaGrowth)}
+                    </Text>
+                  </View>
+                )}
+
+              {typeof syfe.thematic.esgCleanEnergy === "number" &&
+                syfe.thematic.esgCleanEnergy > 0 && (
+                  <View style={styles.assetItem}>
+                    <Text style={styles.assetName}>ESG Clean Energy</Text>
+                    <Text style={styles.assetValue}>
+                      {formatCurrency(syfe.thematic.esgCleanEnergy)}
+                    </Text>
+                  </View>
+                )}
+
+              {typeof syfe.thematic.disruptiveTechnology === "number" &&
+                syfe.thematic.disruptiveTechnology > 0 && (
+                  <View style={styles.assetItem}>
+                    <Text style={styles.assetName}>Disruptive Technology</Text>
+                    <Text style={styles.assetValue}>
+                      {formatCurrency(syfe.thematic.disruptiveTechnology)}
+                    </Text>
+                  </View>
+                )}
+
+              {typeof syfe.thematic.healthcareInnovation === "number" &&
+                syfe.thematic.healthcareInnovation > 0 && (
+                  <View style={styles.assetItem}>
+                    <Text style={styles.assetName}>Healthcare Innovation</Text>
+                    <Text style={styles.assetValue}>
+                      {formatCurrency(syfe.thematic.healthcareInnovation)}
+                    </Text>
+                  </View>
+                )}
+            </View>
+          )}
+
+        {/* DOWNSIDE PROTECTION PORTFOLIO */}
+        {syfe.downsideProtected &&
+          calculateCategoryTotalRecursively(syfe.downsideProtected) > 0 && (
+            <View style={styles.syfeGroup}>
+              <Text style={styles.syfeGroupTitle}>Downside Protection</Text>
+              {typeof syfe.downsideProtected.protectedSP500 === "number" &&
+                syfe.downsideProtected.protectedSP500 > 0 && (
+                  <View style={styles.assetItem}>
+                    <Text style={styles.assetName}>Protected S&P 500</Text>
+                    <Text style={styles.assetValue}>
+                      {formatCurrency(syfe.downsideProtected.protectedSP500)}
+                    </Text>
+                  </View>
+                )}
+            </View>
+          )}
+
         <Button
           color="green"
           title="Edit"
           onPress={() => setEditModal(true)}
         ></Button>
-        <EditSyfePortfolio editModal={editModal} setEditModal={setEditModal} syfeAllocation={syfe} />
+        <EditSyfePortfolio
+          editModal={editModal}
+          setEditModal={setEditModal}
+          syfeAllocation={syfe}
+        />
       </>
     );
   };

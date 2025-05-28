@@ -55,7 +55,7 @@ export const portfolioSlice = createSlice({
       state.isLoading = false;
     },
     saveSyfePortfolioFail: (state, actions: PayloadAction<string>) => {
-      state.isLoading = true;
+      state.isLoading = false;
       state.error = actions.payload;
     },
     
