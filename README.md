@@ -16,13 +16,13 @@ InvestWhere helps you track all your financial assets in one place - from bank a
   - Visual breakdown of your net worth
   - Portfolio allocation percentages
 - Authentication and Storage:
-  - Firebase
+  - Firebase Authentication
   - Firestore Database
-## 🛠️ Local Installation (uses Expo)
+## 🛠️ Local Installation
 
 ```
 # Clone the repository
-https://github.com/UdhayaShan1/InvestWhere.git
+git clone https://github.com/UdhayaShan1/InvestWhere.git
 
 # Navigate to the project directory, you should see App.tsx in your directory
 cd InvestWhere
@@ -44,7 +44,7 @@ npm run start
   - Redux-Saga
 - Authentication & Database:
    - Firebase Authentication
-   - Firebase Firestore
+   - Firestore Database
 
 ## 🔮 Future Enhancements
 There is much to do with this app such as to add remaining financial instruments and the main reason why I wanted to create this and that is to have LLM assisted portfolio recommendations.
