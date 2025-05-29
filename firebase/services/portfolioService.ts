@@ -44,7 +44,7 @@ export async function getAssetAllocations(uid: string) {
         }
         return createAndSaveDefaultAssetAllocations(uid);
     } catch (error) {
-        console.log("Error retrieving networthsummary", error);
+        console.log("Error retrieving asset allocations", error);
         return null;
     }
 }
