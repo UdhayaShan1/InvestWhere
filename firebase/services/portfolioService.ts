@@ -2,9 +2,6 @@ import { deleteDoc, doc, getDoc, setDoc } from "firebase/firestore";
 import { AssetAllocations, defaultAssetAllocations, defaultNetWorthSummary, NetWorthSummary } from "../../types/wealth.types"
 import { db } from "../firebase";
 import { calculateCategoryTotalRecursively } from "../../constants/helper";
-import { all } from "redux-saga/effects";
-
-
 export async function getNetWorthSummary(uid: string) {
     try {
         const netWorthDocRef = doc(db, "NetWorthSummary", uid);
