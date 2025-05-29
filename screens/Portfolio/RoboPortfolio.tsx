@@ -68,8 +68,7 @@ export function RoboPortfolio({
       for (const subKey in syfe[key]) {
         if (
           typeof syfe[key][subKey] === "number" &&
-          syfe[key][subKey] > 0 &&
-          calculateCategoryTotalRecursively(syfe[key][subKey])
+          syfe[key][subKey] > 0
         ) {
           components.push(
             <View key={`${key}-${subKey}`} style={styles.assetItem}>

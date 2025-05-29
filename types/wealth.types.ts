@@ -133,6 +133,24 @@ export interface SyfeSaveRequest {
   syfeAllocation : SyfeInterface
 }
 
+export interface SyfeDeleteRequest {
+  uid : string, 
+  portfolioToDelete : string;
+  syfeAllocation : SyfeInterface
+}
+
+export function CleanUpSyfeCustomFromEditForm(editForm : SyfeInterface) {
+  const updatedForm : SyfeInterface = {...editForm}
+  for (const portfolio in editForm) {
+    Object.keys(editForm[portfolio]).forEach(account => {
+      if (editForm[portfolio][account] === 0 && isCustomSyfePortfolio(portfolio)) {
+        delete updatedForm[portfolio][account];
+      }
+    })
+  }
+  return updatedForm;
+}
+
 export function defaultAssetAllocations(uid: string): AssetAllocations {
     return {
         uid,

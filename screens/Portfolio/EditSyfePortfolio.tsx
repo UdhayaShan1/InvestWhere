@@ -1,20 +1,24 @@
-import { Modal, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import {
-  BankEditForm,
+  Button,
+  Modal,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import {
+  CleanUpSyfeCustomFromEditForm,
   formatCurrency,
   isCustomSyfePortfolio,
   PORTFOLIO_COLORS,
   portFolioStyles as styles,
+  SyfeDeleteRequest,
   SyfeInterface,
   SyfeSaveRequest,
 } from "../../types/wealth.types";
 import { styles as portfolioStyles } from "../Profile/styles";
 import { Ionicons } from "@expo/vector-icons";
 import LoadingButton from "../../component/LoadingButton";
-import {
-  calculateCategoryTotalRecursively,
-  calculateSpecificCategoryTotalRecursively,
-} from "../../constants/helper";
 import { TextInput } from "react-native";
 import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../store/rootTypes";
@@ -51,9 +55,7 @@ export function EditSyfePortfolio({
   const [newCustomAccountName, setNewCustomAccountName] = useState<string>("");
   const [newCustomAccountAmount, setNewCustomAccountAmount] = useState(0);
 
-  useEffect(() => {
-    console.log("Check", availComponents);
-  }, [availComponents]);
+  const [deleteConfirm, setDeleteConfirm] = useState(false);
 
   useEffect(() => {
     let newComponents: string[] = [];
@@ -72,19 +74,20 @@ export function EditSyfePortfolio({
     }
     setAvailAccounts(accountKeys);
     console.log(editForm, "@@@");
+    console.log(componentSelected, "Component Selected");
   }, [editForm, componentSelected]);
 
   useEffect(() => {
     if (editModal) {
       setEditForm(syfeAllocation);
     }
-    console.log(editModal, "##");
   }, [editModal]);
 
   const handleSave = () => {
+    const cleanedForm = CleanUpSyfeCustomFromEditForm(editForm);
     const saveRequest: SyfeSaveRequest = {
       uid: uid ?? "",
-      syfeAllocation: editForm,
+      syfeAllocation: cleanedForm,
     };
     console.log("Saving Syfe Portfolio:", saveRequest);
 
@@ -106,12 +109,28 @@ export function EditSyfePortfolio({
 
     setEditForm((prev) => ({
       ...prev,
-      [newPortfolioName]: {}, // Initialize empty object for the new portfolio
+      [newPortfolioName]: {},
     }));
     setComponentSelected(newPortfolioName);
     setAvailComponents((prev) => {
       return [...prev, newPortfolioName];
     });
+  };
+
+  const handleDeletePortfolio = () => {
+    const deleteRequest: SyfeDeleteRequest = {
+      uid: uid ?? "",
+      portfolioToDelete: componentSelected,
+      syfeAllocation: editForm,
+    };
+
+    dispatch(portfolioAction.deleteSyfePortfolio(deleteRequest));
+    setTimeout(() => {
+      setDeleteConfirm(false);
+    }, 500);
+
+    setComponentSelected("");
+    setComponentModalVisible(false);
   };
 
   const handleAddNewAccount = () => {
@@ -305,6 +324,64 @@ export function EditSyfePortfolio({
                   </TouchableOpacity>
                 </View>
               </View>
+            )}
+
+            <TouchableOpacity
+              style={[styles.actionButton, styles.deleteButton]}
+              onPress={() => setDeleteConfirm(true)}
+              disabled={false}
+            >
+              <Ionicons name="trash-outline" size={18} color="#fff" />
+              <Text
+                style={[
+                  styles.actionButtonText,
+                  // !bankSelected && { color: "#888" },
+                ]}
+              >
+                Delete
+              </Text>
+            </TouchableOpacity>
+
+            {deleteConfirm && (
+              <Modal
+                visible={deleteConfirm}
+                transparent={true}
+                animationType="fade"
+              >
+                <View style={portfolioStyles.modalContainer}>
+                  <View
+                    style={[portfolioStyles.modalView, styles.compactModalView]}
+                  >
+                    <Text style={portfolioStyles.modalTitle}>
+                      Are you sure?{"\n\n"}This will delete the entire custom
+                      portfolio.
+                    </Text>
+
+                    <View style={styles.buttonRow}>
+                      <TouchableOpacity
+                        style={[
+                          styles.actionButton,
+                          styles.cancelButton,
+                          { backgroundColor: "#28a745" },
+                        ]}
+                        onPress={() => handleDeletePortfolio()}
+                      >
+                        <Ionicons name="checkmark" size={18} color="#fff" />
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={[
+                          styles.actionButton,
+                          styles.cancelButton,
+                          { backgroundColor: "red" },
+                        ]}
+                        onPress={() => setDeleteConfirm(false)}
+                      >
+                        <Ionicons name="close" size={18} color="#fff" />
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                </View>
+              </Modal>
             )}
           </View>
         )}
