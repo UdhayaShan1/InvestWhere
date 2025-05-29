@@ -40,7 +40,6 @@ export interface BankItems {
 }
 
 export interface InvestmentItems {
-    amount:number;
     [key: string]: number;
 }
 
@@ -125,6 +124,10 @@ export const defaultSyfe: SyfeInterface = {
 
 
 export interface BankEditForm {
+  [key: string]: number | string;
+}
+
+export interface InvestmentEditForm {
   [key: string]: number | string;
 }
 

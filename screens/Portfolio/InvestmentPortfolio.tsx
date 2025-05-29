@@ -1,4 +1,4 @@
-import { Text, TouchableOpacity, View } from "react-native";
+import { Button, Text, TouchableOpacity, View } from "react-native";
 import {
   calculateCategoryTotalRecursively,
   calculatePercentage,
@@ -13,6 +13,7 @@ import {
 import { portFolioStyles as styles } from "../../types/wealth.types";
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
+import { EditInvestmentPortfolio } from "./EditInvestmentPortfolio";
 
 interface InvestmentPortfolioProps {
   totalNetWorth: number;
@@ -34,6 +35,7 @@ export function InvestmentPortfolio({
   const [investmentSelections, setInvestmentSelections] = useState<{
     [key: string]: boolean;
   }>({});
+  const [editModal, setEditModal] = useState(false);
 
   useEffect(() => {
     if (assetAllocation?.Investments) {
@@ -49,7 +51,7 @@ export function InvestmentPortfolio({
     ? calculateCategoryTotalRecursively(assetAllocation.Investments)
     : 0;
 
-  const renderBrokerDetails = (investment : InvestmentItems) => {
+  const renderBrokerDetails = (investment: InvestmentItems) => {
     if (!investment) {
       return null;
     }
@@ -75,8 +77,7 @@ export function InvestmentPortfolio({
           </View>
         )}
 
-    
-        {Object.keys(investment).map((key : string) => {
+        {Object.keys(investment).map((key: string) => {
           const standardBankKeys = ["amount"];
           if (standardBankKeys.includes(key) || investment[key] === undefined) {
             return null;
@@ -94,7 +95,9 @@ export function InvestmentPortfolio({
                   <Text style={styles.assetName}>{key}</Text>
                 </View>
               </View>
-              <Text style={styles.assetValue}>{formatCurrency(investment[key])}</Text>
+              <Text style={styles.assetValue}>
+                {formatCurrency(investment[key])}
+              </Text>
             </View>
           );
         })}
@@ -166,7 +169,9 @@ export function InvestmentPortfolio({
                     </Text>
                     <Ionicons
                       name={
-                        investmentSelections[broker] ? "chevron-up" : "chevron-down"
+                        investmentSelections[broker]
+                          ? "chevron-up"
+                          : "chevron-down"
                       }
                       size={20}
                       color="#555"
@@ -181,6 +186,16 @@ export function InvestmentPortfolio({
                 )}
               </View>
             ))}
+            <Button
+              color="green"
+              title="Edit"
+              onPress={() => setEditModal(true)}
+            ></Button>
+            <EditInvestmentPortfolio
+              editModal={editModal}
+              setEditModal={setEditModal}
+              setMainInvestmentSelections={setInvestmentSelections}
+            ></EditInvestmentPortfolio>
           </View>
         )}
       </View>

@@ -1,7 +1,7 @@
 import { PayloadAction } from "@reduxjs/toolkit";
 import { call, put, takeEvery } from "redux-saga/effects";
 import { portfolioAction } from "./portfolioSlice";
-import { AssetAllocations, BankEditForm, defaultSyfe, NetWorthSummary, SyfeDeleteRequest, SyfeInterface, SyfeSaveRequest } from "../../types/wealth.types";
+import { AssetAllocations, BankEditForm, defaultSyfe, InvestmentEditForm, NetWorthSummary, SyfeDeleteRequest, SyfeInterface, SyfeSaveRequest } from "../../types/wealth.types";
 import { getAssetAllocations, getNetWorthSummary, saveAssetAllocations, saveNetWorthSummary } from "../../firebase/services/portfolioService";
 import { calculateCategoryTotalRecursively } from "../../constants/helper";
 import { getCurrentDateString } from "../../constants/date_helper";
@@ -109,7 +109,7 @@ export function* deleteBankWorker(actions : PayloadAction<BankEditForm>) {
         netWorthSummary.History[today] = newTotal;
 
         yield call(saveNetWorthSummary, netWorthSummary);
-        yield put(portfolioAction.saveBankDetailsSuccess(bankDetail));
+        yield put(portfolioAction.deleteBankDetailsSuccess(bankDetail));
 
         //load everything for ui
         yield put(portfolioAction.loadWealthProfile(uid));
@@ -117,7 +117,7 @@ export function* deleteBankWorker(actions : PayloadAction<BankEditForm>) {
     } catch (error) {
         console.log("Error deleting bank in saga", error);
         const errorMessage = (error instanceof Error) ? error.message : String(error);
-        yield put(portfolioAction.saveBankDetailsFail(errorMessage));
+        yield put(portfolioAction.deleteBankDetailsFail(errorMessage));
     }
 }
 
@@ -212,6 +212,105 @@ export function* deleteSyfePortfolioWorker(actions : PayloadAction<SyfeDeleteReq
     }
 }
 
+export function* saveNewInvestmentDetailsWorker(actions : PayloadAction<InvestmentEditForm>) {
+    try {
+        console.log("saga", actions.payload);
+        const investmentDetail = actions.payload;
+        const uid = investmentDetail['uid'] as string;
+        if (!uid) {
+            throw new Error("User ID is missing");
+        }
+
+        const currentAssetAllocations: AssetAllocations = yield call(getAssetAllocations, uid);
+        if (!currentAssetAllocations) {
+            throw new Error("Failed to retrieve current asset allocations");
+        }
+        const updatedAllocations = {...currentAssetAllocations};
+        const investmentName = investmentDetail['Broker'] as string;
+
+        delete investmentDetail['Broker']
+        delete investmentDetail["uid"]
+        if (!updatedAllocations.Investments) {
+            updatedAllocations.Investments = {};
+        }
+        updatedAllocations.Investments[investmentName] = {};
+    
+        Object.keys(investmentDetail).forEach((key) => {
+            updatedAllocations.Investments[investmentName][key] = Number(investmentDetail[key]);
+        });
+
+        console.log("investment saga updated", updatedAllocations);
+        
+        yield call(saveAssetAllocations, updatedAllocations);
+
+        const netWorthSummary: NetWorthSummary = yield call(getNetWorthSummary, uid);
+        if (netWorthSummary) {
+        const newTotal = calculateCategoryTotalRecursively(updatedAllocations);
+        netWorthSummary.Total = newTotal;
+        
+        const today = getCurrentDateString();
+        netWorthSummary.LastUpdated = today;
+        netWorthSummary.History[today] = newTotal;
+
+        yield call(saveNetWorthSummary, netWorthSummary);
+        yield put(portfolioAction.saveInvestmentDetailsSuccess());
+
+        //load everything for ui
+        yield put(portfolioAction.loadWealthProfile(uid));
+    }
+    } catch (error) {
+        console.log("Error saving bank details in saga", error);
+        const errorMessage = (error instanceof Error) ? error.message : String(error);
+        yield put(portfolioAction.saveInvestmentDetailsFail(errorMessage));
+    }
+}
+
+export function* deleteInvestmentWorker(actions : PayloadAction<InvestmentEditForm>) {
+    try {
+        const investmentDetail = actions.payload;
+        const uid = investmentDetail['uid'] as string;
+        if (!uid) {
+            throw new Error("User ID is missing");
+        }
+
+        const currentAssetAllocations: AssetAllocations = yield call(getAssetAllocations, uid);
+        if (!currentAssetAllocations) {
+            throw new Error("Failed to retrieve current asset allocations");
+        }
+        const updatedAllocations = {...currentAssetAllocations};
+        const investmentName = investmentDetail['Broker'] as string;
+
+        delete investmentDetail['Broker']
+        delete investmentDetail["uid"]
+        if (!updatedAllocations.Investments) {
+            updatedAllocations.Investments = {};
+        }
+
+        delete updatedAllocations.Investments[investmentName];
+        
+        yield call(saveAssetAllocations, updatedAllocations);
+
+        const netWorthSummary: NetWorthSummary = yield call(getNetWorthSummary, uid);
+        if (netWorthSummary) {
+        const newTotal = calculateCategoryTotalRecursively(updatedAllocations);
+        netWorthSummary.Total = newTotal;
+        
+        const today = getCurrentDateString();
+        netWorthSummary.LastUpdated = today;
+        netWorthSummary.History[today] = newTotal;
+
+        yield call(saveNetWorthSummary, netWorthSummary);
+        yield put(portfolioAction.deleteInvestmentDetailsSuccess());
+
+        //load everything for ui
+        yield put(portfolioAction.loadWealthProfile(uid));
+    }
+    } catch (error) {
+        console.log("Error deleting bank in saga", error);
+        const errorMessage = (error instanceof Error) ? error.message : String(error);
+        yield put(portfolioAction.deleteInvestmentDetailsFail(errorMessage));
+    }
+}
 
 
 export function* portfolioWatcher() {
@@ -220,4 +319,6 @@ export function* portfolioWatcher() {
     yield takeEvery(portfolioAction.deleteBankDetails, deleteBankWorker);
     yield takeEvery(portfolioAction.saveSyfePortfolio, saveNewSyfePortfolioWorker);
     yield takeEvery(portfolioAction.deleteSyfePortfolio, deleteSyfePortfolioWorker);
+    yield takeEvery(portfolioAction.saveInvestmentDetails, saveNewInvestmentDetailsWorker);
+    yield takeEvery(portfolioAction.deleteInvestmentDetails, deleteInvestmentWorker);
 }

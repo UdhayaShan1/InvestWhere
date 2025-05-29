@@ -401,7 +401,6 @@ export function EditSyfePortfolio({
     );
   };
 
-  // Add this function to get consistent colors for each component type
   const getComponentColor = (component: string): string => {
     switch (component) {
       case "Core":

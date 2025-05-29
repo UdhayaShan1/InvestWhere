@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { AuthSuccessPayload, CredentialUserProfile, FirebaseLoginRegisterProp, InvestUser, InvestUserProfile } from '../../types/auth.types';
-import { BankEditForm, SyfeDeleteRequest, SyfeInterface, SyfeSaveRequest, WealthProfile } from '../../types/wealth.types';
+import { BankEditForm, InvestmentEditForm, SyfeDeleteRequest, SyfeInterface, SyfeSaveRequest, WealthProfile } from '../../types/wealth.types';
 
 const initialState: WealthProfile = {
     isLoading : false,
@@ -68,7 +68,28 @@ export const portfolioSlice = createSlice({
       state.isLoading = false;
       state.error = actions.payload;
     },
-    
+    saveInvestmentDetails: (state, actions: PayloadAction<InvestmentEditForm>) => {
+      state.isLoading = true;
+      state.error = null;
+    },
+    saveInvestmentDetailsSuccess: (state) => {
+      state.isLoading = false;
+    },
+    saveInvestmentDetailsFail: (state, actions: PayloadAction<string>) => {
+      state.isLoading = false;
+      state.error = actions.payload;
+    },
+    deleteInvestmentDetails: (state, actions: PayloadAction<InvestmentEditForm>) => {
+      state.isLoading = true;
+      state.error = null;
+    },
+    deleteInvestmentDetailsSuccess: (state) => {
+      state.isLoading = false;
+    },
+    deleteInvestmentDetailsFail: (state, actions: PayloadAction<string>) => {
+      state.isLoading = false;
+      state.error = actions.payload;
+    }
   }
 })
 
