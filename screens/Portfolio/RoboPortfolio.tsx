@@ -66,10 +66,7 @@ export function RoboPortfolio({
         continue;
       }
       for (const subKey in syfe[key]) {
-        if (
-          typeof syfe[key][subKey] === "number" &&
-          syfe[key][subKey] > 0
-        ) {
+        if (typeof syfe[key][subKey] === "number" && syfe[key][subKey] > 0) {
           components.push(
             <View key={`${key}-${subKey}`} style={styles.assetItem}>
               <Text style={styles.assetName}>{subKey}</Text>
@@ -354,7 +351,9 @@ export function RoboPortfolio({
                 </View>
                 <View style={{ flexDirection: "row", alignItems: "center" }}>
                   <Text style={styles.platformValue}>
-                    {calculateCategoryTotalRecursively(syfeTotal)}
+                    {formatCurrency(
+                      calculateCategoryTotalRecursively(syfeTotal)
+                    )}
                   </Text>
                   <Ionicons
                     name={
