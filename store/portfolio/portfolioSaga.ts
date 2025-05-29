@@ -161,7 +161,7 @@ export function* saveNewSyfePortfolioWorker(actions : PayloadAction<SyfeSaveRequ
         yield put(portfolioAction.loadWealthProfile(uid));
     }
     } catch (error) {
-        console.log("Error saving bank details in saga", error);
+        console.log("Error saving Syfe portfolio in saga", error);
         const errorMessage = (error instanceof Error) ? error.message : String(error);
         yield put(portfolioAction.saveSyfePortfolioFail(errorMessage));
     }
