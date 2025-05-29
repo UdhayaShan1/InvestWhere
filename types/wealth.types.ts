@@ -575,10 +575,15 @@ labelContainer: {
 },
 
 sectionHeader: {
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  alignItems: 'center',
+  fontSize: 16,
+  fontWeight: '600', 
+  color: '#4A6FA5',
+  marginTop: 16,
   marginBottom: 8,
+  paddingHorizontal: 12,
+  paddingVertical: 4,
+  borderLeftWidth: 3,
+  borderLeftColor: '#4A6FA5',
 },
 addButton: {
   flexDirection: 'row',

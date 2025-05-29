@@ -57,11 +57,23 @@ export function EditSyfePortfolio({
 
   const [deleteConfirm, setDeleteConfirm] = useState(false);
 
+  const [customAccounts, setCustomAccounts] = useState<string[]>([]);
+  const [defaultAccounts, setDefaultAccounts] = useState<string[]>([]);
+
   useEffect(() => {
     let newComponents: string[] = [];
+    let customComponents: string[] = [];
+    let defaultComponents: string[] = [];
     Object.keys(syfeAllocation).forEach((key) => {
+      if (isCustomSyfePortfolio(key)) {
+        customComponents.push(key);
+      } else {
+        defaultComponents.push(key);
+      }
       newComponents.push(key);
     });
+    setCustomAccounts(customComponents);
+    setDefaultAccounts(defaultComponents);
     setAvailComponents(newComponents);
   }, [syfeAllocation]);
 
@@ -532,52 +544,106 @@ export function EditSyfePortfolio({
                   ) : (
                     <ScrollView style={styles.bankModalList}>
                       {availComponents.length > 0 ? (
-                        availComponents.map((item: string) => (
-                          <TouchableOpacity
-                            key={item}
-                            onPress={() => {
-                              setComponentSelected(item);
-                              setComponentModalVisible(false);
-                            }}
-                            style={[
-                              styles.bankModalItem,
-                              componentSelected === item &&
-                                styles.bankModalItemSelected,
-                            ]}
-                          >
-                            <View
-                              style={{
-                                flexDirection: "row",
-                                alignItems: "center",
+                        <>
+                          <Text style={styles.sectionHeader}>
+                            Main Portfolio
+                          </Text>
+                          {defaultAccounts.map((item: string) => (
+                            <TouchableOpacity
+                              key={item}
+                              onPress={() => {
+                                setComponentSelected(item);
+                                setComponentModalVisible(false);
                               }}
+                              style={[
+                                styles.bankModalItem,
+                                componentSelected === item &&
+                                  styles.bankModalItemSelected,
+                              ]}
                             >
                               <View
-                                style={[
-                                  styles.platformIcon,
-                                  {
-                                    backgroundColor: PORTFOLIO_COLORS[0],
-                                    width: 24,
-                                    height: 24,
-                                    marginRight: 10,
-                                  },
-                                ]}
+                                style={{
+                                  flexDirection: "row",
+                                  alignItems: "center",
+                                }}
                               >
-                                <Text style={styles.platformIconText}>
-                                  {item.charAt(0)}
+                                <View
+                                  style={[
+                                    styles.platformIcon,
+                                    {
+                                      backgroundColor: PORTFOLIO_COLORS[0],
+                                      width: 24,
+                                      height: 24,
+                                      marginRight: 10,
+                                    },
+                                  ]}
+                                >
+                                  <Text style={styles.platformIconText}>
+                                    {item.charAt(0)}
+                                  </Text>
+                                </View>
+                                <Text
+                                  style={[
+                                    styles.bankModalItemText,
+                                    componentSelected === item &&
+                                      styles.dropdownItemTextSelected,
+                                  ]}
+                                >
+                                  {item}
                                 </Text>
                               </View>
-                              <Text
-                                style={[
-                                  styles.bankModalItemText,
-                                  componentSelected === item &&
-                                    styles.dropdownItemTextSelected,
-                                ]}
+                            </TouchableOpacity>
+                          ))}
+                          <Text style={styles.sectionHeader}>
+                            Custom Portfolio
+                          </Text>
+                          {customAccounts.map((item: string) => (
+                            <TouchableOpacity
+                              key={item}
+                              onPress={() => {
+                                setComponentSelected(item);
+                                setComponentModalVisible(false);
+                              }}
+                              style={[
+                                styles.bankModalItem,
+                                componentSelected === item &&
+                                  styles.bankModalItemSelected,
+                              ]}
+                            >
+                              <View
+                                style={{
+                                  flexDirection: "row",
+                                  alignItems: "center",
+                                }}
                               >
-                                {item}
-                              </Text>
-                            </View>
-                          </TouchableOpacity>
-                        ))
+                                <View
+                                  style={[
+                                    styles.platformIcon,
+                                    {
+                                      backgroundColor: PORTFOLIO_COLORS[0],
+                                      width: 24,
+                                      height: 24,
+                                      marginRight: 10,
+                                    },
+                                  ]}
+                                >
+                                  <Text style={styles.platformIconText}>
+                                    {item.charAt(0)}
+                                  </Text>
+                                </View>
+                                <Text
+                                  style={[
+                                    styles.bankModalItemText,
+                                    componentSelected === item &&
+                                      styles.dropdownItemTextSelected,
+                                  ]}
+                                >
+                                  {item}
+                                </Text>
+                              </View>
+                            </TouchableOpacity>
+                          ))}
+                        </>
                       ) : (
                         <Text>No components available</Text>
                       )}
@@ -617,13 +683,18 @@ export function EditSyfePortfolio({
             {renderSyfeEditDetails()}
 
             <View style={styles.formActions}>
-              <LoadingButton
-                title="Save"
-                onPress={() => handleSave()}
-                isLoading={isLoading ?? false}
-                color="#4A6FA5"
-              />
-              <View style={{ height: 15 }} />
+              {componentSelected && (
+                <>
+                  <LoadingButton
+                    title="Save"
+                    onPress={() => handleSave()}
+                    isLoading={isLoading ?? false}
+                    color="#4A6FA5"
+                  />
+                  <View style={{ height: 15 }} />
+                </>
+              )}
+
               <TouchableOpacity
                 style={[
                   styles.actionButton,
