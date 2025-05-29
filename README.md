@@ -52,4 +52,4 @@ There is much to do with this app such as to add remaining financial instruments
 ## 📬 Contact
 Shanmugam Udhaya - udhaya.shan1@gmail.com, @frostbitepillars on Telegram
 
-Project Link: [https://github.com/your-username/InvestWhere](https://github.com/UdhayaShan1/InvestWhere)
+Project Link: [https://github.com/UdhayaShan1/InvestWhere](https://github.com/UdhayaShan1/InvestWhere)
