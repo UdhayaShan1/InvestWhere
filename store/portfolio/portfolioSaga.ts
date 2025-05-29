@@ -208,7 +208,7 @@ export function* deleteSyfePortfolioWorker(actions : PayloadAction<SyfeDeleteReq
     } catch (error) {
         console.log("Error deleting syfe portfolio in saga", error);
         const errorMessage = (error instanceof Error) ? error.message : String(error);
-        yield put(portfolioAction.deleteBankDetailsFail(errorMessage));
+        yield put(portfolioAction.deleteSyfePortfolioFail(errorMessage));
     }
 }
 

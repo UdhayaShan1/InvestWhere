@@ -45,7 +45,7 @@ export function InvestmentPortfolio({
       });
       setInvestmentSelections(initialSelections);
     }
-  }, [assetAllocation?.Bank]);
+  }, [assetAllocation?.Investments]);
 
   const investmentsTotal = assetAllocation.Investments
     ? calculateCategoryTotalRecursively(assetAllocation.Investments)
@@ -108,7 +108,7 @@ export function InvestmentPortfolio({
   const renderBroker = () => {
     const expanded = expandedSections["Investments"];
     const percentage = calculatePercentage(investmentsTotal, totalNetWorth);
-    if (!assetAllocation?.Bank || investmentsTotal === 0) {
+    if (!assetAllocation?.Investments || investmentsTotal === 0) {
       return null;
     }
 
