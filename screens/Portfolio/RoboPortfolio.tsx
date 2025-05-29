@@ -50,7 +50,6 @@ export function RoboPortfolio({
 
   useEffect(() => {
     console.log(
-      "FUCK",
       assetAllocation,
       assetAllocation.Robos.Syfe.cashManagement
     );

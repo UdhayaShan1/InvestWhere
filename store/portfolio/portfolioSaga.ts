@@ -259,7 +259,7 @@ export function* saveNewInvestmentDetailsWorker(actions : PayloadAction<Investme
         yield put(portfolioAction.loadWealthProfile(uid));
     }
     } catch (error) {
-        console.log("Error saving bank details in saga", error);
+
         const errorMessage = (error instanceof Error) ? error.message : String(error);
         yield put(portfolioAction.saveInvestmentDetailsFail(errorMessage));
     }
