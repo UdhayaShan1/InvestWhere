@@ -9,13 +9,17 @@ import {
 } from "react-native";
 import { InvestUserProfile } from "../../types/auth.types";
 import { useEffect, useState } from "react";
-import { styles } from "./ProfilePage";
+import { styles } from "./styles";
 import LoadingButton from "../../component/LoadingButton";
 import { useAppDispatch, useAppSelector } from "../../store/rootTypes";
 import { isLoadingSelector } from "../../store/auth/authSelector";
 import { authAction } from "../../store/auth/authSlice";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { parseDate } from "../../constants/helper";
+import {
+  dateToString,
+  getCurrentDateString,
+  stringToDate,
+} from "../../constants/date_helper";
 
 interface EditProfileProps {
   UserProfile: InvestUserProfile;
@@ -32,23 +36,11 @@ export function EditProfileScreen({ UserProfile }: EditProfileProps) {
     setForm(() => ({ ...UserProfile }));
   }, [editModal]);
 
-
-  const formatDate = (dateString: string | null) => {
-    if (!dateString) {
-      return "Not set";
-    }
-    return parseDate(dateString).toLocaleDateString();
-  };
-
   const onDateChange = (_event: any, selectedDate?: Date) => {
     setShowDatePicker(Platform.OS === "ios");
 
     if (selectedDate && !isNaN(selectedDate.getTime())) {
-      const day = selectedDate.getDate().toString().padStart(2, "0");
-      const month = (selectedDate.getMonth() + 1).toString().padStart(2, "0");
-      const year = selectedDate.getFullYear();
-
-      const formattedDate = `${day}-${month}-${year}`;
+      const formattedDate = dateToString(selectedDate);
       setForm((prev) => ({
         ...prev,
         birthday: formattedDate,
@@ -89,7 +81,7 @@ export function EditProfileScreen({ UserProfile }: EditProfileProps) {
               >
                 <Text style={{ fontSize: 16 }}>
                   {form.birthday
-                    ? formatDate(form.birthday)
+                    ? form.birthday
                     : "Set your birthday"}
                 </Text>
               </TouchableOpacity>
@@ -97,7 +89,7 @@ export function EditProfileScreen({ UserProfile }: EditProfileProps) {
 
             {showDatePicker && (
               <DateTimePicker
-                value={parseDate(form.birthday)}
+                value={stringToDate(form.birthday)}
                 mode="date"
                 display="default"
                 onChange={onDateChange}

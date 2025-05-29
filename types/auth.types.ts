@@ -3,7 +3,6 @@ export interface InvestUser {
     error: string | null;
     CredProfile : CredentialUserProfile | null;
     UserProfile : InvestUserProfile | null;
-
 }
 
 export interface CredentialUserProfile {
@@ -20,6 +19,7 @@ export interface InvestUserProfile {
     displayName: string | null;
     birthday: string| null;
     creationDate : string | null;
+    lastUpdated?: string;
 }
 
 export interface FirebaseLoginRegisterProp {

@@ -1,24 +1,55 @@
-  export const parseDate = (dateString: string | null): Date => {
-    if (!dateString) return new Date();
-
-    const [day, month, year] = dateString.split("-").map(Number);
-    return new Date(year, month - 1, day);
-  };
-
-  export const yearDifference = (ref1: string | null): number => {
-    const parsedBirthdate = parseDate(ref1);
-    
-    parsedBirthdate.setHours(parsedBirthdate.getHours() + 8);
-    const currentDate = new Date();
-    currentDate.setHours(currentDate.getHours() + 8);
-
-    let years = currentDate.getFullYear() - parsedBirthdate.getFullYear();
-    if (
-        currentDate.getMonth() < parsedBirthdate.getMonth() ||
-        (currentDate.getMonth() == parsedBirthdate.getMonth() &&
-            currentDate.getDate() < parsedBirthdate.getDate())
-    ) {
-        years -= 1;
-    }
-    return years;
+export function calculateCategoryTotalRecursively(obj: any): number {
+  if (typeof obj === 'number' && !isNaN(obj)) {
+    return obj;
+  }
+  if (!isJsonObject(obj)) {
+    return 0;
+  }
+  let sum = 0;
+  for (const key in obj) {
+    sum += calculateCategoryTotalRecursively(obj[key]);
+  }
+  return sum;
 }
+
+export function calculateSpecificCategoryTotalRecursively(obj: any, find : string, parent : string): number {
+  if (typeof obj === 'number' && !isNaN(obj) && parent === find) {
+    return obj;
+  }
+  if (!isJsonObject(obj)) {
+    return 0;
+  }
+  let found = 0;
+  for (const key in obj) {
+    found = Math.max(calculateSpecificCategoryTotalRecursively(obj[key], find, key), found);
+  }
+  return found;
+}
+
+export const calculatePercentage = (value: number, total: number) => {
+    if (total === 0) return 0;
+    return (value / total) * 100;
+};
+  
+export function isJsonObject(value : any) {
+    return (
+        typeof value === "object" &&
+        value !== null &&
+        !Array.isArray(value)
+    );
+}
+
+export const toggleSection = (
+    section: string,
+    setSection: (
+      value: React.SetStateAction<{
+        [key: string]: boolean;
+      }>
+    ) => void
+  ) => {
+    setSection((prev) => ({
+      ...prev,
+      [section]: !prev[section],
+    }));
+};
+  
