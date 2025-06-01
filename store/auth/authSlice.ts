@@ -1,91 +1,111 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { AuthSuccessPayload, CredentialUserProfile, FirebaseLoginRegisterProp, InvestUser, InvestUserProfile } from '../../types/auth.types';
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import {
+  AuthSuccessPayload,
+  CredentialUserProfile,
+  FirebaseLoginRegisterProp,
+  InvestUser,
+  InvestUserProfile,
+} from "../../types/auth.types";
 
 const initialState: InvestUser = {
-    isLoading : false,
-    error : null,
-    CredProfile : null,
-    UserProfile : null,
-    WealthProfile : null
-}
+  isLoading: false,
+  error: null,
+  CredProfile: null,
+  UserProfile: null,
+};
 
 // store logged in user information
 export const authSlice = createSlice({
-  name: 'slice',
+  name: "slice",
   initialState,
   reducers: {
-    signInWithEmailAndPassword : (state, actions:PayloadAction<FirebaseLoginRegisterProp>) => {
-        state.isLoading = true;
-        state.error = initialState.error;
-        state.CredProfile = initialState.CredProfile;
-        state.UserProfile = initialState.UserProfile;
+    signInWithEmailAndPassword: (
+      state,
+      actions: PayloadAction<FirebaseLoginRegisterProp>
+    ) => {
+      state.isLoading = true;
+      state.error = initialState.error;
+      state.CredProfile = initialState.CredProfile;
+      state.UserProfile = initialState.UserProfile;
     },
-    signInWithEmailAndPasswordSuccess : (state, actions:PayloadAction<AuthSuccessPayload>) => {
-        state.isLoading = false;
-        state.error = null;
-        state.CredProfile = actions.payload.CredProfile;
-        state.UserProfile = actions.payload.UserProfile;
+    signInWithEmailAndPasswordSuccess: (
+      state,
+      actions: PayloadAction<AuthSuccessPayload>
+    ) => {
+      state.isLoading = false;
+      state.error = null;
+      state.CredProfile = actions.payload.CredProfile;
+      state.UserProfile = actions.payload.UserProfile;
     },
-    signInWithEmailAndPasswordFail : (state, actions:PayloadAction<string>) => {
-        state.isLoading = false;
-        state.error = actions.payload;
+    signInWithEmailAndPasswordFail: (state, actions: PayloadAction<string>) => {
+      state.isLoading = false;
+      state.error = actions.payload;
     },
-    registerUser : (state, actions:PayloadAction<FirebaseLoginRegisterProp>) => {
-        state.isLoading = true;
-        state.error = initialState.error;
-        state.CredProfile = initialState.CredProfile;
-        state.UserProfile = initialState.UserProfile;
+    registerUser: (
+      state,
+      actions: PayloadAction<FirebaseLoginRegisterProp>
+    ) => {
+      state.isLoading = true;
+      state.error = initialState.error;
+      state.CredProfile = initialState.CredProfile;
+      state.UserProfile = initialState.UserProfile;
     },
-    registerUserSuccess : (state, actions:PayloadAction<AuthSuccessPayload>) => {
-        state.isLoading = false;
-        state.CredProfile = actions.payload.CredProfile;
-        state.UserProfile = actions.payload.UserProfile;
+    registerUserSuccess: (
+      state,
+      actions: PayloadAction<AuthSuccessPayload>
+    ) => {
+      state.isLoading = false;
+      state.CredProfile = actions.payload.CredProfile;
+      state.UserProfile = actions.payload.UserProfile;
     },
-    registerUserFail : (state, action:PayloadAction<string>) => {
-        state.isLoading = false;
-        state.error = action.payload;
+    registerUserFail: (state, action: PayloadAction<string>) => {
+      state.isLoading = false;
+      state.error = action.payload;
     },
-    logoutUser : (state) => {
-        state.isLoading = true;
+    logoutUser: (state) => {
+      state.isLoading = true;
     },
-    logoutUserSuccess : (state) => {
-        state.isLoading = false;
-        state.error = null;
-        state.CredProfile = initialState.CredProfile;
-        state.UserProfile = initialState.UserProfile;
+    logoutUserSuccess: (state) => {
+      state.isLoading = false;
+      state.error = null;
+      state.CredProfile = initialState.CredProfile;
+      state.UserProfile = initialState.UserProfile;
     },
-    logoutUserFail : (state, action: PayloadAction<string>) => {
-        state.isLoading = false;
-        state.error = action.payload;
+    logoutUserFail: (state, action: PayloadAction<string>) => {
+      state.isLoading = false;
+      state.error = action.payload;
     },
     deleteUser: (state) => {
-        state.isLoading = true;
+      state.isLoading = true;
     },
     deleteUserSuccess: (state) => {
-        state.isLoading = false;
-        state.error = null;
-        state.CredProfile = initialState.CredProfile;
-        state.UserProfile = initialState.UserProfile;
+      state.isLoading = false;
+      state.error = null;
+      state.CredProfile = initialState.CredProfile;
+      state.UserProfile = initialState.UserProfile;
     },
     deleteUserProfileFail: (state, action: PayloadAction<string>) => {
-        state.isLoading = false;
-        state.error = action.payload;
+      state.isLoading = false;
+      state.error = action.payload;
     },
     editUserProfile: (state, action: PayloadAction<InvestUserProfile>) => {
-        state.isLoading = true;
+      state.isLoading = true;
     },
-    editUserProfileSuccess: (state, action: PayloadAction<InvestUserProfile>) => {
-        state.isLoading = false;
-        state.error = initialState.error;
-        state.UserProfile = action.payload;
+    editUserProfileSuccess: (
+      state,
+      action: PayloadAction<InvestUserProfile>
+    ) => {
+      state.isLoading = false;
+      state.error = initialState.error;
+      state.UserProfile = action.payload;
     },
     editUserProfileFail: (state, action: PayloadAction<string>) => {
-        state.isLoading = false;
-        state.error = action.payload;
+      state.isLoading = false;
+      state.error = action.payload;
     },
-  }
-})
+  },
+});
 
-export const { actions: authAction } = authSlice
+export const { actions: authAction } = authSlice;
 
-export default authSlice.reducer
+export default authSlice.reducer;
