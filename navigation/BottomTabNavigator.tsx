@@ -4,7 +4,6 @@ import { ProfilePageScreen } from "../screens/Profile/ProfilePage";
 import { MaterialIcons } from "@expo/vector-icons";
 import { UserPortfolio } from "../screens/Portfolio/UserPortfolio";
 import UserAnalytics from "../screens/Analytics/UserAnalytics";
-import NetWorthAnalytics from "../screens/Analytics/NetWorthAnalytics";
 
 export type BottomTabParamList = {
   HomeTab: undefined;
