@@ -424,7 +424,6 @@ export function* deleteInvestmentWorker(
       yield put(portfolioAction.loadWealthProfile(uid));
     }
   } catch (error) {
-    console.log("Error deleting bank in saga", error);
     const errorMessage = error instanceof Error ? error.message : String(error);
     yield put(portfolioAction.deleteInvestmentDetailsFail(errorMessage));
   }
@@ -450,4 +449,6 @@ export function* portfolioWatcher() {
     portfolioAction.deleteInvestmentDetails,
     deleteInvestmentWorker
   );
+
+  
 }
