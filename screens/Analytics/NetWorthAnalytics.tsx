@@ -9,7 +9,7 @@ import {
 import { LineChart } from "react-native-chart-kit";
 import { useAppDispatch, useAppSelector } from "../../store/rootTypes";
 import { netWorthSelector } from "../../store/portfolio/portfolioSelector";
-import { stringToDate } from "../../constants/date_helper";
+import { stringToDate, yearDifference } from "../../constants/date_helper";
 import {
   ChartData,
   DateRangeOption,
@@ -24,11 +24,13 @@ import {
 } from "../../store/analytics/analyticsSelector";
 import { analyticsAction } from "../../store/analytics/analyticsSlice";
 import { Ionicons } from "@expo/vector-icons";
-import { FormattedText } from "../../component/MarkdownFormattedText";
+import { MarkdownFormattedText } from "../../component/MarkdownFormattedText";
+import { loggedInUserSelector } from "../../store/auth/authSelector";
 const screenWidth = Dimensions.get("window").width;
 
 export default function NetWorthAnalytics() {
   const netWorthData = useAppSelector(netWorthSelector);
+  const loggedInUser = useAppSelector(loggedInUserSelector);
   const [chartData, setChartData] = useState<ChartData>(initialChartData);
   const [selectedRange, setSelectedRange] = useState<DateRangeOption>("all");
   const [isLoading, setIsLoading] = useState(true);
@@ -236,7 +238,19 @@ export default function NetWorthAnalytics() {
   const handleAnalyze = () => {
     console.log("Analyze button pressed", netWorthData);
     if (netWorthData) {
-      dispatch(analyticsAction.getNetWorthLLM(netWorthData));
+      if (loggedInUser.UserProfile?.birthday) {
+        const age = yearDifference(loggedInUser.UserProfile?.birthday);
+        dispatch(
+          analyticsAction.getNetWorthLLM({
+            NetWorthHistory: netWorthData.History,
+            UserProfile: { age: age },
+          })
+        );
+      } else {
+        dispatch(
+          analyticsAction.getNetWorthLLM({ NetWorthHistory: netWorthData.History })
+        );
+      }
     } else {
       console.log("No netWorthData available");
     }
@@ -312,7 +326,7 @@ export default function NetWorthAnalytics() {
           >
             🤖 AI Financial Analysis
           </Text>
-          <FormattedText content={netWorthFeedback} />
+          <MarkdownFormattedText content={netWorthFeedback} />
         </View>
       )}
     </>

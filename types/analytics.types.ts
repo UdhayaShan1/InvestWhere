@@ -1,5 +1,7 @@
 import { StyleSheet } from "react-native";
 import { stringToDate } from "../constants/date_helper";
+import { NetWorthSummary } from "./wealth.types";
+import { PrivateUserProfileForLLM } from "./auth.types";
 
 export const tabDescriptions: { [key: string]: string } = {
   networth: "Track your complete financial journey here!",
@@ -41,6 +43,11 @@ export interface AnalyticsLLMResult {
   componentFeedback?: string | null;
   isLoading?: boolean;
   error?: string | null;
+}
+
+export interface NetWorthLLMRequest {
+  NetWorthHistory: { [month: string]: { [component: string]: number } };
+  UserProfile?: PrivateUserProfileForLLM;
 }
 
 export const styles = StyleSheet.create({
