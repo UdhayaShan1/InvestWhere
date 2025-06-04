@@ -1,3 +1,4 @@
+import { auth } from "../../firebase/firebase";
 import { RootState } from "../rootTypes"
 
 const loggedInUserSelector = (state : RootState) => {

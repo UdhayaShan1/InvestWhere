@@ -6,7 +6,7 @@ interface FormattedTextProps {
   content: string;
 }
 
-export const FormattedText: React.FC<FormattedTextProps> = ({ content }) => {
+export const MarkdownFormattedText: React.FC<FormattedTextProps> = ({ content }) => {
   const formatText = (text: string) => {
     const lines = text.split("\n");
 
@@ -40,7 +40,6 @@ export const FormattedText: React.FC<FormattedTextProps> = ({ content }) => {
         );
       }
 
-      // Handle # headers
       if (part.startsWith("#")) {
         return (
           <Text

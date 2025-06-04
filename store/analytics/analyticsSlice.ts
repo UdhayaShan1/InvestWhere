@@ -1,7 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { InvestUser } from "../../types/auth.types";
-import { AnalyticsLLMResult } from "../../types/analytics.types";
-import { NetWorthSummary } from "../../types/wealth.types";
+import { AnalyticsLLMResult, NetWorthLLMRequest } from "../../types/analytics.types";
 
 const initialState: AnalyticsLLMResult = {
   netWorthFeedback: null,
@@ -15,7 +13,7 @@ export const analyticsSlice = createSlice({
   name: "slice",
   initialState,
   reducers: {
-    getNetWorthLLM(state, _actions: PayloadAction<NetWorthSummary>) {
+    getNetWorthLLM(state, _actions: PayloadAction<NetWorthLLMRequest>) {
       state.isLoading = true;
     },
     getNetWorthLLMSuccess(state, actions: PayloadAction<string>) {
