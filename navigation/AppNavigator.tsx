@@ -1,11 +1,13 @@
-import React, {  } from "react";
+import React, { useEffect, useState } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import LoginScreen from "../screens/Login";
 import RegisterScreen from "../screens/Register";
-import { useAppSelector } from "../store/rootTypes";
+import { useAppDispatch, useAppSelector } from "../store/rootTypes";
 import { loggedInUserSelector } from "../store/auth/authSelector";
 import BottomTabNavigator from "./BottomTabNavigator";
+import { getAuth, onAuthStateChanged, User } from "firebase/auth";
+import { authAction } from "../store/auth/authSlice";
 
 export type RootStackParamList = {
   Login: undefined;
@@ -16,12 +18,36 @@ export type RootStackParamList = {
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function AppNavigator() {
-  const user = useAppSelector(loggedInUserSelector);
+  const [user, setUser] = useState<User | null>(null);
+  const loggedInUser = useAppSelector(loggedInUserSelector);
+  const dispatch = useAppDispatch();
 
+  useEffect(() => {
+    const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      if (currentUser) {
+        console.log(currentUser);
+        dispatch(
+          authAction.refreshSession({
+            uid: currentUser.uid,
+            email: currentUser.email,
+            displayName: currentUser.displayName,
+            photoURL: currentUser.photoURL,
+            emailVerified: currentUser.emailVerified,
+          })
+        );
+      } else {
+        dispatch(authAction.logoutUser());
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
   return (
-  <NavigationContainer>
+    <NavigationContainer>
       <Stack.Navigator>
-        {user.CredProfile ? (
+        {loggedInUser.CredProfile ? (
           <Stack.Screen name="InvestWhere" component={BottomTabNavigator} />
         ) : (
           <>

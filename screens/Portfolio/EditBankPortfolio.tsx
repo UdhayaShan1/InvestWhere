@@ -137,11 +137,6 @@ export function EditBankPortfolio({
     setEditForm({ Bank: newBankName });
   };
 
-  // useEffect(() => {
-  //   console.log("Avail bank", availBanks);
-  //   console.log("Edit form", editForm);
-  // }, [availBanks, editForm]);
-
   const handleAddNewBankAccount = () => {
     // Validation
     if (!newBankAccountName || newBankAccountName.trim() === "") {

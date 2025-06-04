@@ -6,6 +6,7 @@ import {
   InvestUser,
   InvestUserProfile,
 } from "../../types/auth.types";
+import { User } from "firebase/auth";
 
 const initialState: InvestUser = {
   isLoading: false,
@@ -102,6 +103,25 @@ export const authSlice = createSlice({
     editUserProfileFail: (state, action: PayloadAction<string>) => {
       state.isLoading = false;
       state.error = action.payload;
+    },
+    refreshSession: (state, actions: PayloadAction<CredentialUserProfile>) => {
+      state.isLoading = true;
+      state.error = initialState.error;
+      state.CredProfile = initialState.CredProfile;
+      state.UserProfile = initialState.UserProfile;
+    },
+    refreshSessionSuccess: (
+      state,
+      actions: PayloadAction<AuthSuccessPayload>
+    ) => {
+      state.isLoading = false;
+      state.error = null;
+      state.CredProfile = actions.payload.CredProfile;
+      state.UserProfile = actions.payload.UserProfile;
+    },
+    refreshSessionFail: (state, actions: PayloadAction<string>) => {
+      state.isLoading = false;
+      state.error = actions.payload;
     },
   },
 });

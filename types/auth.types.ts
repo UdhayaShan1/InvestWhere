@@ -22,6 +22,10 @@ export interface InvestUserProfile {
     lastUpdated?: string;
 }
 
+export interface PrivateUserProfileForLLM {
+    age: number | null;
+}
+
 export interface FirebaseLoginRegisterProp {
     email: string;
     password: string;
@@ -31,3 +35,4 @@ export interface AuthSuccessPayload {
     CredProfile : CredentialUserProfile | null;
     UserProfile : InvestUserProfile | null;
 }
+

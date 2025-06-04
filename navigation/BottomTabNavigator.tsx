@@ -3,11 +3,13 @@ import HomeScreen from "../screens/Home";
 import { ProfilePageScreen } from "../screens/Profile/ProfilePage";
 import { MaterialIcons } from "@expo/vector-icons";
 import { UserPortfolio } from "../screens/Portfolio/UserPortfolio";
+import UserAnalytics from "../screens/Analytics/UserAnalytics";
 
 export type BottomTabParamList = {
   HomeTab: undefined;
   ProfileTab: undefined;
   PortfolioTab: undefined;
+  AnalyticsTab: undefined;
 };
 
 const Tab = createBottomTabNavigator<BottomTabParamList>();
@@ -23,7 +25,9 @@ export default function BottomTabNavigator() {
           } else if (route.name === "ProfileTab") {
             iconName = "person";
           } else if (route.name === "PortfolioTab") {
-            iconName = 'money';
+            iconName = "money";
+            } else if (route.name === "AnalyticsTab") {
+            iconName = "analytics";
           }
           return (
             <MaterialIcons name={iconName as any} size={size} color={color} />
@@ -44,6 +48,12 @@ export default function BottomTabNavigator() {
         name="PortfolioTab"
         component={UserPortfolio}
         options={{ title: "Portfolio" }}
+      ></Tab.Screen>
+
+      <Tab.Screen
+        name="AnalyticsTab"
+        component={UserAnalytics}
+        options={{ title: "Analytics" }}
       ></Tab.Screen>
 
       <Tab.Screen
