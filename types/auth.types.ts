@@ -31,3 +31,4 @@ export interface AuthSuccessPayload {
     CredProfile : CredentialUserProfile | null;
     UserProfile : InvestUserProfile | null;
 }
+

@@ -1,9 +1,47 @@
 import { StyleSheet } from "react-native";
+import { stringToDate } from "../constants/date_helper";
 
 export const tabDescriptions: { [key: string]: string } = {
   networth: "Track your complete financial journey here!",
   component: "Dive deep into individual components here!",
 };
+
+export const formatDateLabel = (dateString: string) => {
+  const date = stringToDate(dateString);
+  const month = ("0" + (date.getMonth() + 1)).slice(-2);
+  const day = ("0" + date.getDate()).slice(-2);
+  return `${month}/${day}`;
+};
+
+export const getPastDate = (months: number): Date => {
+  const date = new Date();
+  date.setMonth(date.getMonth() - months);
+  return date;
+};
+
+export type DateRangeOption = "all" | "1m" | "3m" | "6m" | "1y";
+
+export interface ChartData {
+  labels: string[];
+  datasets: {
+    data: number[];
+    color?: (opacity: number) => string;
+    strokeWidth?: number;
+  }[];
+  legend?: string[];
+}
+
+export const initialChartData: ChartData = {
+  labels: [],
+  datasets: [{ data: [] }],
+};
+
+export interface AnalyticsLLMResult {
+  netWorthFeedback?: string | null;
+  componentFeedback?: string | null;
+  isLoading?: boolean;
+  error?: string | null;
+}
 
 export const styles = StyleSheet.create({
   container: {
@@ -184,5 +222,177 @@ export const styles = StyleSheet.create({
     textAlign: "center",
     marginTop: 10,
     fontWeight: "500",
+  },
+
+  // New Selector Card Styles
+  selectorCard: {
+    backgroundColor: "#fff",
+    marginHorizontal: 10,
+    marginBottom: 20,
+    borderRadius: 16,
+    padding: 20,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
+    elevation: 3,
+  },
+  selectorHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  selectorTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#2c3e50",
+    marginLeft: 8,
+  },
+  selectorSubtitle: {
+    fontSize: 14,
+    color: "#7f8c8d",
+    marginBottom: 16,
+    lineHeight: 20,
+  },
+
+  // Modern Dropdown Styles
+  modernDropdown: {
+    borderWidth: 1,
+    borderColor: "#e1e8ed",
+    borderRadius: 12,
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    backgroundColor: "#f8f9fa",
+  },
+  modernDropdownActive: {
+    borderColor: "#4A6FA5",
+    backgroundColor: "#f0f4f8",
+    borderWidth: 2,
+  },
+  dropdownContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
+  },
+  componentIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 12,
+  },
+  componentIconText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+  componentInfo: {
+    flex: 1,
+  },
+  componentName: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#2c3e50",
+    marginBottom: 2,
+  },
+  componentType: {
+    fontSize: 12,
+    color: "#7f8c8d",
+  },
+  placeholderContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
+  },
+  placeholderText: {
+    fontSize: 16,
+    color: "#bbb",
+    marginLeft: 12,
+  },
+
+  // Modal Styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "flex-end",
+  },
+  modalContainer: {
+    backgroundColor: "#fff",
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    maxHeight: "70%",
+    paddingBottom: 20,
+  },
+  modalHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: "#f0f0f0",
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#2c3e50",
+  },
+  modalCloseButton: {
+    padding: 4,
+  },
+  modalContent: {
+    paddingHorizontal: 20,
+  },
+  modalItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    marginVertical: 4,
+    borderRadius: 12,
+    backgroundColor: "#f8f9fa",
+  },
+  modalItemSelected: {
+    backgroundColor: "#e6f3ff",
+    borderWidth: 1,
+    borderColor: "#4A6FA5",
+  },
+  modalItemText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#2c3e50",
+    marginBottom: 2,
+  },
+  modalItemTextSelected: {
+    color: "#4A6FA5",
+  },
+  modalItemSubtext: {
+    fontSize: 12,
+    color: "#7f8c8d",
+  },
+
+  // Empty State Styles
+  emptyState: {
+    alignItems: "center",
+    padding: 40,
+  },
+  emptyStateTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#7f8c8d",
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  emptyStateSubtitle: {
+    fontSize: 14,
+    color: "#bbb",
+    textAlign: "center",
+    lineHeight: 20,
   },
 });
