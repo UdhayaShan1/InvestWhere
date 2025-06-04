@@ -38,7 +38,7 @@ export default function NetWorthAnalytics() {
   const [chartData, setChartData] = useState<ChartData>(initialChartData);
   const [selectedRange, setSelectedRange] = useState<DateRangeOption>("all");
   const [isLoading, setIsLoading] = useState(true);
-  const netWorthSummary = useAppSelector(netWorthFeedbackSelector);
+  const netWorthFeedback = useAppSelector(netWorthFeedbackSelector);
   const isAnalyzing = useAppSelector(isLoadingSelector);
   const dispatch = useAppDispatch();
   const uid = useAppSelector(currentUidSelector);
@@ -46,6 +46,10 @@ export default function NetWorthAnalytics() {
   useEffect(() => {
     dispatch(analyticsAction.getSavedNetWorthFeedback(uid ?? ""));
   }, []);
+
+  useEffect(() => {
+    console.log(netWorthFeedback?.createdOn, "Huh")
+  }, [netWorthFeedback])
 
   useEffect(() => {
     if (netWorthData && netWorthData.History) {
@@ -316,7 +320,7 @@ export default function NetWorthAnalytics() {
       </View>
 
       {/* Feedback Display */}
-      {netWorthSummary && (
+      {netWorthFeedback && (
         <View
           style={{
             margin: 10,
@@ -325,20 +329,90 @@ export default function NetWorthAnalytics() {
             borderRadius: 12,
             borderLeftWidth: 4,
             borderLeftColor: "#4A6FA5",
+            shadowColor: "#000",
+            shadowOffset: {
+              width: 0,
+              height: 2,
+            },
+            shadowOpacity: 0.1,
+            shadowRadius: 3.84,
+            elevation: 3,
           }}
         >
-          <Text
+          {/* Header with timestamp */}
+          <View
             style={{
-              fontSize: 16,
-              fontWeight: "600",
-              color: "#4A6FA5",
-              marginBottom: 8,
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "flex-start",
+              marginBottom: 12,
             }}
           >
-            🤖 AI Financial Analysis
-          </Text>
+            <Text
+              style={{
+                fontSize: 16,
+                fontWeight: "600",
+                color: "#4A6FA5",
+                flex: 1,
+              }}
+            >
+              🤖 AI Financial Analysis
+            </Text>
+
+            {netWorthFeedback.createdOn && (
+              <View
+                style={{
+                  backgroundColor: "#f0f4f8",
+                  paddingHorizontal: 8,
+                  paddingVertical: 4,
+                  borderRadius: 8,
+                  flexDirection: "row",
+                  alignItems: "center",
+                  marginLeft: 10,
+                }}
+              >
+                <Ionicons
+                  name="time-outline"
+                  size={12}
+                  color="#7f8c8d"
+                  style={{ marginRight: 4 }}
+                />
+                <Text
+                  style={{
+                    fontSize: 11,
+                    color: "#7f8c8d",
+                    fontWeight: "500",
+                  }}
+                >
+                  {(() => {
+                    const date = stringToDate(netWorthFeedback.createdOn)
+                    const today = new Date();
+                    const diffTime = Math.abs(today.getTime() - date.getTime());
+                    const diffDays = Math.ceil(
+                      diffTime / (1000 * 60 * 60 * 24)
+                    );
+
+                    if (diffDays === 1) {
+                      return "Today";
+                    } else if (diffDays === 2) {
+                      return "Yesterday";
+                    } else if (diffDays <= 7) {
+                      return `${diffDays - 1} days ago`;
+                    } else {
+                      return date.toLocaleDateString("en-SG", {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                      });
+                    }
+                  })()}
+                </Text>
+              </View>
+            )}
+          </View>
+
           <MarkdownFormattedText
-            content={netWorthSummary.netWorthFeedback ?? ""}
+            content={netWorthFeedback.netWorthFeedback ?? ""}
           />
         </View>
       )}

@@ -13,6 +13,7 @@ import {
 } from "react-native";
 import { styles, tabDescriptions } from "../../types/analytics.types";
 import { Ionicons } from "@expo/vector-icons";
+import { analyticsAction } from "../../store/analytics/analyticsSlice";
 
 type AnalyticsTab = "networth" | "component";
 
@@ -32,6 +33,7 @@ export default function UserAnalytics() {
     setRefreshing(true);
     if (uid) {
       dispatch(portfolioAction.loadWealthProfile(uid));
+      dispatch(analyticsAction.getSavedNetWorthFeedback(uid));
     }
     setTimeout(() => setRefreshing(false), 1000);
   };
