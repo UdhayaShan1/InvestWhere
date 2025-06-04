@@ -48,10 +48,6 @@ export default function NetWorthAnalytics() {
   }, []);
 
   useEffect(() => {
-    console.log(netWorthFeedback?.createdOn, "Huh")
-  }, [netWorthFeedback])
-
-  useEffect(() => {
     if (netWorthData && netWorthData.History) {
       setIsLoading(true);
       const history = netWorthData.History;
@@ -385,7 +381,7 @@ export default function NetWorthAnalytics() {
                   }}
                 >
                   {(() => {
-                    const date = stringToDate(netWorthFeedback.createdOn)
+                    const date = stringToDate(netWorthFeedback.createdOn);
                     const today = new Date();
                     const diffTime = Math.abs(today.getTime() - date.getTime());
                     const diffDays = Math.ceil(
