@@ -144,7 +144,6 @@ export default function ComponentAnalytics() {
       ) {
         setChartData(initialChartData);
       } else if (filteredDates.length > 0) {
-        console.log(filteredDates, "HMM");
         filteredDates = filteredDates.filter(
           (date) => history[date][componentSelected] !== undefined
         );
@@ -163,7 +162,6 @@ export default function ComponentAnalytics() {
         const dataPoints = filteredDates.map(
           (date) => history[date][componentSelected] ?? 0
         );
-        console.log(dataPoints, "YMPA");
         setChartData({
           labels: displayLabels,
           datasets: [

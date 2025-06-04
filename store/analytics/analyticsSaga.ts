@@ -1,9 +1,18 @@
 import { PayloadAction } from "@reduxjs/toolkit";
 import { call, put, takeEvery } from "redux-saga/effects";
 import { analyticsAction } from "./analyticsSlice";
-import { NetWorthLLMRequest } from "../../types/analytics.types";
+import {
+  LLMSummaryRecord,
+  NetWorthLLMRequest,
+} from "../../types/analytics.types";
 import { auth } from "../../firebase/firebase";
 import { getIdToken } from "firebase/auth";
+import {
+  findNetWorthSummaryByUid,
+  saveNetWorthSummaryByUid,
+} from "../../firebase/services/analyticsService";
+import { saveNetWorthSummary } from "../../firebase/services/portfolioService";
+import { getCurrentDateString } from "../../constants/date_helper";
 
 export function* getNetWorthLLMWorker(
   actions: PayloadAction<NetWorthLLMRequest>
@@ -37,9 +46,28 @@ export function* getNetWorthLLMWorker(
         "LLM response in wrong format. Contact Dev with Screenshot"
       );
     }
+    const uid = authUser?.uid;
 
-    console.log(data["response"]);
-    yield put(analyticsAction.getNetWorthLLMSuccess(data["response"]));
+    if (!uid) {
+      throw new Error("User not authenticated");
+    }
+    const updatedSummary: LLMSummaryRecord = {
+      uid: authUser?.uid ?? "default",
+      netWorthFeedback: data["response"],
+      createdOn: getCurrentDateString(),
+    };
+
+    const saveResult: boolean = yield call(
+      saveNetWorthSummaryByUid,
+      uid,
+      updatedSummary
+    );
+
+    if (!saveResult) {
+      throw new Error("Failed to save analysis to database");
+    }
+
+    yield put(analyticsAction.getNetWorthLLMSuccess(updatedSummary));
   } catch (error) {
     console.log(error);
     const errMsg =
@@ -51,6 +79,43 @@ export function* getNetWorthLLMWorker(
   }
 }
 
+export function* getSavedNetWorthFeedbackWorker(
+  actions: PayloadAction<string>
+) {
+  try {
+    const uid = actions.payload;
+    const savedNetWorthFeedback: LLMSummaryRecord = yield call(
+      findNetWorthSummaryByUid,
+      uid
+    );
+    if (savedNetWorthFeedback) {
+      yield put(
+        analyticsAction.getSavedNetWorthFeedbackSuccess(savedNetWorthFeedback)
+      );
+    } else {
+      yield put(
+        analyticsAction.getSavedNetWorthFeedbackSuccess({
+          uid: uid,
+          createdOn: "",
+          netWorthFeedback: "",
+        })
+      );
+    }
+  } catch (error) {
+    console.log(error);
+    const errMsg =
+      error instanceof Error
+        ? error.message
+        : "Error getting saved net worth feedback from Firestore.";
+    alert(errMsg);
+    yield put(analyticsAction.getSavedNetWorthFeedbackFail(errMsg));
+  }
+}
+
 export function* analyticsWatcher() {
   yield takeEvery(analyticsAction.getNetWorthLLM, getNetWorthLLMWorker);
+  yield takeEvery(
+    analyticsAction.getSavedNetWorthFeedback,
+    getSavedNetWorthFeedbackWorker
+  );
 }

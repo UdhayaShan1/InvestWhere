@@ -25,7 +25,11 @@ import {
 import { analyticsAction } from "../../store/analytics/analyticsSlice";
 import { Ionicons } from "@expo/vector-icons";
 import { MarkdownFormattedText } from "../../component/MarkdownFormattedText";
-import { loggedInUserSelector } from "../../store/auth/authSelector";
+import {
+  currentUidSelector,
+  loggedInUserSelector,
+} from "../../store/auth/authSelector";
+import { auth } from "../../firebase/firebase";
 const screenWidth = Dimensions.get("window").width;
 
 export default function NetWorthAnalytics() {
@@ -34,9 +38,14 @@ export default function NetWorthAnalytics() {
   const [chartData, setChartData] = useState<ChartData>(initialChartData);
   const [selectedRange, setSelectedRange] = useState<DateRangeOption>("all");
   const [isLoading, setIsLoading] = useState(true);
-  const netWorthFeedback = useAppSelector(netWorthFeedbackSelector);
+  const netWorthSummary = useAppSelector(netWorthFeedbackSelector);
   const isAnalyzing = useAppSelector(isLoadingSelector);
   const dispatch = useAppDispatch();
+  const uid = useAppSelector(currentUidSelector);
+
+  useEffect(() => {
+    dispatch(analyticsAction.getSavedNetWorthFeedback(uid ?? ""));
+  }, []);
 
   useEffect(() => {
     if (netWorthData && netWorthData.History) {
@@ -248,7 +257,9 @@ export default function NetWorthAnalytics() {
         );
       } else {
         dispatch(
-          analyticsAction.getNetWorthLLM({ NetWorthHistory: netWorthData.History })
+          analyticsAction.getNetWorthLLM({
+            NetWorthHistory: netWorthData.History,
+          })
         );
       }
     } else {
@@ -305,7 +316,7 @@ export default function NetWorthAnalytics() {
       </View>
 
       {/* Feedback Display */}
-      {netWorthFeedback && (
+      {netWorthSummary && (
         <View
           style={{
             margin: 10,
@@ -326,7 +337,9 @@ export default function NetWorthAnalytics() {
           >
             🤖 AI Financial Analysis
           </Text>
-          <MarkdownFormattedText content={netWorthFeedback} />
+          <MarkdownFormattedText
+            content={netWorthSummary.netWorthFeedback ?? ""}
+          />
         </View>
       )}
     </>

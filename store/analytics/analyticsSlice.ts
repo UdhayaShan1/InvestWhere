@@ -1,11 +1,14 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { AnalyticsLLMResult, NetWorthLLMRequest } from "../../types/analytics.types";
+import {
+  AnalyticsLLMResult,
+  LLMSummaryRecord,
+  NetWorthLLMRequest,
+} from "../../types/analytics.types";
 
 const initialState: AnalyticsLLMResult = {
-  netWorthFeedback: null,
-  componentFeedback: null,
   isLoading: false,
   error: null,
+  netWorthSummary: null,
 };
 
 // store logged in user information
@@ -16,14 +19,30 @@ export const analyticsSlice = createSlice({
     getNetWorthLLM(state, _actions: PayloadAction<NetWorthLLMRequest>) {
       state.isLoading = true;
     },
-    getNetWorthLLMSuccess(state, actions: PayloadAction<string>) {
+    getNetWorthLLMSuccess(state, actions: PayloadAction<LLMSummaryRecord>) {
       state.isLoading = false;
-      state.netWorthFeedback = actions.payload;
+      state.netWorthSummary = actions.payload;
     },
     getNetWorthLLMFail(state, actions: PayloadAction<string>) {
       state.isLoading = false;
       state.error = actions.payload;
-      state.netWorthFeedback = "";
+      state.netWorthSummary = null;
+    },
+    getSavedNetWorthFeedback(state, actions: PayloadAction<string>) {
+      state.isLoading = true;
+    },
+    getSavedNetWorthFeedbackSuccess(
+      state,
+      actions: PayloadAction<LLMSummaryRecord>
+    ) {
+      console.log(actions.payload, "Sure?")
+      state.isLoading = false;
+      state.netWorthSummary = actions.payload;
+    },
+    getSavedNetWorthFeedbackFail(state, actions: PayloadAction<string>) {
+      state.isLoading = false;
+      state.error = actions.payload;
+      state.netWorthSummary = null;
     },
   },
 });

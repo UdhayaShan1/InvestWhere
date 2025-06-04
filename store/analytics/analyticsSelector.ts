@@ -1,11 +1,7 @@
 import { RootState } from "../rootTypes";
 
 const netWorthFeedbackSelector = (state: RootState) => {
-  return state.analytics.netWorthFeedback;
-};
-
-const componentFeedbackSelector = (state: RootState) => {
-  return state.analytics.componentFeedback;
+  return state.analytics.netWorthSummary;
 };
 
 const isLoadingSelector = (state: RootState) => {
@@ -14,6 +10,5 @@ const isLoadingSelector = (state: RootState) => {
 
 export {
   netWorthFeedbackSelector,
-  componentFeedbackSelector,
   isLoadingSelector,
 };

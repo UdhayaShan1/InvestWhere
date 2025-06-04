@@ -39,15 +39,21 @@ export const initialChartData: ChartData = {
 };
 
 export interface AnalyticsLLMResult {
-  netWorthFeedback?: string | null;
-  componentFeedback?: string | null;
   isLoading?: boolean;
   error?: string | null;
+  netWorthSummary?: LLMSummaryRecord | null;
 }
 
 export interface NetWorthLLMRequest {
+  uid?: string;
   NetWorthHistory: { [month: string]: { [component: string]: number } };
   UserProfile?: PrivateUserProfileForLLM;
+}
+
+export interface LLMSummaryRecord {
+  uid: string;
+  createdOn: string;
+  netWorthFeedback?: string;
 }
 
 export const styles = StyleSheet.create({
