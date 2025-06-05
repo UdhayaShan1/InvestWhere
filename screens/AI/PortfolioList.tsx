@@ -42,7 +42,7 @@ export default function PortfolioList() {
   }, [uid, dispatch]);
 
   useEffect(() => {
-    console.log("Recommended", recommendedAssetAllocationList);
+    console.log("Recommended", assetAllocationList);
   }, [recommendedAssetAllocationList]);
 
   const calculatePortfolioData = (assetAllocation: AssetAllocations) => {
@@ -362,11 +362,10 @@ export default function PortfolioList() {
         >
           {Object.keys(recommendedAssetAllocationList).map((id) => {
             const recommendation = recommendedAssetAllocationList[Number(id)];
-            console.log("YMPA", recommendation, id);
             const portfolioData = calculatePortfolioData(
               recommendation.assetAllocation
             );
-            console.log("YMPA2", portfolioData);
+            console.log(id, portfolioData, "@@@")
 
             return (
               <View key={id} style={styles.recommendationCard}>
@@ -547,7 +546,15 @@ export default function PortfolioList() {
 
                   <TouchableOpacity
                     style={[styles.actionButton, styles.deleteButton]}
-                    onPress={() => console.log(`Delete portfolio ${id}`)}
+                    onPress={() => {
+                      console.log(`Delete portfolio ${id}`);
+                      dispatch(
+                        portfolioAction.deleteRecommendation({
+                          id: id,
+                          assetAllocationList: assetAllocationList,
+                        })
+                      );
+                    }}
                   >
                     <Ionicons
                       name="trash-outline"

@@ -42,7 +42,7 @@ export interface AssetAllocations {
 export interface AssetAllocationsList {
   uid?: string;
   recommended?: {
-    [Id: number]: { assetAllocation: AssetAllocations; createdOn?: string };
+    [Id: string]: { assetAllocation: AssetAllocations; createdOn?: string };
   };
   current?: AssetAllocations;
 }
@@ -157,6 +157,11 @@ export interface SyfeDeleteRequest {
   uid: string;
   portfolioToDelete: string;
   syfeAllocation: SyfeInterface;
+}
+
+export interface RecommendationDeleteRequest {
+  id: string;
+  assetAllocationList: AssetAllocationsList
 }
 
 export function CleanUpSyfeCustomFromEditForm(editForm: SyfeInterface) {

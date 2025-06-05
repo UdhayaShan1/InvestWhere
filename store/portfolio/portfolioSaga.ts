@@ -9,6 +9,7 @@ import {
   defaultSyfe,
   InvestmentEditForm,
   NetWorthSummary,
+  RecommendationDeleteRequest,
   SyfeDeleteRequest,
   SyfeInterface,
   SyfeSaveRequest,
@@ -20,6 +21,7 @@ import {
   saveNetWorthSummary,
   getAssetAllocationsList as getAssetAllocationsListService,
   saveAssetAllocationsListWithCurrentAllocation,
+  saveAssetAllocationsList,
 } from "../../firebase/services/portfolioService";
 import { calculateCategoryTotalRecursively } from "../../constants/helper";
 import { getCurrentDateString } from "../../constants/date_helper";
@@ -502,6 +504,40 @@ export function* getAssetAllocationsListWorker(
   }
 }
 
+export function* deleteRecommendationWorker(
+  actions: PayloadAction<RecommendationDeleteRequest>
+) {
+  try {
+    console.log("At delete saga");
+    const idToDelete = actions.payload.id;
+
+    const assetAllocationList = JSON.parse(
+      JSON.stringify(actions.payload.assetAllocationList)
+    );
+
+    if (assetAllocationList && assetAllocationList.recommended) {
+      const { [idToDelete]: deletedItem, ...remainingRecommendations } =
+        assetAllocationList.recommended;
+      assetAllocationList.recommended = remainingRecommendations;
+    }
+
+    console.log("Updated list:", assetAllocationList);
+
+    yield call(saveAssetAllocationsList, assetAllocationList);
+
+    yield put(portfolioAction.deleteRecommendationSuccess());
+
+    if (assetAllocationList.uid) {
+      yield put(portfolioAction.loadWealthProfile(assetAllocationList.uid));
+    }
+  } catch (error) {
+    const errorMsg =
+      error instanceof Error ? error.message : "Error deleting recommendation";
+    alert(errorMsg);
+    yield put(portfolioAction.deleteRecommendationFail(errorMsg));
+  }
+}
+
 export function* portfolioWatcher() {
   yield takeEvery(portfolioAction.loadWealthProfile, loadWealthProfileWorker);
   yield takeEvery(portfolioAction.saveBankDetails, saveNewBankDetailsWorker);
@@ -525,5 +561,9 @@ export function* portfolioWatcher() {
   yield takeEvery(
     portfolioAction.loadAssetAllocationList,
     getAssetAllocationsListWorker
+  );
+  yield takeEvery(
+    portfolioAction.deleteRecommendation,
+    deleteRecommendationWorker
   );
 }

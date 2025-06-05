@@ -10,6 +10,7 @@ import {
   AssetAllocationsList,
   BankEditForm,
   InvestmentEditForm,
+  RecommendationDeleteRequest,
   SyfeDeleteRequest,
   SyfeInterface,
   SyfeSaveRequest,
@@ -39,6 +40,7 @@ export const portfolioSlice = createSlice({
       state.isLoading = false;
       state.NetWorth = actions.payload.NetWorth;
       state.Allocations = actions.payload.Allocations;
+      state.AllocationsList = actions.payload.AllocationsList;
     },
     loadWealthProfileFail: (state, actions: PayloadAction<string>) => {
       state.isLoading = false;
@@ -131,6 +133,20 @@ export const portfolioSlice = createSlice({
       state.isLoading = false;
       state.error = actions.payload;
       state.AllocationsList = null;
+    },
+    deleteRecommendation: (
+      state,
+      actions: PayloadAction<RecommendationDeleteRequest>
+    ) => {
+      state.isLoading = true;
+      state.error = null;
+    },
+    deleteRecommendationSuccess: (state) => {
+      state.isLoading = false;
+    },
+    deleteRecommendationFail: (state, actions: PayloadAction<string>) => {
+      state.isLoading = false;
+      state.error = actions.payload;
     },
   },
 });
