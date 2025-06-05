@@ -3,6 +3,7 @@ import { call, put, takeEvery } from "redux-saga/effects";
 import { portfolioAction } from "./portfolioSlice";
 import {
   AssetAllocations,
+  AssetAllocationsList,
   AssetComponents,
   BankEditForm,
   defaultSyfe,
@@ -17,6 +18,8 @@ import {
   getNetWorthSummary,
   saveAssetAllocations,
   saveNetWorthSummary,
+  getAssetAllocationsList as getAssetAllocationsListService,
+  saveAssetAllocationsListWithCurrentAllocation,
 } from "../../firebase/services/portfolioService";
 import { calculateCategoryTotalRecursively } from "../../constants/helper";
 import { getCurrentDateString } from "../../constants/date_helper";
@@ -29,11 +32,17 @@ export function* loadWealthProfileWorker(actions: PayloadAction<string>) {
       uid
     );
     const assetSummary: AssetAllocations = yield call(getAssetAllocations, uid);
+
+    const allocationList: AssetAllocationsList = yield call(
+      getAssetAllocationsListService,
+      uid
+    );
     console.log("test", assetSummary, assetSummary.Robos.Syfe.cashManagement);
     yield put(
       portfolioAction.loadWealthProfileSuccess({
         NetWorth: netWorthSummary,
         Allocations: assetSummary,
+        AllocationsList: allocationList,
       })
     );
   } catch (error) {
@@ -107,6 +116,12 @@ export function* saveNewBankDetailsWorker(
       yield call(saveNetWorthSummary, netWorthSummary);
       yield put(portfolioAction.saveBankDetailsSuccess(bankDetail));
 
+      //update asset allocation list's current
+      yield call(
+        saveAssetAllocationsListWithCurrentAllocation,
+        updatedAllocations
+      );
+
       //load everything for ui
       yield put(portfolioAction.loadWealthProfile(uid));
     }
@@ -167,6 +182,13 @@ export function* deleteBankWorker(actions: PayloadAction<BankEditForm>) {
 
       yield call(saveNetWorthSummary, netWorthSummary);
       yield put(portfolioAction.saveSyfePortfolioSuccess());
+
+      //update asset allocation list's current
+      yield call(
+        saveAssetAllocationsListWithCurrentAllocation,
+        updatedAllocations
+      );
+
       //load everything for ui
       yield put(portfolioAction.loadWealthProfile(uid));
     }
@@ -229,6 +251,13 @@ export function* saveNewSyfePortfolioWorker(
 
       yield call(saveNetWorthSummary, netWorthSummary);
       yield put(portfolioAction.saveSyfePortfolioSuccess());
+
+      //update asset allocation list's current
+      yield call(
+        saveAssetAllocationsListWithCurrentAllocation,
+        updatedAllocations
+      );
+
       //load everything for ui
       yield put(portfolioAction.loadWealthProfile(uid));
     }
@@ -289,6 +318,13 @@ export function* deleteSyfePortfolioWorker(
 
       yield call(saveNetWorthSummary, netWorthSummary);
       yield put(portfolioAction.saveSyfePortfolioSuccess());
+
+      //update asset allocation list's current
+      yield call(
+        saveAssetAllocationsListWithCurrentAllocation,
+        updatedAllocations
+      );
+
       //load everything for ui
       yield put(portfolioAction.loadWealthProfile(uid));
     }
@@ -359,6 +395,12 @@ export function* saveNewInvestmentDetailsWorker(
 
       yield call(saveNetWorthSummary, netWorthSummary);
       yield put(portfolioAction.saveSyfePortfolioSuccess());
+
+      //update asset allocation list's current
+      yield call(
+        saveAssetAllocationsListWithCurrentAllocation,
+        updatedAllocations
+      );
       //load everything for ui
       yield put(portfolioAction.loadWealthProfile(uid));
     }
@@ -420,12 +462,43 @@ export function* deleteInvestmentWorker(
 
       yield call(saveNetWorthSummary, netWorthSummary);
       yield put(portfolioAction.saveSyfePortfolioSuccess());
+
+      //update asset allocation list's current
+      yield call(
+        saveAssetAllocationsListWithCurrentAllocation,
+        updatedAllocations
+      );
       //load everything for ui
       yield put(portfolioAction.loadWealthProfile(uid));
     }
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     yield put(portfolioAction.deleteInvestmentDetailsFail(errorMessage));
+  }
+}
+
+export function* getAssetAllocationsListWorker(
+  actions: PayloadAction<string>
+): Generator<any, void, any> {
+  try {
+    const uid = actions.payload;
+    const assetAllocationsList = yield call(
+      getAssetAllocationsListService,
+      uid
+    );
+    if (!assetAllocationsList) {
+      throw new Error("Error getting list of asset allocations");
+    }
+    yield put(
+      portfolioAction.loadAssetAllocationListSuccess(assetAllocationsList)
+    );
+  } catch (error) {
+    const errorMsg =
+      error instanceof Error
+        ? error.message
+        : "Error getting list of asset allocations";
+    alert(errorMsg);
+    yield put(portfolioAction.loadAssetAllocationListFail(errorMsg));
   }
 }
 
@@ -449,6 +522,8 @@ export function* portfolioWatcher() {
     portfolioAction.deleteInvestmentDetails,
     deleteInvestmentWorker
   );
-
-  
+  yield takeEvery(
+    portfolioAction.loadAssetAllocationList,
+    getAssetAllocationsListWorker
+  );
 }

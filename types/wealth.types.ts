@@ -6,6 +6,7 @@ export interface WealthProfile {
   error?: string | null;
   NetWorth?: NetWorthSummary | null;
   Allocations?: AssetAllocations | null;
+  AllocationsList?: AssetAllocationsList | null;
 }
 
 export interface NetWorthSummary {
@@ -15,7 +16,14 @@ export interface NetWorthSummary {
   LastUpdated?: string;
 }
 
-export const AssetComponents = ["Bank", "Robos", "Investments", "CPF", "Crypto", "Others"];
+export const AssetComponents = [
+  "Bank",
+  "Robos",
+  "Investments",
+  "CPF",
+  "Crypto",
+  "Others",
+];
 
 export interface AssetAllocations {
   uid: string;
@@ -29,6 +37,14 @@ export interface AssetAllocations {
   Others: {
     [key: string]: OtherAssetItem;
   };
+}
+
+export interface AssetAllocationsList {
+  uid?: string;
+  recommended?: {
+    [Id: number]: { assetAllocation: AssetAllocations; createdOn?: string };
+  };
+  current?: AssetAllocations;
 }
 
 export interface OtherAssetItem {
@@ -177,7 +193,16 @@ export function defaultNetWorthSummary(uid: string): NetWorthSummary {
   return {
     uid,
     Total: 0,
-    History: { [today]: { Bank: 0, Robos: 0, Investments: 0, CPF: 0, Crypto: 0, Others: 0 } },
+    History: {
+      [today]: {
+        Bank: 0,
+        Robos: 0,
+        Investments: 0,
+        CPF: 0,
+        Crypto: 0,
+        Others: 0,
+      },
+    },
     LastUpdated: today,
   };
 }

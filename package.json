@@ -21,6 +21,7 @@
     "@reduxjs/toolkit": "^2.8.2",
     "dayjs": "^1.11.13",
     "expo": "53.0.9",
+    "expo-linear-gradient": "^14.1.5",
     "expo-status-bar": "~2.2.3",
     "firebase": "^11.7.3",
     "react": "19.0.0",
