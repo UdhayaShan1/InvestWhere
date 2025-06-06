@@ -6,6 +6,7 @@ export interface WealthProfile {
   error?: string | null;
   NetWorth?: NetWorthSummary | null;
   Allocations?: AssetAllocations | null;
+  AllocationsList?: AssetAllocationsList | null;
 }
 
 export interface NetWorthSummary {
@@ -15,7 +16,14 @@ export interface NetWorthSummary {
   LastUpdated?: string;
 }
 
-export const AssetComponents = ["Bank", "Robos", "Investments", "CPF", "Crypto", "Others"];
+export const AssetComponents = [
+  "Bank",
+  "Robos",
+  "Investments",
+  "CPF",
+  "Crypto",
+  "Others",
+];
 
 export interface AssetAllocations {
   uid: string;
@@ -29,6 +37,14 @@ export interface AssetAllocations {
   Others: {
     [key: string]: OtherAssetItem;
   };
+}
+
+export interface AssetAllocationsList {
+  uid?: string;
+  recommended?: {
+    [Id: string]: { assetAllocations: AssetAllocations; createdOn?: string };
+  };
+  current?: AssetAllocations;
 }
 
 export interface OtherAssetItem {
@@ -143,6 +159,21 @@ export interface SyfeDeleteRequest {
   syfeAllocation: SyfeInterface;
 }
 
+export interface RecommendationDeleteRequest {
+  id: string;
+  assetAllocationList: AssetAllocationsList;
+}
+
+export interface ApplyRecommendationRequest {
+  assetAllocationList: AssetAllocationsList;
+  recommendationId: string;
+}
+
+export interface ApplyRecommendationCompostionRequest {
+  assetAllocationList: AssetAllocationsList;
+  recommendationId: string;
+}
+
 export function CleanUpSyfeCustomFromEditForm(editForm: SyfeInterface) {
   const updatedForm: SyfeInterface = { ...editForm };
   for (const portfolio in editForm) {
@@ -177,7 +208,16 @@ export function defaultNetWorthSummary(uid: string): NetWorthSummary {
   return {
     uid,
     Total: 0,
-    History: { [today]: { Bank: 0, Robos: 0, Investments: 0, CPF: 0, Crypto: 0, Others: 0 } },
+    History: {
+      [today]: {
+        Bank: 0,
+        Robos: 0,
+        Investments: 0,
+        CPF: 0,
+        Crypto: 0,
+        Others: 0,
+      },
+    },
     LastUpdated: today,
   };
 }
@@ -687,5 +727,29 @@ export const portFolioStyles = StyleSheet.create({
     fontSize: 16,
     color: "#4A6FA5",
     fontWeight: "500",
+  },
+  closeButton: {
+    padding: 8,
+  },
+  modalDetailText: {
+    fontSize: 16,
+    color: "#333",
+    marginBottom: 8,
+  },
+  // Add these new styles
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    gap: 12,
+  },
+  applyEntireButton: {
+    backgroundColor: "#28a745",
+    flex: 1,
+  },
+  applyCompositionButton: {
+    backgroundColor: "#4A6FA5",
+    flex: 1,
   },
 });

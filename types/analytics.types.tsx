@@ -1,11 +1,16 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet, Text, TouchableOpacity } from "react-native";
 import { stringToDate } from "../constants/date_helper";
 import { NetWorthSummary } from "./wealth.types";
 import { PrivateUserProfileForLLM } from "./auth.types";
 
-export const tabDescriptions: { [key: string]: string } = {
+export const analyticsTabDescriptions: { [key: string]: string } = {
   networth: "Track your complete financial journey here!",
   component: "Dive deep into individual components here!",
+};
+
+export const aiTabDescriptions: { [key: string]: string } = {
+  recommend: "Recommend portfolios based on your preferences!",
+  portfolios: "View past portfolios here!",
 };
 
 export const formatDateLabel = (dateString: string) => {
