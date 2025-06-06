@@ -607,11 +607,10 @@ export default function PortfolioList() {
               </View>
 
               <AIUserPortfolio
-                assetAllocation={
-                  recommendedAssetAllocationList[recommendationId]
-                    .assetAllocations
-                }
-              ></AIUserPortfolio>
+                assetAllocationList={assetAllocationList}
+                recommendationId={String(recommendationId)}
+                setRecommendationId={setRecommendationId}
+              />
             </View>
           </View>
         </Modal>

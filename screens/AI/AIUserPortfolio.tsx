@@ -5,11 +5,14 @@ import {
   ScrollView,
   ActivityIndicator,
   RefreshControl,
+  Button,
 } from "react-native";
 import { Dimensions } from "react-native";
 import {
   AssetAllocations,
+  AssetAllocationsList,
   PORTFOLIO_COLORS,
+  defaultAssetAllocations,
   formatCurrency,
 } from "../../types/wealth.types";
 import { portFolioStyles as styles } from "../../types/wealth.types";
@@ -21,15 +24,29 @@ import { AISummaryPortfolio } from "./AISummaryPortfolio";
 import AIPortfolio from "./AIPortfolio";
 import { AIRoboPortfolio } from "./AIRoboPortfolio";
 import { AIInvestmentPortfolio } from "./AIInvestmentPortfolio";
+import { useAppDispatch, useAppSelector } from "../../store/rootTypes";
+import { portfolioAction } from "../../store/portfolio/portfolioSlice";
+import { currentUidSelector } from "../../store/auth/authSelector";
 
 const screenWidth = Dimensions.get("window").width;
 
 interface AIUserPortfolioProps {
-  assetAllocation: AssetAllocations;
+  assetAllocationList: AssetAllocationsList;
+  recommendationId: string;
+  setRecommendationId: React.Dispatch<React.SetStateAction<number>>;
 }
 
-export function AIUserPortfolio({ assetAllocation }: AIUserPortfolioProps) {
+export function AIUserPortfolio({
+  assetAllocationList,
+  recommendationId,
+  setRecommendationId,
+}: AIUserPortfolioProps) {
   const [refreshing, setRefreshing] = useState(false);
+  const uid = useAppSelector(currentUidSelector);
+  const assetAllocation =
+    assetAllocationList.recommended?.[recommendationId].assetAllocations;
+  const dispatch = useAppDispatch();
+
   const bankTotal = assetAllocation?.Bank
     ? calculateCategoryTotalRecursively(assetAllocation.Bank)
     : 0;
@@ -114,7 +131,7 @@ export function AIUserPortfolio({ assetAllocation }: AIUserPortfolioProps) {
       legendFontColor: "#7F7F7F",
       legendFontSize: 12,
     },
-  ].filter((item) => item.value > 0); // Only include categories with values
+  ].filter((item) => item.value > 0);
 
   if (pieChartData.length === 0) {
     pieChartData.push({
@@ -139,7 +156,9 @@ export function AIUserPortfolio({ assetAllocation }: AIUserPortfolioProps) {
         />
 
         <AIBankPortfolio
-          assetAllocation={assetAllocation}
+          assetAllocation={
+            assetAllocation ?? defaultAssetAllocations(uid ?? "")
+          }
           bankTotal={bankTotal}
           totalNetWorth={totalNetWorth}
           expandedSections={expandedSections}
@@ -149,7 +168,9 @@ export function AIUserPortfolio({ assetAllocation }: AIUserPortfolioProps) {
         <AIRoboPortfolio
           expandedSections={expandedSections}
           setExpandedSections={setExpandedSections}
-          assetAllocation={assetAllocation}
+          assetAllocation={
+            assetAllocation ?? defaultAssetAllocations(uid ?? "")
+          }
           roboTotal={roboTotal}
           totalNetWorth={totalNetWorth}
         />
@@ -158,8 +179,22 @@ export function AIUserPortfolio({ assetAllocation }: AIUserPortfolioProps) {
           totalNetWorth={totalNetWorth}
           expandedSections={expandedSections}
           setExpandedSections={setExpandedSections}
-          assetAllocation={assetAllocation}
+          assetAllocation={
+            assetAllocation ?? defaultAssetAllocations(uid ?? "")
+          }
         />
+        <Button
+          title="Apply"
+          onPress={() => {
+            dispatch(
+              portfolioAction.applyRecommendation({
+                assetAllocationList: assetAllocationList,
+                recommendationId: recommendationId,
+              })
+            );
+            setRecommendationId(-1);
+          }}
+        ></Button>
       </ScrollView>
     </>
   );

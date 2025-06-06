@@ -164,6 +164,11 @@ export interface RecommendationDeleteRequest {
   assetAllocationList: AssetAllocationsList;
 }
 
+export interface ApplyRecommendationRequest {
+  assetAllocationList: AssetAllocationsList;
+  recommendationId: string;
+}
+
 export function CleanUpSyfeCustomFromEditForm(editForm: SyfeInterface) {
   const updatedForm: SyfeInterface = { ...editForm };
   for (const portfolio in editForm) {

@@ -7,6 +7,7 @@ import {
   InvestUserProfile,
 } from "../../types/auth.types";
 import {
+  ApplyRecommendationRequest,
   AssetAllocationsList,
   BankEditForm,
   InvestmentEditForm,
@@ -145,6 +146,20 @@ export const portfolioSlice = createSlice({
       state.isLoading = false;
     },
     deleteRecommendationFail: (state, actions: PayloadAction<string>) => {
+      state.isLoading = false;
+      state.error = actions.payload;
+    },
+    applyRecommendation: (
+      state,
+      actions: PayloadAction<ApplyRecommendationRequest>
+    ) => {
+      state.isLoading = true;
+      state.error = null;
+    },
+    applyRecommendationSuccess: (state) => {
+      state.isLoading = false;
+    },
+    applyRecommendationFail: (state, actions: PayloadAction<string>) => {
       state.isLoading = false;
       state.error = actions.payload;
     },

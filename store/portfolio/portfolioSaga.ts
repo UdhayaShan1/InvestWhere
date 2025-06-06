@@ -2,6 +2,7 @@ import { PayloadAction } from "@reduxjs/toolkit";
 import { call, put, takeEvery } from "redux-saga/effects";
 import { portfolioAction } from "./portfolioSlice";
 import {
+  ApplyRecommendationRequest,
   AssetAllocations,
   AssetAllocationsList,
   AssetComponents,
@@ -538,6 +539,91 @@ export function* deleteRecommendationWorker(
   }
 }
 
+export function* applyRecommendationWorker(
+  actions: PayloadAction<ApplyRecommendationRequest>
+) {
+  try {
+    const uid = actions.payload.assetAllocationList.uid;
+    if (!uid) {
+      throw new Error("No uid in asset allocations list set");
+    }
+    const updatedAssetAllocationsList: AssetAllocationsList = JSON.parse(
+      JSON.stringify(actions.payload.assetAllocationList)
+    );
+
+    let recommendedAssetAllocations = undefined;
+    if (
+      actions.payload.assetAllocationList.recommended &&
+      actions.payload.assetAllocationList.recommended[
+        actions.payload.recommendationId
+      ]
+    ) {
+      const recommendedData =
+        actions.payload.assetAllocationList.recommended[
+          actions.payload.recommendationId
+        ];
+
+      recommendedAssetAllocations = JSON.parse(
+        JSON.stringify(recommendedData.assetAllocations)
+      );
+
+      updatedAssetAllocationsList.current = recommendedAssetAllocations;
+      console.log("Updated", updatedAssetAllocationsList);
+      yield call(saveAssetAllocationsList, updatedAssetAllocationsList);
+      
+      recommendedAssetAllocations["uid"] = uid;
+      console.log("Update other", recommendedAssetAllocations);
+      yield call(saveAssetAllocations, recommendedAssetAllocations);
+
+      const netWorthSummary: NetWorthSummary = yield call(
+        getNetWorthSummary,
+        uid
+      );
+
+      if (netWorthSummary) {
+        const today = getCurrentDateString();
+
+        if (!netWorthSummary.History[today]) {
+          netWorthSummary.History[today] = {};
+        }
+        for (const Component of AssetComponents) {
+          const key = Component as keyof typeof recommendedAssetAllocations;
+          const componentTotal = calculateCategoryTotalRecursively(
+            recommendedAssetAllocations[key]
+          );
+          const today = getCurrentDateString();
+          netWorthSummary.History[today][String(key)] = componentTotal;
+        }
+
+        const newTotal = calculateCategoryTotalRecursively(
+          recommendedAssetAllocations
+        );
+        netWorthSummary.History[today]["Total"] = newTotal;
+
+        netWorthSummary.LastUpdated = today;
+
+        yield call(saveNetWorthSummary, netWorthSummary);
+        yield put(portfolioAction.applyRecommendationSuccess());
+
+        if (updatedAssetAllocationsList.uid) {
+          yield put(
+            portfolioAction.loadWealthProfile(updatedAssetAllocationsList.uid)
+          );
+        }
+      } else {
+        throw new Error("NetWorth not found.");
+      }
+    } else {
+      throw new Error("Recommended asset allocation not found.");
+    }
+  } catch (error) {
+    const errMsg =
+      error instanceof Error ? error.message : "Error applying recommendation";
+    alert(errMsg);
+    yield put(portfolioAction.applyRecommendationFail(errMsg));
+  }
+}
+
 export function* portfolioWatcher() {
   yield takeEvery(portfolioAction.loadWealthProfile, loadWealthProfileWorker);
   yield takeEvery(portfolioAction.saveBankDetails, saveNewBankDetailsWorker);
@@ -565,5 +651,9 @@ export function* portfolioWatcher() {
   yield takeEvery(
     portfolioAction.deleteRecommendation,
     deleteRecommendationWorker
+  );
+  yield takeEvery(
+    portfolioAction.applyRecommendation,
+    applyRecommendationWorker
   );
 }
