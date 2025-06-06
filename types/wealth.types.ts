@@ -42,7 +42,7 @@ export interface AssetAllocations {
 export interface AssetAllocationsList {
   uid?: string;
   recommended?: {
-    [Id: string]: { assetAllocation: AssetAllocations; createdOn?: string };
+    [Id: string]: { assetAllocations: AssetAllocations; createdOn?: string };
   };
   current?: AssetAllocations;
 }
@@ -161,7 +161,7 @@ export interface SyfeDeleteRequest {
 
 export interface RecommendationDeleteRequest {
   id: string;
-  assetAllocationList: AssetAllocationsList
+  assetAllocationList: AssetAllocationsList;
 }
 
 export function CleanUpSyfeCustomFromEditForm(editForm: SyfeInterface) {
@@ -717,5 +717,13 @@ export const portFolioStyles = StyleSheet.create({
     fontSize: 16,
     color: "#4A6FA5",
     fontWeight: "500",
+  },
+  closeButton: {
+    padding: 8,
+  },
+  modalDetailText: {
+    fontSize: 16,
+    color: "#333",
+    marginBottom: 8,
   },
 });

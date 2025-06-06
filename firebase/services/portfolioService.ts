@@ -121,7 +121,7 @@ export async function saveRecommendedAllocation(
     }
     console.log(maxId, "maxId");
     assetAllocationsList.recommended[maxId] = {
-      assetAllocation: assetAllocation,
+      assetAllocations: assetAllocation,
       createdOn: getCurrentDateString(),
     };
 

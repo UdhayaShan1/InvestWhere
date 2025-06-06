@@ -1,4 +1,4 @@
-import React, { ReactNode, useEffect } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Dimensions,
   Image,
+  Modal,
 } from "react-native";
 import { PieChart } from "react-native-chart-kit";
 import { Ionicons } from "@expo/vector-icons";
@@ -14,6 +15,7 @@ import {
   AssetAllocations,
   formatCurrency,
   PORTFOLIO_COLORS,
+  portFolioStyles,
 } from "../../types/wealth.types";
 import { useAppDispatch, useAppSelector } from "../../store/rootTypes";
 import {
@@ -24,6 +26,10 @@ import { portfolioAction } from "../../store/portfolio/portfolioSlice";
 import { currentUidSelector } from "../../store/auth/authSelector";
 import { calculateCategoryTotalRecursively } from "../../constants/helper";
 import { LinearGradient } from "expo-linear-gradient";
+import { UserPortfolio } from "../Portfolio/UserPortfolio";
+import { SummaryPortfolio } from "../Portfolio/SummaryPortfolio";
+import { AIUserPortfolio } from "./AIUserPortfolio";
+import { AIBankPortfolio } from "./AIBankPortfolio";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -31,6 +37,7 @@ export default function PortfolioList() {
   const dispatch = useAppDispatch();
   const assetAllocationList = useAppSelector(assetAllocationListSelector);
   const netWorthSummary = useAppSelector(netWorthSelector);
+  const [recommendationId, setRecommendationId] = useState(-1);
   const currentAssetAllocation = assetAllocationList?.current;
   const recommendedAssetAllocationList = assetAllocationList?.recommended;
   const uid = useAppSelector(currentUidSelector);
@@ -363,9 +370,9 @@ export default function PortfolioList() {
           {Object.keys(recommendedAssetAllocationList).map((id) => {
             const recommendation = recommendedAssetAllocationList[Number(id)];
             const portfolioData = calculatePortfolioData(
-              recommendation.assetAllocation
+              recommendation.assetAllocations
             );
-            console.log(id, portfolioData, "@@@")
+            console.log(id, portfolioData, "@@@");
 
             return (
               <View key={id} style={styles.recommendationCard}>
@@ -533,7 +540,10 @@ export default function PortfolioList() {
                 <View style={styles.actionButtonsRow}>
                   <TouchableOpacity
                     style={[styles.actionButton, styles.viewButton]}
-                    onPress={() => console.log(`View portfolio ${id}`)}
+                    onPress={() => {
+                      console.log(`View portfolio ${id}`);
+                      setRecommendationId(Number(id));
+                    }}
                   >
                     <Ionicons
                       name="eye-outline"
@@ -577,6 +587,35 @@ export default function PortfolioList() {
     <ScrollView style={styles.container}>
       {renderCurrentPortfolio()}
       {renderRecommendations()}
+      {recommendationId !== -1 && recommendedAssetAllocationList && (
+        <Modal
+          visible={recommendationId !== -1}
+          transparent={true}
+          animationType="slide"
+          onRequestClose={() => setRecommendationId(-1)}
+        >
+          <View style={portFolioStyles.bankModalContainer}>
+            <View style={portFolioStyles.bankModalContent}>
+              <View style={portFolioStyles.bankModalHeader}>
+                <Text style={portFolioStyles.bankModalTitle}>Select Bank</Text>
+                <TouchableOpacity
+                  onPress={() => setRecommendationId(-1)}
+                  style={portFolioStyles.bankModalCloseButton}
+                >
+                  <Ionicons name="close" size={24} color="#333" />
+                </TouchableOpacity>
+              </View>
+
+              <AIUserPortfolio
+                assetAllocation={
+                  recommendedAssetAllocationList[recommendationId]
+                    .assetAllocations
+                }
+              ></AIUserPortfolio>
+            </View>
+          </View>
+        </Modal>
+      )}
     </ScrollView>
   );
 }
@@ -747,5 +786,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#7f8c8d",
     textAlign: "center",
+  },
+  closeButton: {
+    padding: 8,
+  },
+  modalDetailText: {
+    fontSize: 14,
+    color: "#333",
+    marginBottom: 8,
   },
 });
