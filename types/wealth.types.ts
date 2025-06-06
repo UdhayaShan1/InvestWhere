@@ -169,6 +169,11 @@ export interface ApplyRecommendationRequest {
   recommendationId: string;
 }
 
+export interface ApplyRecommendationCompostionRequest {
+  assetAllocationList: AssetAllocationsList;
+  recommendationId: string;
+}
+
 export function CleanUpSyfeCustomFromEditForm(editForm: SyfeInterface) {
   const updatedForm: SyfeInterface = { ...editForm };
   for (const portfolio in editForm) {
@@ -730,5 +735,21 @@ export const portFolioStyles = StyleSheet.create({
     fontSize: 16,
     color: "#333",
     marginBottom: 8,
+  },
+  // Add these new styles
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    gap: 12,
+  },
+  applyEntireButton: {
+    backgroundColor: "#28a745",
+    flex: 1,
+  },
+  applyCompositionButton: {
+    backgroundColor: "#4A6FA5",
+    flex: 1,
   },
 });

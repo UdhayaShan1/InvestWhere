@@ -1,32 +1,21 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  ScrollView,
-  ActivityIndicator,
-  RefreshControl,
-  Button,
-} from "react-native";
+import { View, Text, ScrollView, TouchableOpacity } from "react-native";
 import { Dimensions } from "react-native";
 import {
-  AssetAllocations,
   AssetAllocationsList,
   PORTFOLIO_COLORS,
   defaultAssetAllocations,
-  formatCurrency,
 } from "../../types/wealth.types";
 import { portFolioStyles as styles } from "../../types/wealth.types";
 import { calculateCategoryTotalRecursively } from "../../constants/helper";
-import { BankPortfolio } from "../Portfolio/BankPortfolio";
 import { AIBankPortfolio } from "./AIBankPortfolio";
-import { SummaryPortfolio } from "../Portfolio/SummaryPortfolio";
 import { AISummaryPortfolio } from "./AISummaryPortfolio";
-import AIPortfolio from "./AIPortfolio";
-import { AIRoboPortfolio } from "./AIRoboPortfolio";
 import { AIInvestmentPortfolio } from "./AIInvestmentPortfolio";
 import { useAppDispatch, useAppSelector } from "../../store/rootTypes";
 import { portfolioAction } from "../../store/portfolio/portfolioSlice";
 import { currentUidSelector } from "../../store/auth/authSelector";
+import { Ionicons } from "@expo/vector-icons";
+import { assetAllocationSelector } from "../../store/portfolio/portfolioSelector";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -165,16 +154,6 @@ export function AIUserPortfolio({
           setExpandedSections={setExpandedSections}
         />
 
-        <AIRoboPortfolio
-          expandedSections={expandedSections}
-          setExpandedSections={setExpandedSections}
-          assetAllocation={
-            assetAllocation ?? defaultAssetAllocations(uid ?? "")
-          }
-          roboTotal={roboTotal}
-          totalNetWorth={totalNetWorth}
-        />
-
         <AIInvestmentPortfolio
           totalNetWorth={totalNetWorth}
           expandedSections={expandedSections}
@@ -183,18 +162,52 @@ export function AIUserPortfolio({
             assetAllocation ?? defaultAssetAllocations(uid ?? "")
           }
         />
-        <Button
-          title="Apply"
-          onPress={() => {
-            dispatch(
-              portfolioAction.applyRecommendation({
-                assetAllocationList: assetAllocationList,
-                recommendationId: recommendationId,
-              })
-            );
-            setRecommendationId(-1);
-          }}
-        ></Button>
+
+        {/* Replace the single Apply button with two buttons */}
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
+            style={[styles.actionButton, styles.applyEntireButton]}
+            onPress={() => {
+              dispatch(
+                portfolioAction.applyRecommendation({
+                  assetAllocationList: assetAllocationList,
+                  recommendationId: recommendationId,
+                })
+              );
+              setRecommendationId(-1);
+            }}
+          >
+            <Ionicons
+              name="checkmark-done"
+              size={18}
+              color="#fff"
+              style={{ marginRight: 6 }}
+            />
+            <Text style={styles.actionButtonText}>Apply Entire</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.actionButton, styles.applyCompositionButton]}
+            onPress={() => {
+              console.log("Apply Composition clicked");
+              dispatch(
+                portfolioAction.applyRecommendationComposition({
+                  assetAllocationList: assetAllocationList,
+                  recommendationId: recommendationId,
+                })
+              );
+              setRecommendationId(-1);
+            }}
+          >
+            <Ionicons
+              name="layers"
+              size={18}
+              color="#fff"
+              style={{ marginRight: 6 }}
+            />
+            <Text style={styles.actionButtonText}>Apply Composition</Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
     </>
   );
