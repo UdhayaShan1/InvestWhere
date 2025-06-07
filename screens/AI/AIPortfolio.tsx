@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { aiTabDescriptions, styles } from "../../types/analytics.types";
 import { Ionicons } from "@expo/vector-icons";
-import PortfolioList from "./PortfolioList";
+import PortfolioList from "./PortfolioListTab/PortfolioListTab";
 
 type AITab = "recommend" | "portfolios";
 

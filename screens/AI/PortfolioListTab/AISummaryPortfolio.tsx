@@ -3,7 +3,7 @@ import {
   formatCurrency,
   NetWorthSummary,
   portFolioStyles as styles,
-} from "../../types/wealth.types";
+} from "../../../types/wealth.types";
 import { PieChart } from "react-native-chart-kit";
 
 interface SummaryPortfolioProps {

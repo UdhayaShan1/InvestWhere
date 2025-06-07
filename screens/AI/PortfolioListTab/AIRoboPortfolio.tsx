@@ -5,13 +5,13 @@ import {
   isCustomSyfePortfolio,
   PORTFOLIO_COLORS,
   SyfeInterface,
-} from "../../types/wealth.types";
-import { portFolioStyles as styles } from "../../types/wealth.types";
+} from "../../../types/wealth.types";
+import { portFolioStyles as styles } from "../../../types/wealth.types";
 import {
   calculateCategoryTotalRecursively,
   calculatePercentage,
   toggleSection,
-} from "../../constants/helper";
+} from "../../../constants/helper";
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
 

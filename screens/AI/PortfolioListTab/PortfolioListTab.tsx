@@ -1,4 +1,4 @@
-import React, { ReactNode, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -6,30 +6,29 @@ import {
   StyleSheet,
   TouchableOpacity,
   Dimensions,
-  Image,
   Modal,
 } from "react-native";
 import { PieChart } from "react-native-chart-kit";
 import { Ionicons } from "@expo/vector-icons";
 import {
   AssetAllocations,
+  AssetAllocationsList,
   formatCurrency,
   PORTFOLIO_COLORS,
   portFolioStyles,
-} from "../../types/wealth.types";
-import { useAppDispatch, useAppSelector } from "../../store/rootTypes";
+} from "../../../types/wealth.types";
+import { useAppDispatch, useAppSelector } from "../../../store/rootTypes";
 import {
   assetAllocationListSelector,
   netWorthSelector,
-} from "../../store/portfolio/portfolioSelector";
-import { portfolioAction } from "../../store/portfolio/portfolioSlice";
-import { currentUidSelector } from "../../store/auth/authSelector";
-import { calculateCategoryTotalRecursively } from "../../constants/helper";
+} from "../../../store/portfolio/portfolioSelector";
+import { portfolioAction } from "../../../store/portfolio/portfolioSlice";
+import { currentUidSelector } from "../../../store/auth/authSelector";
+import { calculateCategoryTotalRecursively } from "../../../constants/helper";
 import { LinearGradient } from "expo-linear-gradient";
-import { UserPortfolio } from "../Portfolio/UserPortfolio";
-import { SummaryPortfolio } from "../Portfolio/SummaryPortfolio";
 import { AIUserPortfolio } from "./AIUserPortfolio";
-import { AIBankPortfolio } from "./AIBankPortfolio";
+import { styles as profileStyles } from "../../Profile/styles";
+import ConfirmDelete from "../../../component/ConfirmDelete";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -41,6 +40,8 @@ export default function PortfolioList() {
   const currentAssetAllocation = assetAllocationList?.current;
   const recommendedAssetAllocationList = assetAllocationList?.recommended;
   const uid = useAppSelector(currentUidSelector);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleteId, setDeleteId] = useState("");
 
   useEffect(() => {
     if (uid) {
@@ -166,6 +167,24 @@ export default function PortfolioList() {
       cryptoPercent: getPercentage(cryptoTotal),
       othersPercent: getPercentage(othersTotal),
     };
+  };
+
+  const handleDelete = (
+    id: string,
+    assetAllocationList: AssetAllocationsList
+  ) => {
+    if (!id) {
+      alert("Recommendation not selected!");
+    }
+    console.log("dispatching", id, assetAllocationList);
+    dispatch(
+      portfolioAction.deleteRecommendation({
+        id: id,
+        assetAllocationList: assetAllocationList,
+      })
+    );
+    setConfirmDelete(false);
+    setDeleteId("");
   };
 
   const renderCurrentPortfolio = () => {
@@ -558,12 +577,8 @@ export default function PortfolioList() {
                     style={[styles.actionButton, styles.deleteButton]}
                     onPress={() => {
                       console.log(`Delete portfolio ${id}`);
-                      dispatch(
-                        portfolioAction.deleteRecommendation({
-                          id: id,
-                          assetAllocationList: assetAllocationList,
-                        })
-                      );
+                      setConfirmDelete(true);
+                      setDeleteId(id);
                     }}
                   >
                     <Ionicons
@@ -578,6 +593,14 @@ export default function PortfolioList() {
               </View>
             );
           })}
+
+          {confirmDelete && (
+            <ConfirmDelete
+              confirmDelete={confirmDelete}
+              setConfirmDelete={setConfirmDelete}
+              handleDelete={() => handleDelete(deleteId, assetAllocationList)}
+            ></ConfirmDelete>
+          )}
         </ScrollView>
       </View>
     );

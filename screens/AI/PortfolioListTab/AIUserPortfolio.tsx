@@ -5,17 +5,17 @@ import {
   AssetAllocationsList,
   PORTFOLIO_COLORS,
   defaultAssetAllocations,
-} from "../../types/wealth.types";
-import { portFolioStyles as styles } from "../../types/wealth.types";
-import { calculateCategoryTotalRecursively } from "../../constants/helper";
+} from "../../../types/wealth.types";
+import { portFolioStyles as styles } from "../../../types/wealth.types";
+import { calculateCategoryTotalRecursively } from "../../../constants/helper";
 import { AIBankPortfolio } from "./AIBankPortfolio";
 import { AISummaryPortfolio } from "./AISummaryPortfolio";
 import { AIInvestmentPortfolio } from "./AIInvestmentPortfolio";
-import { useAppDispatch, useAppSelector } from "../../store/rootTypes";
-import { portfolioAction } from "../../store/portfolio/portfolioSlice";
-import { currentUidSelector } from "../../store/auth/authSelector";
+import { useAppDispatch, useAppSelector } from "../../../store/rootTypes";
+import { portfolioAction } from "../../../store/portfolio/portfolioSlice";
+import { currentUidSelector } from "../../../store/auth/authSelector";
 import { Ionicons } from "@expo/vector-icons";
-import { assetAllocationSelector } from "../../store/portfolio/portfolioSelector";
+import { assetAllocationSelector } from "../../../store/portfolio/portfolioSelector";
 
 const screenWidth = Dimensions.get("window").width;
 
