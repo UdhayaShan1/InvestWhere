@@ -12,6 +12,7 @@ import {
 import { aiTabDescriptions, styles } from "../../types/analytics.types";
 import { Ionicons } from "@expo/vector-icons";
 import PortfolioList from "./PortfolioListTab/PortfolioListTab";
+import RecommendPortfolioTab from "./RecommendPortfolioTab/RecommendPortfolioTab";
 
 type AITab = "recommend" | "portfolios";
 
@@ -90,7 +91,7 @@ export default function AIPortfolio() {
         </View>
         {activeTab === "portfolios" ? (
           <PortfolioList></PortfolioList>
-        ) : undefined}
+        ) : <RecommendPortfolioTab></RecommendPortfolioTab>}
       </ScrollView>
     </View>
   );

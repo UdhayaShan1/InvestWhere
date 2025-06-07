@@ -27,6 +27,9 @@ export const AssetComponents = [
 
 export interface AssetAllocations {
   uid: string;
+  analysedOn?: string;
+  portfolioStrategy?: string;
+  projectedReturns?: string;
   Bank: { [key: string]: BankItems };
   Robos: {
     Syfe: SyfeInterface;

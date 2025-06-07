@@ -387,7 +387,7 @@ export default function PortfolioList() {
           contentContainerStyle={styles.recommendationsScrollContent}
         >
           {Object.keys(recommendedAssetAllocationList).map((id) => {
-            const recommendation = recommendedAssetAllocationList[Number(id)];
+            const recommendation = recommendedAssetAllocationList[id];
             const portfolioData = calculatePortfolioData(
               recommendation.assetAllocations
             );

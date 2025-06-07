@@ -5,6 +5,7 @@ import { rootSaga } from "./rootSaga";
 import authReducer from "./auth/authSlice";
 import portfolioReducer from "./portfolio/portfolioSlice";
 import analyticsReducer from './analytics/analyticsSlice'
+import recommendReducer from './recommend/recommendSlice'
 
 const sagaMiddleware = createSagaMiddleware();
 
@@ -12,7 +13,8 @@ const store = configureStore({
   reducer: {
     auth: authReducer,
     portfolio: portfolioReducer,
-    analytics: analyticsReducer
+    analytics: analyticsReducer,
+    recommend: recommendReducer
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({ thunk: false }).concat(sagaMiddleware),
