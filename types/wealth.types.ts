@@ -861,4 +861,34 @@ export const portFolioStyles = StyleSheet.create({
     marginLeft: 6,
     fontStyle: "italic",
   },
+
+  // Generate Analysis Button Styles
+  generateAnalysisButton: {
+    padding: 20,
+    backgroundColor: "#f8fafe",
+    borderWidth: 2,
+    borderColor: "#4A6FA5",
+    borderStyle: "dashed",
+    borderRadius: 16,
+  },
+  generateAnalysisContent: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  generateAnalysisText: {
+    flex: 1,
+    marginLeft: 16,
+    marginRight: 12,
+  },
+  generateAnalysisTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#2c3e50",
+    marginBottom: 6,
+  },
+  generateAnalysisSubtitle: {
+    fontSize: 14,
+    color: "#64748b",
+    lineHeight: 20,
+  },
 });
