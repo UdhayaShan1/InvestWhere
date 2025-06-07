@@ -9,6 +9,7 @@ import { auth } from "../../firebase/firebase";
 import { getIdToken } from "firebase/auth";
 import { saveRecommendedAllocation } from "../../firebase/services/portfolioService";
 import { AssetAllocations } from "../../types/wealth.types";
+import { portfolioAction } from "../portfolio/portfolioSlice";
 
 export function* getRecommendationWorker(
   actions: PayloadAction<RecommendationForm>
@@ -80,6 +81,11 @@ export function* getRecommendationWorker(
     yield call(saveRecommendedAllocation, uid, newRecommendedAssetAllocation);
 
     yield put(recommendAction.getRecommendationSuccess(data));
+
+    //load everything for ui
+    yield put(portfolioAction.loadWealthProfile(uid));
+
+    alert("Successfully generated! Check it under 'View Portfolios'");
   } catch (error) {
     console.error("Error in getRecommendationWorker:", error);
     const errorMsg =

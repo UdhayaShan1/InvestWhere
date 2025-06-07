@@ -40,11 +40,20 @@ export function* loadWealthProfileWorker(actions: PayloadAction<string>) {
     );
     const assetSummary: AssetAllocations = yield call(getAssetAllocations, uid);
 
+    // Add null checking and ensure Robos structure exists
+    if (assetSummary && !assetSummary.Robos) {
+      assetSummary.Robos = { Syfe: defaultSyfe };
+    }
+
+    // Ensure Syfe exists within Robos
+    if (assetSummary && assetSummary.Robos && !assetSummary.Robos.Syfe) {
+      assetSummary.Robos.Syfe = defaultSyfe;
+    }
+
     const allocationList: AssetAllocationsList = yield call(
       getAssetAllocationsListService,
       uid
     );
-    console.log("test", assetSummary, assetSummary.Robos.Syfe.cashManagement);
     yield put(
       portfolioAction.loadWealthProfileSuccess({
         NetWorth: netWorthSummary,
@@ -53,8 +62,8 @@ export function* loadWealthProfileWorker(actions: PayloadAction<string>) {
       })
     );
   } catch (error) {
-    console.log("Error loading wealth profile in saga");
     const errorMessage = error instanceof Error ? error.message : String(error);
+    console.log("Error loading wealth profile in saga", errorMessage);
     yield put(portfolioAction.loadWealthProfileFail(errorMessage));
   }
 }

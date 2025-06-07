@@ -755,4 +755,110 @@ export const portFolioStyles = StyleSheet.create({
     backgroundColor: "#4A6FA5",
     flex: 1,
   },
+
+  // Feedback Styles
+  feedbackContainer: {
+    backgroundColor: "#ffffff",
+    marginHorizontal: 16,
+    marginBottom: 16,
+    borderRadius: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 4,
+    overflow: "hidden",
+  },
+  feedbackToggleButton: {
+    padding: 20,
+  },
+  feedbackToggleContent: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  feedbackToggleText: {
+    flex: 1,
+    marginLeft: 16,
+  },
+  feedbackToggleTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#2c3e50",
+    marginBottom: 4,
+  },
+  feedbackToggleSubtitle: {
+    fontSize: 14,
+    color: "#7f8c8d",
+    lineHeight: 20,
+  },
+  feedbackHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 20,
+    paddingBottom: 16,
+    backgroundColor: "#f8fafe",
+    borderBottomWidth: 1,
+    borderBottomColor: "#e8f2ff",
+  },
+  feedbackHeaderContent: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  feedbackHeaderTitle: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#2c3e50",
+    marginLeft: 12,
+  },
+  feedbackCloseButton: {
+    padding: 4,
+  },
+  feedbackContent: {
+    padding: 20,
+  },
+  feedbackSection: {
+    marginBottom: 24,
+  },
+  feedbackSectionHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 16,
+    paddingBottom: 8,
+    borderBottomWidth: 2,
+    borderBottomColor: "#e8f2ff",
+  },
+  feedbackSectionTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#2c3e50",
+    marginLeft: 12,
+  },
+  feedbackMarkdownContainer: {
+    backgroundColor: "#fafbfc",
+    borderRadius: 12,
+    padding: 16,
+    borderLeftWidth: 4,
+    borderLeftColor: "#4A6FA5",
+  },
+  feedbackDivider: {
+    height: 1,
+    backgroundColor: "#e8f2ff",
+    marginVertical: 8,
+  },
+  feedbackFooter: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 16,
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: "#e8f2ff",
+  },
+  feedbackAnalysisDate: {
+    fontSize: 12,
+    color: "#666",
+    marginLeft: 6,
+    fontStyle: "italic",
+  },
 });

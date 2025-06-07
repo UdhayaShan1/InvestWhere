@@ -47,7 +47,6 @@ export default function RecommendPortfolioTab() {
     preferredRobos: {
       syfe: false,
       endowus: false,
-      noRobosReference: false,
     },
     customRobos: "",
     preferredBrokers: {
@@ -356,29 +355,6 @@ export default function RecommendPortfolioTab() {
             </View>
           );
         })}
-
-        <View style={styles.customInputContainer}>
-          <Text style={styles.customInputLabel}>Other Robos</Text>
-          <View style={styles.customInputWrapper}>
-            <Ionicons
-              name="add-circle-outline"
-              size={20}
-              color="#4A6FA5"
-              style={styles.customInputIcon}
-            />
-            <TextInput
-              style={styles.customTextInput}
-              value={form.customRobos}
-              placeholder="Input another Roboadvisor (e.g., StashAway)"
-              placeholderTextColor="#999"
-              onChangeText={(e) =>
-                setForm((prev) => {
-                  return { ...prev, customRobos: e };
-                })
-              }
-            />
-          </View>
-        </View>
       </View>
     );
   };

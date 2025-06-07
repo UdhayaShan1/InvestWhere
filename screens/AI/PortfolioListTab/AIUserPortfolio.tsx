@@ -16,6 +16,8 @@ import { portfolioAction } from "../../../store/portfolio/portfolioSlice";
 import { currentUidSelector } from "../../../store/auth/authSelector";
 import { Ionicons } from "@expo/vector-icons";
 import { assetAllocationSelector } from "../../../store/portfolio/portfolioSelector";
+import { AIRoboPortfolio } from "./AIRoboPortfolio";
+import { MarkdownFormattedText } from "../../../component/MarkdownFormattedText";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -31,6 +33,7 @@ export function AIUserPortfolio({
   setRecommendationId,
 }: AIUserPortfolioProps) {
   const [refreshing, setRefreshing] = useState(false);
+  const [showFeedback, setShowFeedback] = useState(false);
   const uid = useAppSelector(currentUidSelector);
   const assetAllocation =
     assetAllocationList.recommended?.[recommendationId].assetAllocations;
@@ -135,6 +138,98 @@ export function AIUserPortfolio({
   const onRefresh = () => {
     setTimeout(() => setRefreshing(false), 1000);
   };
+
+  const renderFeedback = () => {
+    if (
+      !assetAllocation?.portfolioStrategy ||
+      !assetAllocation.projectedReturns
+    ) {
+      return null;
+    }
+
+    if (!showFeedback) {
+      return (
+        <View style={styles.feedbackContainer}>
+          <TouchableOpacity
+            style={styles.feedbackToggleButton}
+            onPress={() => setShowFeedback(true)}
+          >
+            <View style={styles.feedbackToggleContent}>
+              <Ionicons name="analytics-outline" size={24} color="#4A6FA5" />
+              <View style={styles.feedbackToggleText}>
+                <Text style={styles.feedbackToggleTitle}>
+                  AI Investment Analysis
+                </Text>
+                <Text style={styles.feedbackToggleSubtitle}>
+                  View detailed strategy and projected returns
+                </Text>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color="#4A6FA5" />
+            </View>
+          </TouchableOpacity>
+        </View>
+      );
+    }
+
+    return (
+      <View style={styles.feedbackContainer}>
+        <View style={styles.feedbackHeader}>
+          <View style={styles.feedbackHeaderContent}>
+            <Ionicons name="analytics" size={24} color="#4A6FA5" />
+            <Text style={styles.feedbackHeaderTitle}>
+              AI Investment Analysis
+            </Text>
+          </View>
+          <TouchableOpacity
+            style={styles.feedbackCloseButton}
+            onPress={() => setShowFeedback(false)}
+          >
+            <Ionicons name="close-circle-outline" size={24} color="#666" />
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.feedbackContent}>
+          <View style={styles.feedbackSection}>
+            <View style={styles.feedbackSectionHeader}>
+              <Ionicons name="trending-up-outline" size={20} color="#28a745" />
+              <Text style={styles.feedbackSectionTitle}>
+                Portfolio Strategy
+              </Text>
+            </View>
+            <View style={styles.feedbackMarkdownContainer}>
+              <MarkdownFormattedText
+                content={assetAllocation.portfolioStrategy}
+              />
+            </View>
+          </View>
+
+          <View style={styles.feedbackDivider} />
+
+          <View style={styles.feedbackSection}>
+            <View style={styles.feedbackSectionHeader}>
+              <Ionicons name="calculator-outline" size={20} color="#4A6FA5" />
+              <Text style={styles.feedbackSectionTitle}>Projected Returns</Text>
+            </View>
+            <View style={styles.feedbackMarkdownContainer}>
+              <MarkdownFormattedText
+                content={assetAllocation.projectedReturns}
+              />
+            </View>
+          </View>
+
+          {assetAllocation.analysedOn && (
+            <View style={styles.feedbackFooter}>
+              <Ionicons name="time-outline" size={16} color="#666" />
+              <Text style={styles.feedbackAnalysisDate}>
+                Analysis Date: {assetAllocation.analysedOn}
+              </Text>
+            </View>
+          )}
+        </View>
+      </View>
+    );
+  };
+
   return (
     <>
       <ScrollView>
@@ -154,6 +249,16 @@ export function AIUserPortfolio({
           setExpandedSections={setExpandedSections}
         />
 
+        <AIRoboPortfolio
+          assetAllocation={
+            assetAllocation ?? defaultAssetAllocations(uid ?? "")
+          }
+          roboTotal={roboTotal}
+          totalNetWorth={totalNetWorth}
+          expandedSections={expandedSections}
+          setExpandedSections={setExpandedSections}
+        />
+
         <AIInvestmentPortfolio
           totalNetWorth={totalNetWorth}
           expandedSections={expandedSections}
@@ -162,6 +267,8 @@ export function AIUserPortfolio({
             assetAllocation ?? defaultAssetAllocations(uid ?? "")
           }
         />
+
+        {renderFeedback()}
 
         {/* Replace the single Apply button with two buttons */}
         <View style={styles.buttonContainer}>

@@ -6,7 +6,9 @@ interface FormattedTextProps {
   content: string;
 }
 
-export const MarkdownFormattedText: React.FC<FormattedTextProps> = ({ content }) => {
+export const MarkdownFormattedText: React.FC<FormattedTextProps> = ({
+  content,
+}) => {
   const formatText = (text: string) => {
     const lines = text.split("\n");
 
@@ -89,4 +91,42 @@ export const MarkdownFormattedText: React.FC<FormattedTextProps> = ({ content })
   };
 
   return <View>{formatText(content)}</View>;
+};
+
+// If you can modify MarkdownFormattedText component styles
+const markdownStyles = {
+  body: {
+    fontSize: 15,
+    lineHeight: 24,
+    color: "#374151",
+    fontFamily: "System",
+  },
+  heading1: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#2c3e50",
+    marginBottom: 12,
+    marginTop: 8,
+  },
+  heading2: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#2c3e50",
+    marginBottom: 10,
+    marginTop: 6,
+  },
+  paragraph: {
+    marginBottom: 12,
+    lineHeight: 22,
+  },
+  strong: {
+    fontWeight: "700",
+    color: "#2c3e50",
+  },
+  bullet_list: {
+    marginVertical: 8,
+  },
+  list_item: {
+    marginBottom: 6,
+  },
 };

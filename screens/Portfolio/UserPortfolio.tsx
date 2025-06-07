@@ -5,6 +5,7 @@ import {
   ScrollView,
   ActivityIndicator,
   RefreshControl,
+  TouchableOpacity,
 } from "react-native";
 import { useAppDispatch, useAppSelector } from "../../store/rootTypes";
 import {
@@ -21,6 +22,7 @@ import { BankPortfolio } from "./BankPortfolio";
 import { SummaryPortfolio } from "./SummaryPortfolio";
 import { RoboPortfolio } from "./RoboPortfolio";
 import { InvestmentPortfolio } from "./InvestmentPortfolio";
+import { MarkdownFormattedText } from "../../component/MarkdownFormattedText";
 
 const screenWidth = Dimensions.get("window").width;
 
