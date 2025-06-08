@@ -4,12 +4,14 @@ import { ProfilePageScreen } from "../screens/Profile/ProfilePage";
 import { MaterialIcons } from "@expo/vector-icons";
 import { UserPortfolio } from "../screens/Portfolio/UserPortfolio";
 import UserAnalytics from "../screens/Analytics/UserAnalytics";
+import AIPortfolio from "../screens/AI/AIPortfolio";
 
 export type BottomTabParamList = {
   HomeTab: undefined;
   ProfileTab: undefined;
   PortfolioTab: undefined;
   AnalyticsTab: undefined;
+  AITab: undefined;
 };
 
 const Tab = createBottomTabNavigator<BottomTabParamList>();
@@ -20,15 +22,17 @@ export default function BottomTabNavigator() {
       screenOptions={({ route }) => ({
         tabBarIcon: ({ color, size }) => {
           let iconName;
-          if (route.name === "HomeTab") {
+            if (route.name === "HomeTab") {
             iconName = "home";
-          } else if (route.name === "ProfileTab") {
+            } else if (route.name === "ProfileTab") {
             iconName = "person";
-          } else if (route.name === "PortfolioTab") {
+            } else if (route.name === "PortfolioTab") {
             iconName = "money";
             } else if (route.name === "AnalyticsTab") {
             iconName = "analytics";
-          }
+            } else if (route.name === "AITab") {
+            iconName = "smart-toy";
+            }
           return (
             <MaterialIcons name={iconName as any} size={size} color={color} />
           );
@@ -54,6 +58,12 @@ export default function BottomTabNavigator() {
         name="AnalyticsTab"
         component={UserAnalytics}
         options={{ title: "Analytics" }}
+      ></Tab.Screen>
+
+      <Tab.Screen
+        name="AITab"
+        component={AIPortfolio}
+        options={{ title: "AI Portfolio" }}
       ></Tab.Screen>
 
       <Tab.Screen

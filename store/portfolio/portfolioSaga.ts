@@ -2,12 +2,16 @@ import { PayloadAction } from "@reduxjs/toolkit";
 import { call, put, takeEvery } from "redux-saga/effects";
 import { portfolioAction } from "./portfolioSlice";
 import {
+  ApplyRecommendationCompostionRequest,
+  ApplyRecommendationRequest,
   AssetAllocations,
+  AssetAllocationsList,
   AssetComponents,
   BankEditForm,
   defaultSyfe,
   InvestmentEditForm,
   NetWorthSummary,
+  RecommendationDeleteRequest,
   SyfeDeleteRequest,
   SyfeInterface,
   SyfeSaveRequest,
@@ -17,8 +21,14 @@ import {
   getNetWorthSummary,
   saveAssetAllocations,
   saveNetWorthSummary,
+  getAssetAllocationsList as getAssetAllocationsListService,
+  saveAssetAllocationsListWithCurrentAllocation,
+  saveAssetAllocationsList,
 } from "../../firebase/services/portfolioService";
-import { calculateCategoryTotalRecursively } from "../../constants/helper";
+import {
+  calculateCategoryTotalRecursively,
+  recursiveMapper,
+} from "../../constants/helper";
 import { getCurrentDateString } from "../../constants/date_helper";
 
 export function* loadWealthProfileWorker(actions: PayloadAction<string>) {
@@ -29,16 +39,31 @@ export function* loadWealthProfileWorker(actions: PayloadAction<string>) {
       uid
     );
     const assetSummary: AssetAllocations = yield call(getAssetAllocations, uid);
-    console.log("test", assetSummary, assetSummary.Robos.Syfe.cashManagement);
+
+    // Add null checking and ensure Robos structure exists
+    if (assetSummary && !assetSummary.Robos) {
+      assetSummary.Robos = { Syfe: defaultSyfe };
+    }
+
+    // Ensure Syfe exists within Robos
+    if (assetSummary && assetSummary.Robos && !assetSummary.Robos.Syfe) {
+      assetSummary.Robos.Syfe = defaultSyfe;
+    }
+
+    const allocationList: AssetAllocationsList = yield call(
+      getAssetAllocationsListService,
+      uid
+    );
     yield put(
       portfolioAction.loadWealthProfileSuccess({
         NetWorth: netWorthSummary,
         Allocations: assetSummary,
+        AllocationsList: allocationList,
       })
     );
   } catch (error) {
-    console.log("Error loading wealth profile in saga");
     const errorMessage = error instanceof Error ? error.message : String(error);
+    console.log("Error loading wealth profile in saga", errorMessage);
     yield put(portfolioAction.loadWealthProfileFail(errorMessage));
   }
 }
@@ -107,6 +132,12 @@ export function* saveNewBankDetailsWorker(
       yield call(saveNetWorthSummary, netWorthSummary);
       yield put(portfolioAction.saveBankDetailsSuccess(bankDetail));
 
+      //update asset allocation list's current
+      yield call(
+        saveAssetAllocationsListWithCurrentAllocation,
+        updatedAllocations
+      );
+
       //load everything for ui
       yield put(portfolioAction.loadWealthProfile(uid));
     }
@@ -167,6 +198,13 @@ export function* deleteBankWorker(actions: PayloadAction<BankEditForm>) {
 
       yield call(saveNetWorthSummary, netWorthSummary);
       yield put(portfolioAction.saveSyfePortfolioSuccess());
+
+      //update asset allocation list's current
+      yield call(
+        saveAssetAllocationsListWithCurrentAllocation,
+        updatedAllocations
+      );
+
       //load everything for ui
       yield put(portfolioAction.loadWealthProfile(uid));
     }
@@ -229,6 +267,13 @@ export function* saveNewSyfePortfolioWorker(
 
       yield call(saveNetWorthSummary, netWorthSummary);
       yield put(portfolioAction.saveSyfePortfolioSuccess());
+
+      //update asset allocation list's current
+      yield call(
+        saveAssetAllocationsListWithCurrentAllocation,
+        updatedAllocations
+      );
+
       //load everything for ui
       yield put(portfolioAction.loadWealthProfile(uid));
     }
@@ -289,6 +334,13 @@ export function* deleteSyfePortfolioWorker(
 
       yield call(saveNetWorthSummary, netWorthSummary);
       yield put(portfolioAction.saveSyfePortfolioSuccess());
+
+      //update asset allocation list's current
+      yield call(
+        saveAssetAllocationsListWithCurrentAllocation,
+        updatedAllocations
+      );
+
       //load everything for ui
       yield put(portfolioAction.loadWealthProfile(uid));
     }
@@ -359,6 +411,12 @@ export function* saveNewInvestmentDetailsWorker(
 
       yield call(saveNetWorthSummary, netWorthSummary);
       yield put(portfolioAction.saveSyfePortfolioSuccess());
+
+      //update asset allocation list's current
+      yield call(
+        saveAssetAllocationsListWithCurrentAllocation,
+        updatedAllocations
+      );
       //load everything for ui
       yield put(portfolioAction.loadWealthProfile(uid));
     }
@@ -420,12 +478,258 @@ export function* deleteInvestmentWorker(
 
       yield call(saveNetWorthSummary, netWorthSummary);
       yield put(portfolioAction.saveSyfePortfolioSuccess());
+
+      //update asset allocation list's current
+      yield call(
+        saveAssetAllocationsListWithCurrentAllocation,
+        updatedAllocations
+      );
       //load everything for ui
       yield put(portfolioAction.loadWealthProfile(uid));
     }
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     yield put(portfolioAction.deleteInvestmentDetailsFail(errorMessage));
+  }
+}
+
+export function* getAssetAllocationsListWorker(
+  actions: PayloadAction<string>
+): Generator<any, void, any> {
+  try {
+    const uid = actions.payload;
+    const assetAllocationsList = yield call(
+      getAssetAllocationsListService,
+      uid
+    );
+    if (!assetAllocationsList) {
+      throw new Error("Error getting list of asset allocations");
+    }
+    yield put(
+      portfolioAction.loadAssetAllocationListSuccess(assetAllocationsList)
+    );
+  } catch (error) {
+    const errorMsg =
+      error instanceof Error
+        ? error.message
+        : "Error getting list of asset allocations";
+    alert(errorMsg);
+    yield put(portfolioAction.loadAssetAllocationListFail(errorMsg));
+  }
+}
+
+export function* deleteRecommendationWorker(
+  actions: PayloadAction<RecommendationDeleteRequest>
+) {
+  try {
+    console.log("At delete saga");
+    const idToDelete = actions.payload.id;
+
+    const assetAllocationList = JSON.parse(
+      JSON.stringify(actions.payload.assetAllocationList)
+    );
+
+    if (assetAllocationList && assetAllocationList.recommended) {
+      const { [idToDelete]: deletedItem, ...remainingRecommendations } =
+        assetAllocationList.recommended;
+      assetAllocationList.recommended = remainingRecommendations;
+    }
+
+    console.log("Updated list:", assetAllocationList);
+
+    yield call(saveAssetAllocationsList, assetAllocationList);
+
+    yield put(portfolioAction.deleteRecommendationSuccess());
+
+    if (assetAllocationList.uid) {
+      yield put(portfolioAction.loadWealthProfile(assetAllocationList.uid));
+    }
+  } catch (error) {
+    const errorMsg =
+      error instanceof Error ? error.message : "Error deleting recommendation";
+    alert(errorMsg);
+    yield put(portfolioAction.deleteRecommendationFail(errorMsg));
+  }
+}
+
+export function* applyRecommendationWorker(
+  actions: PayloadAction<ApplyRecommendationRequest>
+) {
+  try {
+    const uid = actions.payload.assetAllocationList.uid;
+    if (!uid) {
+      throw new Error("No uid in asset allocations list set");
+    }
+    const updatedAssetAllocationsList: AssetAllocationsList = JSON.parse(
+      JSON.stringify(actions.payload.assetAllocationList)
+    );
+
+    let recommendedAssetAllocations = undefined;
+    if (
+      actions.payload.assetAllocationList.recommended &&
+      actions.payload.assetAllocationList.recommended[
+        actions.payload.recommendationId
+      ]
+    ) {
+      const recommendedData =
+        actions.payload.assetAllocationList.recommended[
+          actions.payload.recommendationId
+        ];
+
+      recommendedAssetAllocations = JSON.parse(
+        JSON.stringify(recommendedData.assetAllocations)
+      );
+
+      updatedAssetAllocationsList.current = recommendedAssetAllocations;
+      console.log("Updated", updatedAssetAllocationsList);
+      yield call(saveAssetAllocationsList, updatedAssetAllocationsList);
+
+      recommendedAssetAllocations["uid"] = uid;
+      console.log("Update other", recommendedAssetAllocations);
+      yield call(saveAssetAllocations, recommendedAssetAllocations);
+
+      const netWorthSummary: NetWorthSummary = yield call(
+        getNetWorthSummary,
+        uid
+      );
+
+      if (netWorthSummary) {
+        const today = getCurrentDateString();
+
+        if (!netWorthSummary.History[today]) {
+          netWorthSummary.History[today] = {};
+        }
+        for (const Component of AssetComponents) {
+          const key = Component as keyof typeof recommendedAssetAllocations;
+          const componentTotal = calculateCategoryTotalRecursively(
+            recommendedAssetAllocations[key]
+          );
+          const today = getCurrentDateString();
+          netWorthSummary.History[today][String(key)] = componentTotal;
+        }
+
+        const newTotal = calculateCategoryTotalRecursively(
+          recommendedAssetAllocations
+        );
+        netWorthSummary.History[today]["Total"] = newTotal;
+
+        netWorthSummary.LastUpdated = today;
+
+        yield call(saveNetWorthSummary, netWorthSummary);
+        yield put(portfolioAction.applyRecommendationSuccess());
+
+        if (updatedAssetAllocationsList.uid) {
+          yield put(
+            portfolioAction.loadWealthProfile(updatedAssetAllocationsList.uid)
+          );
+        }
+      } else {
+        throw new Error("NetWorth not found.");
+      }
+    } else {
+      throw new Error("Recommended asset allocation not found.");
+    }
+  } catch (error) {
+    const errMsg =
+      error instanceof Error ? error.message : "Error applying recommendation";
+    alert(errMsg);
+    yield put(portfolioAction.applyRecommendationFail(errMsg));
+  }
+}
+
+export function* applyRecommendationCompositionWorker(
+  actions: PayloadAction<ApplyRecommendationCompostionRequest>
+) {
+  try {
+    const uid = actions.payload.assetAllocationList.uid;
+    if (!uid) {
+      throw new Error("No uid in asset allocations list set");
+    }
+    const updatedAssetAllocationsList: AssetAllocationsList = JSON.parse(
+      JSON.stringify(actions.payload.assetAllocationList)
+    );
+
+    let recommendedAssetAllocations = undefined;
+    if (
+      actions.payload.assetAllocationList.recommended &&
+      actions.payload.assetAllocationList.recommended[
+        actions.payload.recommendationId
+      ]
+    ) {
+      const recommendedData =
+        actions.payload.assetAllocationList.recommended[
+          actions.payload.recommendationId
+        ];
+
+      recommendedAssetAllocations = JSON.parse(
+        JSON.stringify(recommendedData.assetAllocations)
+      );
+
+      const currentTotal = calculateCategoryTotalRecursively(
+        actions.payload.assetAllocationList.current
+      );
+      const newTotal = calculateCategoryTotalRecursively(
+        recommendedAssetAllocations
+      );
+      const factor = currentTotal / newTotal;
+      console.log(factor);
+      recursiveMapper(recommendedAssetAllocations, factor);
+      console.log("new recommendation", recommendedAssetAllocations);
+
+      updatedAssetAllocationsList.current = recommendedAssetAllocations;
+      console.log("Updated", updatedAssetAllocationsList);
+      yield call(saveAssetAllocationsList, updatedAssetAllocationsList);
+
+      recommendedAssetAllocations["uid"] = uid;
+      console.log("Update other", recommendedAssetAllocations);
+      yield call(saveAssetAllocations, recommendedAssetAllocations);
+
+      const netWorthSummary: NetWorthSummary = yield call(
+        getNetWorthSummary,
+        uid
+      );
+
+      if (netWorthSummary) {
+        const today = getCurrentDateString();
+
+        if (!netWorthSummary.History[today]) {
+          netWorthSummary.History[today] = {};
+        }
+        for (const Component of AssetComponents) {
+          const key = Component as keyof typeof recommendedAssetAllocations;
+          const componentTotal = calculateCategoryTotalRecursively(
+            recommendedAssetAllocations[key]
+          );
+          const today = getCurrentDateString();
+          netWorthSummary.History[today][String(key)] = componentTotal;
+        }
+
+        const newTotal = calculateCategoryTotalRecursively(
+          recommendedAssetAllocations
+        );
+        netWorthSummary.History[today]["Total"] = newTotal;
+
+        netWorthSummary.LastUpdated = today;
+
+        yield call(saveNetWorthSummary, netWorthSummary);
+        yield put(portfolioAction.applyRecommendationSuccess());
+
+        if (updatedAssetAllocationsList.uid) {
+          yield put(
+            portfolioAction.loadWealthProfile(updatedAssetAllocationsList.uid)
+          );
+        }
+      } else {
+        throw new Error("NetWorth not found.");
+      }
+    } else {
+      throw new Error("Recommended asset allocation not found.");
+    }
+  } catch (error) {
+    const errMsg =
+      error instanceof Error ? error.message : "Error applying recommendation";
+    alert(errMsg);
+    yield put(portfolioAction.applyRecommendationFail(errMsg));
   }
 }
 
@@ -449,6 +753,20 @@ export function* portfolioWatcher() {
     portfolioAction.deleteInvestmentDetails,
     deleteInvestmentWorker
   );
-
-  
+  yield takeEvery(
+    portfolioAction.loadAssetAllocationList,
+    getAssetAllocationsListWorker
+  );
+  yield takeEvery(
+    portfolioAction.deleteRecommendation,
+    deleteRecommendationWorker
+  );
+  yield takeEvery(
+    portfolioAction.applyRecommendation,
+    applyRecommendationWorker
+  );
+  yield takeEvery(
+    portfolioAction.applyRecommendationComposition,
+    applyRecommendationCompositionWorker
+  );
 }

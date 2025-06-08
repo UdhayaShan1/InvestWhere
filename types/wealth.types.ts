@@ -6,6 +6,7 @@ export interface WealthProfile {
   error?: string | null;
   NetWorth?: NetWorthSummary | null;
   Allocations?: AssetAllocations | null;
+  AllocationsList?: AssetAllocationsList | null;
 }
 
 export interface NetWorthSummary {
@@ -15,10 +16,21 @@ export interface NetWorthSummary {
   LastUpdated?: string;
 }
 
-export const AssetComponents = ["Bank", "Robos", "Investments", "CPF", "Crypto", "Others"];
+export const AssetComponents = [
+  "Bank",
+  "Robos",
+  "Investments",
+  "CPF",
+  "Crypto",
+  "Others",
+];
 
 export interface AssetAllocations {
   uid: string;
+  createdOn?: string;
+  analysedOn?: string;
+  portfolioStrategy?: string;
+  projectedReturns?: string;
   Bank: { [key: string]: BankItems };
   Robos: {
     Syfe: SyfeInterface;
@@ -29,6 +41,14 @@ export interface AssetAllocations {
   Others: {
     [key: string]: OtherAssetItem;
   };
+}
+
+export interface AssetAllocationsList {
+  uid?: string;
+  recommended?: {
+    [Id: string]: { assetAllocations: AssetAllocations; createdOn?: string };
+  };
+  current?: AssetAllocations;
 }
 
 export interface OtherAssetItem {
@@ -143,6 +163,21 @@ export interface SyfeDeleteRequest {
   syfeAllocation: SyfeInterface;
 }
 
+export interface RecommendationDeleteRequest {
+  id: string;
+  assetAllocationList: AssetAllocationsList;
+}
+
+export interface ApplyRecommendationRequest {
+  assetAllocationList: AssetAllocationsList;
+  recommendationId: string;
+}
+
+export interface ApplyRecommendationCompostionRequest {
+  assetAllocationList: AssetAllocationsList;
+  recommendationId: string;
+}
+
 export function CleanUpSyfeCustomFromEditForm(editForm: SyfeInterface) {
   const updatedForm: SyfeInterface = { ...editForm };
   for (const portfolio in editForm) {
@@ -177,7 +212,16 @@ export function defaultNetWorthSummary(uid: string): NetWorthSummary {
   return {
     uid,
     Total: 0,
-    History: { [today]: { Bank: 0, Robos: 0, Investments: 0, CPF: 0, Crypto: 0, Others: 0 } },
+    History: {
+      [today]: {
+        Bank: 0,
+        Robos: 0,
+        Investments: 0,
+        CPF: 0,
+        Crypto: 0,
+        Others: 0,
+      },
+    },
     LastUpdated: today,
   };
 }
@@ -687,5 +731,207 @@ export const portFolioStyles = StyleSheet.create({
     fontSize: 16,
     color: "#4A6FA5",
     fontWeight: "500",
+  },
+  closeButton: {
+    padding: 8,
+  },
+  modalDetailText: {
+    fontSize: 16,
+    color: "#333",
+    marginBottom: 8,
+  },
+  // Add these new styles
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    gap: 12,
+  },
+  applyEntireButton: {
+    backgroundColor: "#28a745",
+    flex: 1,
+  },
+  applyCompositionButton: {
+    backgroundColor: "#4A6FA5",
+    flex: 1,
+  },
+
+  // Feedback Styles
+  feedbackContainer: {
+    backgroundColor: "#ffffff",
+    marginHorizontal: 16,
+    marginBottom: 16,
+    borderRadius: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 4,
+    overflow: "hidden",
+  },
+  feedbackToggleButton: {
+    padding: 18,
+    paddingBottom: 16,
+  },
+  feedbackToggleContent: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  feedbackToggleText: {
+    flex: 1,
+    marginLeft: 14,
+    marginRight: 8,
+  },
+  feedbackToggleTitle: {
+    fontSize: 17,
+    fontWeight: "600",
+    color: "#2c3e50",
+    marginBottom: 3,
+  },
+  feedbackToggleSubtitle: {
+    fontSize: 13,
+    color: "#64748b",
+    lineHeight: 18,
+  },
+  feedbackHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 20,
+    paddingBottom: 16,
+    backgroundColor: "#f8fafe",
+    borderBottomWidth: 1,
+    borderBottomColor: "#e8f2ff",
+  },
+  feedbackHeaderContent: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  feedbackHeaderTitle: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#2c3e50",
+    marginLeft: 12,
+  },
+  feedbackCloseButton: {
+    padding: 4,
+  },
+  feedbackContent: {
+    padding: 20,
+  },
+  feedbackSection: {
+    marginBottom: 24,
+  },
+  feedbackSectionHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 16,
+    paddingBottom: 8,
+    borderBottomWidth: 2,
+    borderBottomColor: "#e8f2ff",
+  },
+  feedbackSectionTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#2c3e50",
+    marginLeft: 12,
+  },
+  feedbackMarkdownContainer: {
+    backgroundColor: "#fafbfc",
+    borderRadius: 12,
+    padding: 16,
+    borderLeftWidth: 4,
+    borderLeftColor: "#4A6FA5",
+  },
+  feedbackDivider: {
+    height: 1,
+    backgroundColor: "#e8f2ff",
+    marginVertical: 8,
+  },
+  feedbackFooter: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 16,
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: "#e8f2ff",
+  },
+  feedbackAnalysisDate: {
+    fontSize: 12,
+    color: "#666",
+    marginLeft: 6,
+    fontStyle: "italic",
+  },
+
+  // Generate Analysis Button Styles
+  generateAnalysisButton: {
+    padding: 20,
+    backgroundColor: "#f8fafe",
+    borderWidth: 2,
+    borderColor: "#4A6FA5",
+    borderStyle: "dashed",
+    borderRadius: 16,
+  },
+  generateAnalysisContent: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  generateAnalysisText: {
+    flex: 1,
+    marginLeft: 16,
+    marginRight: 12,
+  },
+  generateAnalysisTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#2c3e50",
+    marginBottom: 6,
+  },
+  generateAnalysisSubtitle: {
+    fontSize: 14,
+    color: "#64748b",
+    lineHeight: 20,
+  },
+  submitButtonDisabled: {
+    backgroundColor: "#9CA3AF",
+    shadowOpacity: 0,
+  },
+
+  // Generate Again Button Styles - Improved
+  generateAgainContainer: {
+    paddingHorizontal: 16,
+    paddingTop: 8,
+    paddingBottom: 16,
+    borderTopWidth: 1,
+    borderTopColor: "#f0f0f0",
+    backgroundColor: "#fafbfc",
+  },
+  generateAgainButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    backgroundColor: "#ffffff",
+    borderWidth: 1,
+    borderColor: "#e1e5e9",
+    borderRadius: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  generateAgainContent: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  generateAgainText: {
+    fontSize: 13,
+    fontWeight: "500",
+    color: "#4A6FA5",
+    marginLeft: 6,
   },
 });

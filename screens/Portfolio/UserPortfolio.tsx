@@ -5,6 +5,7 @@ import {
   ScrollView,
   ActivityIndicator,
   RefreshControl,
+  TouchableOpacity,
 } from "react-native";
 import { useAppDispatch, useAppSelector } from "../../store/rootTypes";
 import {
@@ -21,6 +22,10 @@ import { BankPortfolio } from "./BankPortfolio";
 import { SummaryPortfolio } from "./SummaryPortfolio";
 import { RoboPortfolio } from "./RoboPortfolio";
 import { InvestmentPortfolio } from "./InvestmentPortfolio";
+import { MarkdownFormattedText } from "../../component/MarkdownFormattedText";
+import { Ionicons } from "@expo/vector-icons";
+import { isLoadingSelector } from "../../store/recommend/recommendSelector";
+import { recommendAction } from "../../store/recommend/recommendSlice";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -30,6 +35,15 @@ export function UserPortfolio() {
   const assetAllocation = useAppSelector(assetAllocationSelector);
   const netWorthSummary = useAppSelector(netWorthSelector);
   const [refreshing, setRefreshing] = useState(false);
+  const [showFeedback, setShowFeedback] = useState(false);
+  const isGenerating = useAppSelector(isLoadingSelector);
+
+  useEffect(() => {
+    const fresh = { ...assetAllocation };
+    delete fresh.portfolioStrategy;
+    delete fresh.projectedReturns;
+    console.log(JSON.stringify(fresh), "%%");
+  }, [assetAllocation]);
 
   const [expandedSections, setExpandedSections] = useState<{
     [key: string]: boolean;
@@ -154,6 +168,158 @@ export function UserPortfolio() {
     );
   }
 
+  const renderFeedback = () => {
+    if (
+      !assetAllocation?.portfolioStrategy ||
+      !assetAllocation.projectedReturns
+    ) {
+      return (
+        <View style={styles.feedbackContainer}>
+          <TouchableOpacity
+            style={[
+              styles.generateAnalysisButton,
+              isGenerating && styles.submitButtonDisabled,
+            ]}
+            onPress={() => {
+              console.log("Generate AI analysis");
+              dispatch(recommendAction.getAnalysis(assetAllocation));
+            }}
+            disabled={isGenerating}
+          >
+            <View style={styles.generateAnalysisContent}>
+              {isGenerating ? (
+                <Ionicons name="sync-outline" size={28} color="#4A6FA5" />
+              ) : (
+                <Ionicons name="sparkles-outline" size={28} color="#4A6FA5" />
+              )}
+              <View style={styles.generateAnalysisText}>
+                <Text style={styles.generateAnalysisTitle}>
+                  {isGenerating
+                    ? "Generating...."
+                    : "Generate AI Investment Analysis"}
+                </Text>
+                <Text style={styles.generateAnalysisSubtitle}>
+                  Get personalized strategy analysis and projected returns based
+                  on your current portfolio
+                </Text>
+              </View>
+              <Ionicons
+                name="arrow-forward-circle-outline"
+                size={24}
+                color="#4A6FA5"
+              />
+            </View>
+          </TouchableOpacity>
+        </View>
+      );
+    }
+
+    if (!showFeedback) {
+      return (
+        <View style={styles.feedbackContainer}>
+          <TouchableOpacity
+            style={styles.feedbackToggleButton}
+            onPress={() => setShowFeedback(true)}
+          >
+            <View style={styles.feedbackToggleContent}>
+              <Ionicons name="analytics-outline" size={24} color="#4A6FA5" />
+              <View style={styles.feedbackToggleText}>
+                <Text style={styles.feedbackToggleTitle}>
+                  AI Investment Analysis
+                </Text>
+                <Text style={styles.feedbackToggleSubtitle}>
+                  View detailed strategy and projected returns
+                </Text>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color="#4A6FA5" />
+            </View>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[
+              styles.generateAgainButton,
+              isGenerating && styles.submitButtonDisabled,
+            ]}
+            onPress={() => {
+              console.log("Generate analysis again");
+              dispatch(recommendAction.getAnalysis(assetAllocation));
+            }}
+            disabled={isGenerating}
+          >
+            <View style={styles.generateAgainContent}>
+              {isGenerating ? (
+                <Ionicons name="sync-outline" size={20} color="#4A6FA5" />
+              ) : (
+                <Ionicons name="refresh-outline" size={20} color="#4A6FA5" />
+              )}
+              <Text style={styles.generateAgainText}>
+                {isGenerating ? "Generating..." : "Generate Fresh Analysis"}
+              </Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+      );
+    }
+
+    return (
+      <View style={styles.feedbackContainer}>
+        <View style={styles.feedbackHeader}>
+          <View style={styles.feedbackHeaderContent}>
+            <Ionicons name="analytics" size={24} color="#4A6FA5" />
+            <Text style={styles.feedbackHeaderTitle}>
+              AI Investment Analysis
+            </Text>
+          </View>
+          <TouchableOpacity
+            style={styles.feedbackCloseButton}
+            onPress={() => setShowFeedback(false)}
+          >
+            <Ionicons name="close-circle-outline" size={24} color="#666" />
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.feedbackContent}>
+          <View style={styles.feedbackSection}>
+            <View style={styles.feedbackSectionHeader}>
+              <Ionicons name="trending-up-outline" size={20} color="#28a745" />
+              <Text style={styles.feedbackSectionTitle}>
+                Portfolio Strategy
+              </Text>
+            </View>
+            <View style={styles.feedbackMarkdownContainer}>
+              <MarkdownFormattedText
+                content={assetAllocation.portfolioStrategy}
+              />
+            </View>
+          </View>
+
+          <View style={styles.feedbackDivider} />
+
+          <View style={styles.feedbackSection}>
+            <View style={styles.feedbackSectionHeader}>
+              <Ionicons name="calculator-outline" size={20} color="#4A6FA5" />
+              <Text style={styles.feedbackSectionTitle}>Projected Returns</Text>
+            </View>
+            <View style={styles.feedbackMarkdownContainer}>
+              <MarkdownFormattedText
+                content={assetAllocation.projectedReturns}
+              />
+            </View>
+          </View>
+
+          {assetAllocation.analysedOn && (
+            <View style={styles.feedbackFooter}>
+              <Ionicons name="time-outline" size={16} color="#666" />
+              <Text style={styles.feedbackAnalysisDate}>
+                Analysis Date: {assetAllocation.analysedOn}
+              </Text>
+            </View>
+          )}
+        </View>
+      </View>
+    );
+  };
+
   return (
     <ScrollView
       style={styles.container}
@@ -170,6 +336,8 @@ export function UserPortfolio() {
         pieChartData={pieChartData}
         screenWidth={screenWidth}
       />
+
+      {renderFeedback()}
 
       <Text style={styles.sectionTitle}>Asset Breakdown</Text>
 

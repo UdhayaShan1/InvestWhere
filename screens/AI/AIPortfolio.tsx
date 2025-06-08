@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
-import NetWorthAnalytics from "./NetWorthAnalytics";
-import ComponentAnalytics from "./ComponentAnalytics";
 import { useAppDispatch, useAppSelector } from "../../store/rootTypes";
-import { portfolioAction } from "../../store/portfolio/portfolioSlice";
 import { loggedInUserSelector } from "../../store/auth/authSelector";
+import { portfolioAction } from "../../store/portfolio/portfolioSlice";
 import {
   RefreshControl,
   ScrollView,
@@ -11,23 +9,25 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { styles, analyticsTabDescriptions } from "../../types/analytics.types";
+import { aiTabDescriptions, styles } from "../../types/analytics.types";
 import { Ionicons } from "@expo/vector-icons";
-import { analyticsAction } from "../../store/analytics/analyticsSlice";
+import PortfolioList from "./PortfolioListTab/PortfolioListTab";
+import RecommendPortfolioTab from "./RecommendPortfolioTab/RecommendPortfolioTab";
 
-type AnalyticsTab = "networth" | "component";
+type AITab = "recommend" | "portfolios";
 
-export default function UserAnalytics() {
-  const currentUser = useAppSelector(loggedInUserSelector);
+export default function AIPortfolio() {
+  const [activeTab, setActiveTab] = useState("recommend");
   const [refreshing, setRefreshing] = useState(false);
-  const [activeTab, setActiveTab] = useState<AnalyticsTab>("networth");
   const [displayTitle, setDisplayTitle] = useState(
-    analyticsTabDescriptions[activeTab]
+    aiTabDescriptions[activeTab]
   );
+  const currentUser = useAppSelector(loggedInUserSelector);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    setDisplayTitle(analyticsTabDescriptions[activeTab]);
+    console.log(activeTab);
+    setDisplayTitle(aiTabDescriptions[activeTab]);
   }, [activeTab]);
 
   const onRefresh = () => {
@@ -35,15 +35,17 @@ export default function UserAnalytics() {
     setRefreshing(true);
     if (uid) {
       dispatch(portfolioAction.loadWealthProfile(uid));
-      dispatch(analyticsAction.getSavedNetWorthFeedback(uid));
+      dispatch(portfolioAction.loadAssetAllocationList(uid));
     }
     setTimeout(() => setRefreshing(false), 1000);
   };
 
-  const renderTabButton = (tab: AnalyticsTab, label: string, icon: string) => (
+  const renderTabButton = (tab: AITab, label: string, icon: string) => (
     <TouchableOpacity
       style={[styles.tabButton, activeTab === tab && styles.tabButtonActive]}
-      onPress={() => setActiveTab(tab)}
+      onPress={() => {
+        setActiveTab(tab);
+      }}
     >
       <Ionicons
         name={icon as any}
@@ -65,15 +67,9 @@ export default function UserAnalytics() {
   return (
     <View style={styles.container}>
       <View style={styles.headerContainer}>
-        <Text style={styles.pageTitle}>Analytics Dashboard</Text>
+        <Text style={styles.pageTitle}>AI Portfolio</Text>
         <Text style={styles.pageSubtitle}>{displayTitle}</Text>
       </View>
-
-      <View style={styles.tabContainer}>
-        {renderTabButton("networth", "Net Worth", "trending-up")}
-        {renderTabButton("component", "Components", "pie-chart")}
-      </View>
-
       <ScrollView
         style={styles.contentContainer}
         refreshControl={
@@ -85,13 +81,17 @@ export default function UserAnalytics() {
         }
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.contentWrapper}>
-          {activeTab === "networth" ? (
-            <NetWorthAnalytics />
-          ) : (
-            <ComponentAnalytics />
+        <View style={styles.tabContainer}>
+          {renderTabButton("recommend", "Recommend Portfolio", "bulb-outline")}
+          {renderTabButton(
+            "portfolios",
+            "View Portfolios",
+            "briefcase-outline"
           )}
         </View>
+        {activeTab === "portfolios" ? (
+          <PortfolioList></PortfolioList>
+        ) : <RecommendPortfolioTab></RecommendPortfolioTab>}
       </ScrollView>
     </View>
   );
