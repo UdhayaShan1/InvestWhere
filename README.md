@@ -6,18 +6,36 @@ A comprehensive net worth and investment portfolio tracking application built sp
 InvestWhere helps you track all your financial assets in one place - from bank accounts and investments to CPF contributions and cryptocurrencies. Built with Singapore-specific financial instruments in mind, it provides a clear picture of your overall net worth and portfolio allocation.
 
 ## ✨ Features
-- Comprehensive Portfolio Tracking:
-
+### Portfolio Tracking
+**Comprehensive Asset Management:**
   - Bank accounts (multiple banks and account types)
   - Robo-advisors (Syfe with all portfolio types including Core, REIT+, Income Plus, etc.)
-  - Investments via brokerages
+  - Investments via brokerages (Tiger, Moomoo, Interactive Brokers, Saxo)
+  - CPF contributions (OA, SA, MA)
+  - Cryptocurrency holdings
+  - Other assets
 
-- Detailed Analytics:
-  - Visual breakdown of your net worth
+### AI Analysis
+**Portfolio Analysis:**
+  - AI-generated investment strategy analysis
+  - Projected returns calculation based on current holdings
+  - Market insights and performance evaluation
+
+**Smart Recommendations:**
+  - Personalized portfolio recommendations based on:
+    - Age and investment horizon
+    - Risk tolerance profile
+    - Income level and financial goals
+    - Preferred investment platforms
+  - AI-optimized asset allocation suggestions
+  - Rebalancing recommendations
+
+### Analytics & Insights
+**Visual Portfolio Breakdown:**
+  - Pie charts showing asset allocation
+  - Category-wise performance tracking
+  - Net worth history and trends
   - Portfolio allocation percentages
-- Authentication and Storage:
-  - Firebase Authentication
-  - Firestore Database
 ## 🛠️ Local Installation
 
 ```
@@ -35,19 +53,21 @@ npm run start
 ```
 
 ## 🚀 Technologies Used
-- Frontend:
-  - React Native
-  - TypeScript
 
-- State Management:
-  - Redux
-  - Redux-Saga
-- Authentication & Database:
-   - Firebase Authentication
-   - Firestore Database
+### Frontend
+- **React Native** - Cross-platform mobile development
+- **TypeScript** - Type-safe JavaScript development
+- **Expo** - Development platform and tools
 
-## 🔮 Future Enhancements
-There is much to do with this app such as to add remaining financial instruments and the main reason why I wanted to create this and that is to have LLM assisted portfolio recommendations.
+### State Management
+- **Redux Toolkit** - Predictable state management
+- **Redux-Saga** - Side effect management for async operations
+
+### Backend & AI
+- **AWS Lambda** - Serverless API endpoints
+- **OpenAI** - `gpt-4o-search-preview` for web-search grounded AI analysis and recommendations
+- **Firebase Authentication** - Secure user management
+- **Firestore Database** - Real-time NoSQL database
 
 ## 📬 Contact
 Shanmugam Udhaya - udhaya.shan1@gmail.com, @frostbitepillars on Telegram
