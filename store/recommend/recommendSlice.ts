@@ -3,11 +3,14 @@ import {
   RecommendationForm,
   RecommendationResponse,
   RecommendInitialState,
-  RecommendationFeedback,
+  LLMFeedback,
+  AnalysisResponse,
 } from "../../types/recommend.types";
+import { AssetAllocations } from "../../types/wealth.types";
 
 const initialState: RecommendInitialState = {
   assetAllocations: null,
+  currentAssetFeedback: null,
   feedback: null,
   error: "",
   isLoading: false,
@@ -34,6 +37,18 @@ export const recommendSlice = createSlice({
       state.isLoading = false;
       state.assetAllocations = null;
       state.feedback = null;
+    },
+    getAnalysis(state, actions: PayloadAction<AssetAllocations>) {
+      state.isLoading = true;
+    },
+    getAnalysisSuccess(state, actions: PayloadAction<AnalysisResponse>) {
+      state.isLoading = false;
+      state.currentAssetFeedback = actions.payload.feedback;
+    },
+    getAnalysisFail(state, actions: PayloadAction<string>) {
+      state.isLoading = false;
+      state.currentAssetFeedback = null;
+      state.error = actions.payload;
     },
   },
 });

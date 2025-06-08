@@ -54,12 +54,13 @@ export const riskLabels = ["Low", "Medium", "High", "AI Decide"];
 
 export interface RecommendInitialState {
   assetAllocations: AssetAllocations | null;
-  feedback: RecommendationFeedback | null;
+  currentAssetFeedback: LLMFeedback | null;
+  feedback: LLMFeedback | null;
   error: string;
   isLoading: boolean;
 }
 
-export interface RecommendationFeedback {
+export interface LLMFeedback {
   marketInsights: string;
   searchDate: string;
   sources: string[];
@@ -68,8 +69,12 @@ export interface RecommendationFeedback {
 }
 
 export interface RecommendationResponse {
-  feedback: RecommendationFeedback;
+  feedback: LLMFeedback;
   recommendation: AssetAllocations;
+}
+
+export interface AnalysisResponse {
+  feedback: LLMFeedback;
 }
 
 export const recommendStyles = StyleSheet.create({

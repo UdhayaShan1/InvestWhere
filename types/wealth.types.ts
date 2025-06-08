@@ -27,6 +27,7 @@ export const AssetComponents = [
 
 export interface AssetAllocations {
   uid: string;
+  createdOn?: string;
   analysedOn?: string;
   portfolioStrategy?: string;
   projectedReturns?: string;
@@ -770,7 +771,8 @@ export const portFolioStyles = StyleSheet.create({
     overflow: "hidden",
   },
   feedbackToggleButton: {
-    padding: 20,
+    padding: 18,
+    paddingBottom: 16,
   },
   feedbackToggleContent: {
     flexDirection: "row",
@@ -778,18 +780,19 @@ export const portFolioStyles = StyleSheet.create({
   },
   feedbackToggleText: {
     flex: 1,
-    marginLeft: 16,
+    marginLeft: 14,
+    marginRight: 8,
   },
   feedbackToggleTitle: {
-    fontSize: 18,
-    fontWeight: "700",
+    fontSize: 17,
+    fontWeight: "600",
     color: "#2c3e50",
-    marginBottom: 4,
+    marginBottom: 3,
   },
   feedbackToggleSubtitle: {
-    fontSize: 14,
-    color: "#7f8c8d",
-    lineHeight: 20,
+    fontSize: 13,
+    color: "#64748b",
+    lineHeight: 18,
   },
   feedbackHeader: {
     flexDirection: "row",
@@ -890,5 +893,45 @@ export const portFolioStyles = StyleSheet.create({
     fontSize: 14,
     color: "#64748b",
     lineHeight: 20,
+  },
+  submitButtonDisabled: {
+    backgroundColor: "#9CA3AF",
+    shadowOpacity: 0,
+  },
+
+  // Generate Again Button Styles - Improved
+  generateAgainContainer: {
+    paddingHorizontal: 16,
+    paddingTop: 8,
+    paddingBottom: 16,
+    borderTopWidth: 1,
+    borderTopColor: "#f0f0f0",
+    backgroundColor: "#fafbfc",
+  },
+  generateAgainButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    backgroundColor: "#ffffff",
+    borderWidth: 1,
+    borderColor: "#e1e5e9",
+    borderRadius: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  generateAgainContent: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  generateAgainText: {
+    fontSize: 13,
+    fontWeight: "500",
+    color: "#4A6FA5",
+    marginLeft: 6,
   },
 });

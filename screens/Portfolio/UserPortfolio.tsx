@@ -24,6 +24,8 @@ import { RoboPortfolio } from "./RoboPortfolio";
 import { InvestmentPortfolio } from "./InvestmentPortfolio";
 import { MarkdownFormattedText } from "../../component/MarkdownFormattedText";
 import { Ionicons } from "@expo/vector-icons";
+import { isLoadingSelector } from "../../store/recommend/recommendSelector";
+import { recommendAction } from "../../store/recommend/recommendSlice";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -34,6 +36,14 @@ export function UserPortfolio() {
   const netWorthSummary = useAppSelector(netWorthSelector);
   const [refreshing, setRefreshing] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
+  const isGenerating = useAppSelector(isLoadingSelector);
+
+  useEffect(() => {
+    const fresh = { ...assetAllocation };
+    delete fresh.portfolioStrategy;
+    delete fresh.projectedReturns;
+    console.log(JSON.stringify(fresh), "%%");
+  }, [assetAllocation]);
 
   const [expandedSections, setExpandedSections] = useState<{
     [key: string]: boolean;
@@ -166,16 +176,27 @@ export function UserPortfolio() {
       return (
         <View style={styles.feedbackContainer}>
           <TouchableOpacity
-            style={styles.generateAnalysisButton}
+            style={[
+              styles.generateAnalysisButton,
+              isGenerating && styles.submitButtonDisabled,
+            ]}
             onPress={() => {
               console.log("Generate AI analysis");
+              dispatch(recommendAction.getAnalysis(assetAllocation));
             }}
+            disabled={isGenerating}
           >
             <View style={styles.generateAnalysisContent}>
-              <Ionicons name="sparkles-outline" size={28} color="#4A6FA5" />
+              {isGenerating ? (
+                <Ionicons name="sync-outline" size={28} color="#4A6FA5" />
+              ) : (
+                <Ionicons name="sparkles-outline" size={28} color="#4A6FA5" />
+              )}
               <View style={styles.generateAnalysisText}>
                 <Text style={styles.generateAnalysisTitle}>
-                  Generate AI Investment Analysis
+                  {isGenerating
+                    ? "Generating...."
+                    : "Generate AI Investment Analysis"}
                 </Text>
                 <Text style={styles.generateAnalysisSubtitle}>
                   Get personalized strategy analysis and projected returns based
@@ -211,6 +232,29 @@ export function UserPortfolio() {
                 </Text>
               </View>
               <Ionicons name="chevron-forward" size={20} color="#4A6FA5" />
+            </View>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[
+              styles.generateAgainButton,
+              isGenerating && styles.submitButtonDisabled,
+            ]}
+            onPress={() => {
+              console.log("Generate analysis again");
+              dispatch(recommendAction.getAnalysis(assetAllocation));
+            }}
+            disabled={isGenerating}
+          >
+            <View style={styles.generateAgainContent}>
+              {isGenerating ? (
+                <Ionicons name="sync-outline" size={20} color="#4A6FA5" />
+              ) : (
+                <Ionicons name="refresh-outline" size={20} color="#4A6FA5" />
+              )}
+              <Text style={styles.generateAgainText}>
+                {isGenerating ? "Generating..." : "Generate Fresh Analysis"}
+              </Text>
             </View>
           </TouchableOpacity>
         </View>
