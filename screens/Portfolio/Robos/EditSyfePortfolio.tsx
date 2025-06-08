@@ -15,18 +15,18 @@ import {
   SyfeDeleteRequest,
   SyfeInterface,
   SyfeSaveRequest,
-} from "../../types/wealth.types";
-import { styles as portfolioStyles } from "../Profile/styles";
+} from "../../../types/wealth.types";
+import { styles as portfolioStyles } from "../../Profile/styles";
 import { Ionicons } from "@expo/vector-icons";
-import LoadingButton from "../../component/LoadingButton";
+import LoadingButton from "../../../component/LoadingButton";
 import { TextInput } from "react-native";
 import { useEffect, useState } from "react";
-import { useAppDispatch, useAppSelector } from "../../store/rootTypes";
-import { portfolioAction } from "../../store/portfolio/portfolioSlice";
+import { useAppDispatch, useAppSelector } from "../../../store/rootTypes";
+import { portfolioAction } from "../../../store/portfolio/portfolioSlice";
 import {
   currentUidSelector,
   isLoadingSelector,
-} from "../../store/auth/authSelector";
+} from "../../../store/auth/authSelector";
 
 interface EditSyfePortfolioProps {
   editModal: boolean;
@@ -73,6 +73,7 @@ export function EditSyfePortfolio({
       newComponents.push(key);
     });
     setCustomAccounts(customComponents);
+    console.log(defaultComponents, "HUH");
     setDefaultAccounts(defaultComponents);
     setAvailComponents(newComponents);
   }, [syfeAllocation]);

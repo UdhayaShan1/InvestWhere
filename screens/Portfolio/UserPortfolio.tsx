@@ -18,14 +18,14 @@ import { PORTFOLIO_COLORS } from "../../types/wealth.types";
 import { loggedInUserSelector } from "../../store/auth/authSelector";
 import { portFolioStyles as styles } from "../../types/wealth.types";
 import { calculateCategoryTotalRecursively } from "../../constants/helper";
-import { BankPortfolio } from "./BankPortfolio";
 import { SummaryPortfolio } from "./SummaryPortfolio";
-import { RoboPortfolio } from "./RoboPortfolio";
-import { InvestmentPortfolio } from "./InvestmentPortfolio";
+import { RoboPortfolio } from "./Robos/RoboPortfolio";
+import { InvestmentPortfolio } from "./Investment/InvestmentPortfolio";
 import { MarkdownFormattedText } from "../../component/MarkdownFormattedText";
 import { Ionicons } from "@expo/vector-icons";
 import { isLoadingSelector } from "../../store/recommend/recommendSelector";
 import { recommendAction } from "../../store/recommend/recommendSlice";
+import { BankPortfolio } from "./Bank/BankPortfolio";
 
 const screenWidth = Dimensions.get("window").width;
 

@@ -4,15 +4,15 @@ import {
   formatCurrency,
   PORTFOLIO_COLORS,
   portFolioStyles as styles,
-} from "../../types/wealth.types";
-import { useAppSelector } from "../../store/rootTypes";
-import { assetAllocationSelector } from "../../store/portfolio/portfolioSelector";
+} from "../../../types/wealth.types";
+import { useAppSelector } from "../../../store/rootTypes";
+import { assetAllocationSelector } from "../../../store/portfolio/portfolioSelector";
 import { useEffect, useState } from "react";
 import {
   calculateCategoryTotalRecursively,
   calculatePercentage,
   toggleSection,
-} from "../../constants/helper";
+} from "../../../constants/helper";
 import { Ionicons } from "@expo/vector-icons";
 import { EditBankPortfolio } from "./EditBankPortfolio";
 

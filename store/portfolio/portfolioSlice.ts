@@ -11,6 +11,8 @@ import {
   ApplyRecommendationRequest,
   AssetAllocationsList,
   BankEditForm,
+  EndowusDeleteRequest,
+  EndowusSaveRequest,
   InvestmentEditForm,
   RecommendationDeleteRequest,
   SyfeDeleteRequest,
@@ -178,6 +180,32 @@ export const portfolioSlice = createSlice({
       state,
       actions: PayloadAction<string>
     ) => {
+      state.isLoading = false;
+      state.error = actions.payload;
+    },
+    saveEndowusPortfolio: (
+      state,
+      actions: PayloadAction<EndowusSaveRequest>
+    ) => {
+      state.isLoading = true;
+    },
+    saveEndowusPortfolioSuccess: (state) => {
+      state.isLoading = false;
+    },
+    saveEndowusPortfolioFail: (state, actions: PayloadAction<string>) => {
+      state.isLoading = false;
+      state.error = actions.payload;
+    },
+    deleteEndowusPortfolio: (
+      state,
+      actions: PayloadAction<EndowusDeleteRequest>
+    ) => {
+      state.isLoading = true;
+    },
+    deleteEndowusPortfolioSuccess: (state) => {
+      state.isLoading = false;
+    },
+    deleteEndowusPortfolioFail: (state, actions: PayloadAction<string>) => {
       state.isLoading = false;
       state.error = actions.payload;
     },

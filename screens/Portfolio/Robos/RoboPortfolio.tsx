@@ -4,9 +4,9 @@ import {
   formatCurrency,
   isCustomSyfePortfolio,
   isCustomEndowusPortfolio,
-  EndowusInterface,
   PORTFOLIO_COLORS,
   SyfeInterface,
+  EndowusInterface,
 } from "../../../types/wealth.types";
 import { portFolioStyles as styles } from "../../../types/wealth.types";
 import {
@@ -16,6 +16,8 @@ import {
 } from "../../../constants/helper";
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
+import { EditSyfePortfolio } from "./EditSyfePortfolio";
+import { EditEndowusPortfolio } from "./EditEndowusPortfolio";
 
 interface RoboPortfolioProps {
   expandedSections: { [key: string]: boolean };
@@ -29,7 +31,7 @@ interface RoboPortfolioProps {
   assetAllocation: AssetAllocations;
 }
 
-export function AIRoboPortfolio({
+export function RoboPortfolio({
   expandedSections,
   setExpandedSections,
   roboTotal,
@@ -44,14 +46,20 @@ export function AIRoboPortfolio({
     Stashaway: false,
   });
 
-  // Add proper null checking here
-  const syfeTotal = assetAllocation?.Robos?.Syfe
-    ? calculateCategoryTotalRecursively(assetAllocation.Robos.Syfe)
-    : 0;
+  const syfeTotal = calculateCategoryTotalRecursively(
+    assetAllocation.Robos.Syfe
+  );
 
-  const endowusTotal = assetAllocation?.Robos?.Endowus
-    ? calculateCategoryTotalRecursively(assetAllocation.Robos.Endowus)
-    : 0;
+  const endowusTotal = calculateCategoryTotalRecursively(
+    assetAllocation.Robos.Endowus
+  );
+
+  const [editSyfeModal, setEditSyfeModal] = useState(false);
+  const [editEndowusModal, setEditEndowusModal] = useState(false);
+
+  useEffect(() => {
+    console.log(assetAllocation, assetAllocation.Robos.Syfe.cashManagement);
+  }, [assetAllocation]);
 
   const renderCustomAccount = (syfe: SyfeInterface) => {
     const components = [];
@@ -76,47 +84,11 @@ export function AIRoboPortfolio({
       }
       const finalComponents = (
         <View style={styles.syfeGroup}>
-          <Text style={styles.syfeGroupTitle}>{key}</Text>
+          <Text style={styles.syfeGroupTitle}>Core</Text>
           {components}
         </View>
       );
       return finalComponents;
-    }
-  };
-
-  const renderCustomEndowusAccount = (endowus: EndowusInterface) => {
-    const components = [];
-    for (const key in endowus) {
-      if (
-        !isCustomEndowusPortfolio(key) ||
-        calculateCategoryTotalRecursively(endowus[key]) === 0
-      ) {
-        continue;
-      }
-      for (const subKey in endowus[key]) {
-        if (
-          typeof endowus[key][subKey] === "number" &&
-          endowus[key][subKey] > 0
-        ) {
-          components.push(
-            <View key={`${key}-${subKey}`} style={styles.assetItem}>
-              <Text style={styles.assetName}>{subKey}</Text>
-              <Text style={styles.assetValue}>
-                {formatCurrency(endowus[key][subKey])}
-              </Text>
-            </View>
-          );
-        }
-      }
-      if (components.length > 0) {
-        const finalComponents = (
-          <View key={key} style={styles.syfeGroup}>
-            <Text style={styles.syfeGroupTitle}>{key}</Text>
-            {components}
-          </View>
-        );
-        return finalComponents;
-      }
     }
   };
 
@@ -315,10 +287,65 @@ export function AIRoboPortfolio({
             </View>
           )}
 
-        {/* CUSTOM ADDED PROTECTION PORTFOLIO */}
         {renderCustomAccount(syfe)}
+
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            marginTop: 10,
+          }}
+        >
+          <Button
+            color="green"
+            title="Edit"
+            onPress={() => setEditSyfeModal(true)}
+          />
+        </View>
+
+        <EditSyfePortfolio
+          editModal={editSyfeModal}
+          setEditModal={setEditSyfeModal}
+          syfeAllocation={syfe}
+        />
       </>
     );
+  };
+
+  const renderCustomEndowusAccount = (endowus: EndowusInterface) => {
+    const components = [];
+    for (const key in endowus) {
+      if (
+        !isCustomEndowusPortfolio(key) ||
+        calculateCategoryTotalRecursively(endowus[key]) === 0
+      ) {
+        continue;
+      }
+      for (const subKey in endowus[key]) {
+        if (
+          typeof endowus[key][subKey] === "number" &&
+          endowus[key][subKey] > 0
+        ) {
+          components.push(
+            <View key={`${key}-${subKey}`} style={styles.assetItem}>
+              <Text style={styles.assetName}>{subKey}</Text>
+              <Text style={styles.assetValue}>
+                {formatCurrency(endowus[key][subKey])}
+              </Text>
+            </View>
+          );
+        }
+      }
+      if (components.length > 0) {
+        const finalComponents = (
+          <View key={key} style={styles.syfeGroup}>
+            <Text style={styles.syfeGroupTitle}>{key}</Text>
+            {components}
+          </View>
+        );
+        return finalComponents;
+      }
+    }
   };
 
   const renderEndowusDetails = (endowus: EndowusInterface) => {
@@ -537,7 +564,7 @@ export function AIRoboPortfolio({
             </View>
           )}
 
-        {/* SATELLITE PORTFOLIO */}
+        {/* SATELLITE PORTFOLIO - unchanged */}
         {endowus.satellite &&
           calculateCategoryTotalRecursively(endowus.satellite) > 0 && (
             <View style={styles.syfeGroup}>
@@ -581,7 +608,7 @@ export function AIRoboPortfolio({
             </View>
           )}
 
-        {/* CASH SMART PORTFOLIO - Fix the property names */}
+        {/* CASH SMART PORTFOLIO - unchanged */}
         {endowus.cashSmart &&
           calculateCategoryTotalRecursively(endowus.cashSmart) > 0 && (
             <View style={styles.syfeGroup}>
@@ -616,7 +643,7 @@ export function AIRoboPortfolio({
             </View>
           )}
 
-        {/* INCOME PORTFOLIO - Add the missing section */}
+        {/* INCOME PORTFOLIO - unchanged */}
         {endowus.income &&
           calculateCategoryTotalRecursively(endowus.income) > 0 && (
             <View style={styles.syfeGroup}>
@@ -651,8 +678,28 @@ export function AIRoboPortfolio({
             </View>
           )}
 
-        {/* CUSTOM PORTFOLIOS */}
         {renderCustomEndowusAccount(endowus)}
+
+        {/* Endowus button (already correctly styled) */}
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            marginTop: 10,
+          }}
+        >
+          <Button
+            color="green"
+            title="Edit"
+            onPress={() => setEditEndowusModal(true)}
+          />
+        </View>
+
+        <EditEndowusPortfolio
+          editModal={editEndowusModal}
+          setEditModal={setEditEndowusModal}
+          endowusAllocation={endowus}
+        />
       </>
     );
   };
@@ -661,10 +708,9 @@ export function AIRoboPortfolio({
     const expanded = expandedSections["Robos"];
     const percentage = calculatePercentage(roboTotal, totalNetWorth);
 
-    // Add proper null checking for Robos
-    if (!assetAllocation?.Robos || roboTotal === 0) {
-      return null;
-    }
+    // if (!assetAllocation?.Robos || roboTotal === 0) {
+    //   return null;
+    // }
 
     return (
       <View style={styles.categoryContainer}>
@@ -692,8 +738,8 @@ export function AIRoboPortfolio({
 
         {expanded && (
           <View style={styles.categoryDetails}>
-            {/* Add null checking for Syfe before rendering */}
-            {assetAllocation.Robos.Syfe && (
+            {/* SYFE PLATFORM */}
+            {
               <View style={styles.platformContainer}>
                 <TouchableOpacity
                   style={styles.platformHeader}
@@ -731,10 +777,10 @@ export function AIRoboPortfolio({
                   </View>
                 )}
               </View>
-            )}
+            }
 
-            {/* Add null checking for Endowus before rendering */}
-            {assetAllocation.Robos.Endowus && (
+            {/* ENDOWUS PLATFORM */}
+            {endowusTotal > 0 && (
               <View style={styles.platformContainer}>
                 <TouchableOpacity
                   style={styles.platformHeader}
