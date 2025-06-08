@@ -15,7 +15,10 @@ import {
 import { portfolioAction } from "../../store/portfolio/portfolioSlice";
 import { Dimensions } from "react-native";
 import { PORTFOLIO_COLORS } from "../../types/wealth.types";
-import { loggedInUserSelector } from "../../store/auth/authSelector";
+import {
+  isVerifiedSelector,
+  loggedInUserSelector,
+} from "../../store/auth/authSelector";
 import { portFolioStyles as styles } from "../../types/wealth.types";
 import { calculateCategoryTotalRecursively } from "../../constants/helper";
 import { SummaryPortfolio } from "./SummaryPortfolio";
@@ -26,14 +29,21 @@ import { Ionicons } from "@expo/vector-icons";
 import { isLoadingSelector } from "../../store/recommend/recommendSelector";
 import { recommendAction } from "../../store/recommend/recommendSlice";
 import { BankPortfolio } from "./Bank/BankPortfolio";
+import { useNavigation } from "@react-navigation/native";
+import type { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
+import { BottomTabParamList } from "../../navigation/BottomTabNavigator";
+
+type UserPortfolioNavigationProp = BottomTabNavigationProp<BottomTabParamList>;
 
 const screenWidth = Dimensions.get("window").width;
 
 export function UserPortfolio() {
+  const navigation = useNavigation<UserPortfolioNavigationProp>(); 
   const dispatch = useAppDispatch();
   const currentUser = useAppSelector(loggedInUserSelector);
   const assetAllocation = useAppSelector(assetAllocationSelector);
   const netWorthSummary = useAppSelector(netWorthSelector);
+  const isVerified = useAppSelector(isVerifiedSelector);
   const [refreshing, setRefreshing] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
   const isGenerating = useAppSelector(isLoadingSelector);
@@ -175,41 +185,71 @@ export function UserPortfolio() {
     ) {
       return (
         <View style={styles.feedbackContainer}>
-          <TouchableOpacity
-            style={[
-              styles.generateAnalysisButton,
-              isGenerating && styles.submitButtonDisabled,
-            ]}
-            onPress={() => {
-              console.log("Generate AI analysis");
-              dispatch(recommendAction.getAnalysis(assetAllocation));
-            }}
-            disabled={isGenerating}
-          >
-            <View style={styles.generateAnalysisContent}>
-              {isGenerating ? (
-                <Ionicons name="sync-outline" size={28} color="#4A6FA5" />
-              ) : (
-                <Ionicons name="sparkles-outline" size={28} color="#4A6FA5" />
-              )}
-              <View style={styles.generateAnalysisText}>
-                <Text style={styles.generateAnalysisTitle}>
-                  {isGenerating
-                    ? "Generating...."
-                    : "Generate AI Investment Analysis"}
-                </Text>
-                <Text style={styles.generateAnalysisSubtitle}>
-                  Get personalized strategy analysis and projected returns based
-                  on your current portfolio
-                </Text>
+          {isVerified ? (
+            <TouchableOpacity
+              style={[
+                styles.generateAnalysisButton,
+                isGenerating && styles.submitButtonDisabled,
+              ]}
+              onPress={() => {
+                console.log("Generate AI analysis");
+                dispatch(recommendAction.getAnalysis(assetAllocation));
+              }}
+              disabled={isGenerating}
+            >
+              <View style={styles.generateAnalysisContent}>
+                {isGenerating ? (
+                  <Ionicons name="sync-outline" size={28} color="#4A6FA5" />
+                ) : (
+                  <Ionicons name="sparkles-outline" size={28} color="#4A6FA5" />
+                )}
+                <View style={styles.generateAnalysisText}>
+                  <Text style={styles.generateAnalysisTitle}>
+                    {isGenerating
+                      ? "Generating...."
+                      : "Generate AI Investment Analysis"}
+                  </Text>
+                  <Text style={styles.generateAnalysisSubtitle}>
+                    Get personalized strategy analysis and projected returns
+                    based on your current portfolio
+                  </Text>
+                </View>
+                <Ionicons
+                  name="arrow-forward-circle-outline"
+                  size={24}
+                  color="#4A6FA5"
+                />
               </View>
-              <Ionicons
-                name="arrow-forward-circle-outline"
-                size={24}
-                color="#4A6FA5"
-              />
-            </View>
-          </TouchableOpacity>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              style={[
+                styles.generateAnalysisButton,
+                isGenerating && styles.submitButtonDisabled,
+              ]}
+              onPress={() => navigation.navigate("ProfileTab")} // This should now work correctly
+            >
+              <View style={styles.generateAnalysisContent}>
+                <Ionicons
+                  name="person-circle-outline"
+                  size={28}
+                  color="#4A6FA5"
+                />
+                <View style={styles.generateAnalysisText}>
+                  <Text style={styles.generateAnalysisTitle}>Get Verified</Text>
+                  <Text style={styles.generateAnalysisSubtitle}>
+                    Please verify your email to unlock personalized AI
+                    investment insights and analysis.
+                  </Text>
+                </View>
+                <Ionicons
+                  name="arrow-forward-circle-outline"
+                  size={24}
+                  color="#4A6FA5"
+                />
+              </View>
+            </TouchableOpacity>
+          )}
         </View>
       );
     }
@@ -239,6 +279,7 @@ export function UserPortfolio() {
             style={[
               styles.generateAgainButton,
               isGenerating && styles.submitButtonDisabled,
+              styles.getVerifiedButton
             ]}
             onPress={() => {
               console.log("Generate analysis again");

@@ -96,6 +96,7 @@ export function* getRecommendationWorker(
     console.error("Error in getRecommendationWorker:", error);
     const errorMsg =
       error instanceof Error ? error.message : "Error getting recommendation";
+    alert(errorMsg);
     yield put(recommendAction.getRecommendationFail(errorMsg));
   }
 }

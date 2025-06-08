@@ -27,7 +27,7 @@ export default function AppNavigator() {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
-        console.log(currentUser);
+        console.log(currentUser, currentUser.emailVerified, "Verified Check");
         dispatch(
           authAction.refreshSession({
             uid: currentUser.uid,

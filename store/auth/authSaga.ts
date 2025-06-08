@@ -7,6 +7,7 @@ import {
   createUserWithEmailAndPassword,
   deleteUser,
   User,
+  sendEmailVerification,
 } from "firebase/auth";
 import { PayloadAction } from "@reduxjs/toolkit";
 import {
@@ -23,6 +24,7 @@ import {
 } from "../../firebase/services/profileService";
 import { portfolioAction } from "../portfolio/portfolioSlice";
 import { deleteWealthProfile } from "../../firebase/services/portfolioService";
+import { Alert } from "react-native";
 
 export function* signInWithEmailAndPasswordWorker(
   action: PayloadAction<FirebaseLoginRegisterProp>
@@ -179,6 +181,26 @@ export function* refreshSessionWorker(
   }
 }
 
+export function* sendEmailVerificationWorker() {
+  try {
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
+      throw new Error("No user is currently logged in");
+    }
+    console.log("Sending now");
+    yield call(sendEmailVerification, currentUser);
+    yield put(authAction.sendEmailVerificationSuccess());
+  } catch (error) {
+    const errMsg =
+      error instanceof Error
+        ? error.message
+        : "Failed to send email verification";
+    console.error(errMsg);
+    alert(errMsg);
+    yield put(authAction.sendEmailVerificationFail(errMsg));
+  }
+}
+
 export function* authWatcher() {
   yield takeEvery(
     authAction.signInWithEmailAndPassword,
@@ -192,4 +214,8 @@ export function* authWatcher() {
   yield takeEvery(authAction.deleteUser, deleteUserWorker);
   yield takeEvery(authAction.editUserProfile, editUserProfileWorker);
   yield takeEvery(authAction.refreshSession, refreshSessionWorker);
+  yield takeEvery(
+    authAction.sendEmailVerification,
+    sendEmailVerificationWorker
+  );
 }

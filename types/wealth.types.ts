@@ -1058,4 +1058,9 @@ export const portFolioStyles = StyleSheet.create({
     color: "#4A6FA5",
     marginLeft: 6,
   },
+  getVerifiedButton: {
+    borderWidth: 2,
+    borderColor: "#4A6FA5",
+    borderStyle: "dashed", 
+  },
 });

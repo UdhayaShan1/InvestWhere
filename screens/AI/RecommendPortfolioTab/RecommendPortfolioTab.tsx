@@ -21,18 +21,28 @@ import {
   RecommendationForm,
   riskLabels,
 } from "../../../types/recommend.types";
-import { loggedInUserSelector } from "../../../store/auth/authSelector";
+import {
+  isVerifiedSelector,
+  loggedInUserSelector,
+} from "../../../store/auth/authSelector";
 import { yearDifference } from "../../../constants/date_helper";
 import Slider from "@react-native-community/slider";
 import { recommendStyles as styles } from "../../../types/recommend.types";
 import { recommendAction } from "../../../store/recommend/recommendSlice";
 import { isLoadingSelector } from "../../../store/recommend/recommendSelector";
+import { useNavigation } from "@react-navigation/native";
+import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
+import { BottomTabParamList } from "../../../navigation/BottomTabNavigator";
+
+type UserPortfolioNavigationProp = BottomTabNavigationProp<BottomTabParamList>;
 
 export default function RecommendPortfolioTab() {
+  const navigation = useNavigation<UserPortfolioNavigationProp>();
   const [showIncomeDropdown, setShowIncomeDropdown] = useState(false);
   const isGenerating = useAppSelector(isLoadingSelector);
   const assetAllocation = useAppSelector(assetAllocationSelector);
   const userProfile = useAppSelector(loggedInUserSelector).UserProfile;
+  const isVerified = useAppSelector(isVerifiedSelector);
   const assetAllocationTotal =
     calculateCategoryTotalRecursively(assetAllocation);
   const dispatch = useAppDispatch();
@@ -504,27 +514,9 @@ export default function RecommendPortfolioTab() {
     );
   };
 
-  return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      <View style={styles.headerContainer}>
-        <Ionicons name="bulb-outline" size={28} color="#4A6FA5" />
-        <Text style={styles.headerTitle}>Get AI Portfolio Recommendation</Text>
-        <Text style={styles.headerSubtitle}>
-          Answer a few questions to get a personalized investment portfolio
-          recommendation
-        </Text>
-      </View>
-
-      {netWorthSection()}
-      {renderPersonalInfoSection()}
-      {renderIncomeLevelSection()}
-      {renderHorizonSection()}
-      {renderRiskSection()}
-      {renderRoboSection()}
-      {renderInvestmentSection()}
-      {renderAdditionalCommentsSection()}
-
-      <View style={styles.submitContainer}>
+  const renderRecommendButton = () => {
+    if (isVerified) {
+      return (
         <TouchableOpacity
           style={[
             styles.submitButton,
@@ -560,6 +552,84 @@ export default function RecommendPortfolioTab() {
             </>
           )}
         </TouchableOpacity>
+      );
+    }
+
+    return (
+      <TouchableOpacity
+        style={[styles.submitButton, styles.submitButtonDisabled]}
+        onPress={() => {
+          navigation.navigate("ProfileTab");
+        }}
+      >
+        <Ionicons
+          name="rocket-outline"
+          size={20}
+          color="#fff"
+          style={{ marginRight: 8 }}
+        />
+        <Text style={styles.submitButtonText}>Click To Get Verified!</Text>
+      </TouchableOpacity>
+    );
+  };
+
+  return (
+    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      <View style={styles.headerContainer}>
+        <Ionicons name="bulb-outline" size={28} color="#4A6FA5" />
+        <Text style={styles.headerTitle}>Get AI Portfolio Recommendation</Text>
+        <Text style={styles.headerSubtitle}>
+          Answer a few questions to get a personalized investment portfolio
+          recommendation
+        </Text>
+      </View>
+
+      {netWorthSection()}
+      {renderPersonalInfoSection()}
+      {renderIncomeLevelSection()}
+      {renderHorizonSection()}
+      {renderRiskSection()}
+      {renderRoboSection()}
+      {renderInvestmentSection()}
+      {renderAdditionalCommentsSection()}
+
+      <View style={styles.submitContainer}>
+        {/* <TouchableOpacity
+          style={[
+            styles.submitButton,
+            isGenerating && styles.submitButtonDisabled,
+          ]}
+          disabled={isGenerating}
+          onPress={() => {
+            console.log("Generating AI recommendation with form:", form);
+            dispatch(recommendAction.getRecommendation(form));
+          }}
+        >
+          {isGenerating ? (
+            <>
+              <Ionicons
+                name="sync-outline"
+                size={20}
+                color="#fff"
+                style={styles.spinning}
+              />
+              <Text style={styles.submitButtonText}>Generating...</Text>
+            </>
+          ) : (
+            <>
+              <Ionicons
+                name="rocket-outline"
+                size={20}
+                color="#fff"
+                style={{ marginRight: 8 }}
+              />
+              <Text style={styles.submitButtonText}>
+                Generate Recommendation
+              </Text>
+            </>
+          )}
+        </TouchableOpacity> */}
+        {renderRecommendButton()}
       </View>
 
       {/* Income Level Modal */}
