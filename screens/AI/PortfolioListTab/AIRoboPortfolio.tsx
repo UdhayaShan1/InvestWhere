@@ -3,6 +3,8 @@ import {
   AssetAllocations,
   formatCurrency,
   isCustomSyfePortfolio,
+  isCustomEndowusPortfolio,
+  EndowusInterface,
   PORTFOLIO_COLORS,
   SyfeInterface,
 } from "../../../types/wealth.types";
@@ -47,9 +49,9 @@ export function AIRoboPortfolio({
     ? calculateCategoryTotalRecursively(assetAllocation.Robos.Syfe)
     : 0;
 
-  // useEffect(() => {
-  //   console.log(assetAllocation, assetAllocation.Robos.Syfe.cashManagement);
-  // }, [assetAllocation]);
+  const endowusTotal = assetAllocation?.Robos?.Endowus
+    ? calculateCategoryTotalRecursively(assetAllocation.Robos.Endowus)
+    : 0;
 
   const renderCustomAccount = (syfe: SyfeInterface) => {
     const components = [];
@@ -74,11 +76,47 @@ export function AIRoboPortfolio({
       }
       const finalComponents = (
         <View style={styles.syfeGroup}>
-          <Text style={styles.syfeGroupTitle}>Core</Text>
+          <Text style={styles.syfeGroupTitle}>{key}</Text>
           {components}
         </View>
       );
       return finalComponents;
+    }
+  };
+
+  const renderCustomEndowusAccount = (endowus: EndowusInterface) => {
+    const components = [];
+    for (const key in endowus) {
+      if (
+        !isCustomEndowusPortfolio(key) ||
+        calculateCategoryTotalRecursively(endowus[key]) === 0
+      ) {
+        continue;
+      }
+      for (const subKey in endowus[key]) {
+        if (
+          typeof endowus[key][subKey] === "number" &&
+          endowus[key][subKey] > 0
+        ) {
+          components.push(
+            <View key={`${key}-${subKey}`} style={styles.assetItem}>
+              <Text style={styles.assetName}>{subKey}</Text>
+              <Text style={styles.assetValue}>
+                {formatCurrency(endowus[key][subKey])}
+              </Text>
+            </View>
+          );
+        }
+      }
+      if (components.length > 0) {
+        const finalComponents = (
+          <View key={key} style={styles.syfeGroup}>
+            <Text style={styles.syfeGroupTitle}>{key}</Text>
+            {components}
+          </View>
+        );
+        return finalComponents;
+      }
     }
   };
 
@@ -283,6 +321,342 @@ export function AIRoboPortfolio({
     );
   };
 
+  const renderEndowusDetails = (endowus: EndowusInterface) => {
+    if (!endowus) return null;
+
+    return (
+      <>
+        {/* CORE PORTFOLIO */}
+        {endowus.core &&
+          calculateCategoryTotalRecursively(endowus.core) > 0 && (
+            <View style={styles.syfeGroup}>
+              <Text style={styles.syfeGroupTitle}>Core</Text>
+
+              {/* Flagship Portfolios */}
+              {typeof endowus.core.flagshipTotal === "number" &&
+                endowus.core.flagshipTotal > 0 && (
+                  <View style={styles.assetItem}>
+                    <Text style={styles.assetName}>Flagship Total</Text>
+                    <Text style={styles.assetValue}>
+                      {formatCurrency(endowus.core.flagshipTotal)}
+                    </Text>
+                  </View>
+                )}
+              {typeof endowus.core.flagshipVeryConservative === "number" &&
+                endowus.core.flagshipVeryConservative > 0 && (
+                  <View style={styles.assetItem}>
+                    <Text style={styles.assetName}>
+                      Flagship Very Conservative
+                    </Text>
+                    <Text style={styles.assetValue}>
+                      {formatCurrency(endowus.core.flagshipVeryConservative)}
+                    </Text>
+                  </View>
+                )}
+              {typeof endowus.core.flagshipConservative === "number" &&
+                endowus.core.flagshipConservative > 0 && (
+                  <View style={styles.assetItem}>
+                    <Text style={styles.assetName}>Flagship Conservative</Text>
+                    <Text style={styles.assetValue}>
+                      {formatCurrency(endowus.core.flagshipConservative)}
+                    </Text>
+                  </View>
+                )}
+              {typeof endowus.core.flagshipMeasured === "number" &&
+                endowus.core.flagshipMeasured > 0 && (
+                  <View style={styles.assetItem}>
+                    <Text style={styles.assetName}>Flagship Measured</Text>
+                    <Text style={styles.assetValue}>
+                      {formatCurrency(endowus.core.flagshipMeasured)}
+                    </Text>
+                  </View>
+                )}
+              {typeof endowus.core.flagshipBalanced === "number" &&
+                endowus.core.flagshipBalanced > 0 && (
+                  <View style={styles.assetItem}>
+                    <Text style={styles.assetName}>Flagship Balanced</Text>
+                    <Text style={styles.assetValue}>
+                      {formatCurrency(endowus.core.flagshipBalanced)}
+                    </Text>
+                  </View>
+                )}
+              {typeof endowus.core.flagshipAggressive === "number" &&
+                endowus.core.flagshipAggressive > 0 && (
+                  <View style={styles.assetItem}>
+                    <Text style={styles.assetName}>Flagship Aggressive</Text>
+                    <Text style={styles.assetValue}>
+                      {formatCurrency(endowus.core.flagshipAggressive)}
+                    </Text>
+                  </View>
+                )}
+              {typeof endowus.core.flagshipVeryAggressive === "number" &&
+                endowus.core.flagshipVeryAggressive > 0 && (
+                  <View style={styles.assetItem}>
+                    <Text style={styles.assetName}>
+                      Flagship Very Aggressive
+                    </Text>
+                    <Text style={styles.assetValue}>
+                      {formatCurrency(endowus.core.flagshipVeryAggressive)}
+                    </Text>
+                  </View>
+                )}
+
+              {/* ESG Portfolios */}
+              {typeof endowus.core.esgTotal === "number" &&
+                endowus.core.esgTotal > 0 && (
+                  <View style={styles.assetItem}>
+                    <Text style={styles.assetName}>ESG Total</Text>
+                    <Text style={styles.assetValue}>
+                      {formatCurrency(endowus.core.esgTotal)}
+                    </Text>
+                  </View>
+                )}
+              {typeof endowus.core.esgVeryConservative === "number" &&
+                endowus.core.esgVeryConservative > 0 && (
+                  <View style={styles.assetItem}>
+                    <Text style={styles.assetName}>ESG Very Conservative</Text>
+                    <Text style={styles.assetValue}>
+                      {formatCurrency(endowus.core.esgVeryConservative)}
+                    </Text>
+                  </View>
+                )}
+              {typeof endowus.core.esgConservative === "number" &&
+                endowus.core.esgConservative > 0 && (
+                  <View style={styles.assetItem}>
+                    <Text style={styles.assetName}>ESG Conservative</Text>
+                    <Text style={styles.assetValue}>
+                      {formatCurrency(endowus.core.esgConservative)}
+                    </Text>
+                  </View>
+                )}
+              {typeof endowus.core.esgMeasured === "number" &&
+                endowus.core.esgMeasured > 0 && (
+                  <View style={styles.assetItem}>
+                    <Text style={styles.assetName}>ESG Measured</Text>
+                    <Text style={styles.assetValue}>
+                      {formatCurrency(endowus.core.esgMeasured)}
+                    </Text>
+                  </View>
+                )}
+              {typeof endowus.core.esgBalanced === "number" &&
+                endowus.core.esgBalanced > 0 && (
+                  <View style={styles.assetItem}>
+                    <Text style={styles.assetName}>ESG Balanced</Text>
+                    <Text style={styles.assetValue}>
+                      {formatCurrency(endowus.core.esgBalanced)}
+                    </Text>
+                  </View>
+                )}
+              {typeof endowus.core.esgAggressive === "number" &&
+                endowus.core.esgAggressive > 0 && (
+                  <View style={styles.assetItem}>
+                    <Text style={styles.assetName}>ESG Aggressive</Text>
+                    <Text style={styles.assetValue}>
+                      {formatCurrency(endowus.core.esgAggressive)}
+                    </Text>
+                  </View>
+                )}
+              {typeof endowus.core.esgVeryAggressive === "number" &&
+                endowus.core.esgVeryAggressive > 0 && (
+                  <View style={styles.assetItem}>
+                    <Text style={styles.assetName}>ESG Very Aggressive</Text>
+                    <Text style={styles.assetValue}>
+                      {formatCurrency(endowus.core.esgVeryAggressive)}
+                    </Text>
+                  </View>
+                )}
+
+              {/* Factors Portfolios */}
+              {typeof endowus.core.factorsTotal === "number" &&
+                endowus.core.factorsTotal > 0 && (
+                  <View style={styles.assetItem}>
+                    <Text style={styles.assetName}>Factors Total</Text>
+                    <Text style={styles.assetValue}>
+                      {formatCurrency(endowus.core.factorsTotal)}
+                    </Text>
+                  </View>
+                )}
+              {typeof endowus.core.factorsVeryConservative === "number" &&
+                endowus.core.factorsVeryConservative > 0 && (
+                  <View style={styles.assetItem}>
+                    <Text style={styles.assetName}>
+                      Factors Very Conservative
+                    </Text>
+                    <Text style={styles.assetValue}>
+                      {formatCurrency(endowus.core.factorsVeryConservative)}
+                    </Text>
+                  </View>
+                )}
+              {typeof endowus.core.factorsConservative === "number" &&
+                endowus.core.factorsConservative > 0 && (
+                  <View style={styles.assetItem}>
+                    <Text style={styles.assetName}>Factors Conservative</Text>
+                    <Text style={styles.assetValue}>
+                      {formatCurrency(endowus.core.factorsConservative)}
+                    </Text>
+                  </View>
+                )}
+              {typeof endowus.core.factorsMeasured === "number" &&
+                endowus.core.factorsMeasured > 0 && (
+                  <View style={styles.assetItem}>
+                    <Text style={styles.assetName}>Factors Measured</Text>
+                    <Text style={styles.assetValue}>
+                      {formatCurrency(endowus.core.factorsMeasured)}
+                    </Text>
+                  </View>
+                )}
+              {typeof endowus.core.factorsBalanced === "number" &&
+                endowus.core.factorsBalanced > 0 && (
+                  <View style={styles.assetItem}>
+                    <Text style={styles.assetName}>Factors Balanced</Text>
+                    <Text style={styles.assetValue}>
+                      {formatCurrency(endowus.core.factorsBalanced)}
+                    </Text>
+                  </View>
+                )}
+              {typeof endowus.core.factorsAggressive === "number" &&
+                endowus.core.factorsAggressive > 0 && (
+                  <View style={styles.assetItem}>
+                    <Text style={styles.assetName}>Factors Aggressive</Text>
+                    <Text style={styles.assetValue}>
+                      {formatCurrency(endowus.core.factorsAggressive)}
+                    </Text>
+                  </View>
+                )}
+              {typeof endowus.core.factorsVeryAggressive === "number" &&
+                endowus.core.factorsVeryAggressive > 0 && (
+                  <View style={styles.assetItem}>
+                    <Text style={styles.assetName}>
+                      Factors Very Aggressive
+                    </Text>
+                    <Text style={styles.assetValue}>
+                      {formatCurrency(endowus.core.factorsVeryAggressive)}
+                    </Text>
+                  </View>
+                )}
+            </View>
+          )}
+
+        {/* SATELLITE PORTFOLIO */}
+        {endowus.satellite &&
+          calculateCategoryTotalRecursively(endowus.satellite) > 0 && (
+            <View style={styles.syfeGroup}>
+              <Text style={styles.syfeGroupTitle}>Satellite</Text>
+              {typeof endowus.satellite.technology === "number" &&
+                endowus.satellite.technology > 0 && (
+                  <View style={styles.assetItem}>
+                    <Text style={styles.assetName}>Technology</Text>
+                    <Text style={styles.assetValue}>
+                      {formatCurrency(endowus.satellite.technology)}
+                    </Text>
+                  </View>
+                )}
+              {typeof endowus.satellite.chinaEquities === "number" &&
+                endowus.satellite.chinaEquities > 0 && (
+                  <View style={styles.assetItem}>
+                    <Text style={styles.assetName}>China Equities</Text>
+                    <Text style={styles.assetValue}>
+                      {formatCurrency(endowus.satellite.chinaEquities)}
+                    </Text>
+                  </View>
+                )}
+              {typeof endowus.satellite.realAssets === "number" &&
+                endowus.satellite.realAssets > 0 && (
+                  <View style={styles.assetItem}>
+                    <Text style={styles.assetName}>Real Assets</Text>
+                    <Text style={styles.assetValue}>
+                      {formatCurrency(endowus.satellite.realAssets)}
+                    </Text>
+                  </View>
+                )}
+              {typeof endowus.satellite.megatrends === "number" &&
+                endowus.satellite.megatrends > 0 && (
+                  <View style={styles.assetItem}>
+                    <Text style={styles.assetName}>Megatrends</Text>
+                    <Text style={styles.assetValue}>
+                      {formatCurrency(endowus.satellite.megatrends)}
+                    </Text>
+                  </View>
+                )}
+            </View>
+          )}
+
+        {/* CASH SMART PORTFOLIO - Fix the property names */}
+        {endowus.cashSmart &&
+          calculateCategoryTotalRecursively(endowus.cashSmart) > 0 && (
+            <View style={styles.syfeGroup}>
+              <Text style={styles.syfeGroupTitle}>Cash Smart</Text>
+              {typeof endowus.cashSmart.secure === "number" &&
+                endowus.cashSmart.secure > 0 && (
+                  <View style={styles.assetItem}>
+                    <Text style={styles.assetName}>Secure</Text>
+                    <Text style={styles.assetValue}>
+                      {formatCurrency(endowus.cashSmart.secure)}
+                    </Text>
+                  </View>
+                )}
+              {typeof endowus.cashSmart.enhanced === "number" &&
+                endowus.cashSmart.enhanced > 0 && (
+                  <View style={styles.assetItem}>
+                    <Text style={styles.assetName}>Enhanced</Text>
+                    <Text style={styles.assetValue}>
+                      {formatCurrency(endowus.cashSmart.enhanced)}
+                    </Text>
+                  </View>
+                )}
+              {typeof endowus.cashSmart.ultra === "number" &&
+                endowus.cashSmart.ultra > 0 && (
+                  <View style={styles.assetItem}>
+                    <Text style={styles.assetName}>Ultra</Text>
+                    <Text style={styles.assetValue}>
+                      {formatCurrency(endowus.cashSmart.ultra)}
+                    </Text>
+                  </View>
+                )}
+            </View>
+          )}
+
+        {/* INCOME PORTFOLIO - Add the missing section */}
+        {endowus.income &&
+          calculateCategoryTotalRecursively(endowus.income) > 0 && (
+            <View style={styles.syfeGroup}>
+              <Text style={styles.syfeGroupTitle}>Income</Text>
+              {typeof endowus.income.stableIncome === "number" &&
+                endowus.income.stableIncome > 0 && (
+                  <View style={styles.assetItem}>
+                    <Text style={styles.assetName}>Stable Income</Text>
+                    <Text style={styles.assetValue}>
+                      {formatCurrency(endowus.income.stableIncome)}
+                    </Text>
+                  </View>
+                )}
+              {typeof endowus.income.higherIncome === "number" &&
+                endowus.income.higherIncome > 0 && (
+                  <View style={styles.assetItem}>
+                    <Text style={styles.assetName}>Higher Income</Text>
+                    <Text style={styles.assetValue}>
+                      {formatCurrency(endowus.income.higherIncome)}
+                    </Text>
+                  </View>
+                )}
+              {typeof endowus.income.futureIncome === "number" &&
+                endowus.income.futureIncome > 0 && (
+                  <View style={styles.assetItem}>
+                    <Text style={styles.assetName}>Future Income</Text>
+                    <Text style={styles.assetValue}>
+                      {formatCurrency(endowus.income.futureIncome)}
+                    </Text>
+                  </View>
+                )}
+            </View>
+          )}
+
+        {/* CUSTOM PORTFOLIOS */}
+        {renderCustomEndowusAccount(endowus)}
+      </>
+    );
+  };
+
   const renderRoboAdvisors = () => {
     const expanded = expandedSections["Robos"];
     const percentage = calculatePercentage(roboTotal, totalNetWorth);
@@ -354,6 +728,49 @@ export function AIRoboPortfolio({
                 {roboSelections["Syfe"] && (
                   <View style={styles.nestedDetails}>
                     {renderSyfeDetails(assetAllocation.Robos.Syfe)}
+                  </View>
+                )}
+              </View>
+            )}
+
+            {/* Add null checking for Endowus before rendering */}
+            {assetAllocation.Robos.Endowus && (
+              <View style={styles.platformContainer}>
+                <TouchableOpacity
+                  style={styles.platformHeader}
+                  onPress={() => toggleSection("Endowus", setRoboSelections)}
+                >
+                  <View style={{ flexDirection: "row", alignItems: "center" }}>
+                    <View
+                      style={[
+                        styles.platformIcon,
+                        { backgroundColor: PORTFOLIO_COLORS[2] },
+                      ]}
+                    >
+                      <Text style={styles.platformIconText}>E</Text>
+                    </View>
+                    <Text style={styles.platformName}>Endowus</Text>
+                  </View>
+                  <View style={{ flexDirection: "row", alignItems: "center" }}>
+                    <Text style={styles.platformValue}>
+                      {formatCurrency(endowusTotal)}
+                    </Text>
+                    <Ionicons
+                      name={
+                        roboSelections["Endowus"]
+                          ? "chevron-up"
+                          : "chevron-down"
+                      }
+                      size={20}
+                      color="#555"
+                      style={{ marginLeft: 8 }}
+                    />
+                  </View>
+                </TouchableOpacity>
+
+                {roboSelections["Endowus"] && (
+                  <View style={styles.nestedDetails}>
+                    {renderEndowusDetails(assetAllocation.Robos.Endowus)}
                   </View>
                 )}
               </View>
