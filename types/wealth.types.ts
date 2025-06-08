@@ -34,6 +34,7 @@ export interface AssetAllocations {
   Bank: { [key: string]: BankItems };
   Robos: {
     Syfe: SyfeInterface;
+    Endowus: EndowusInterface;
   };
   Investments: { [key: string]: InvestmentItems };
   CPF: { [key: string]: CPFItems };
@@ -144,6 +145,102 @@ export const defaultSyfe: SyfeInterface = {
   },
 };
 
+export interface EndowusInterface {
+  core: {
+    flagshipTotal?: number;
+    flagshipVeryConservative?: number;
+    flagshipConservative?: number;
+    flagshipMeasured?: number;
+    flagshipBalanced?: number;
+    flagshipAggressive?: number;
+    flagshipVeryAggressive?: number;
+    esgTotal?: number;
+    esgVeryConservative?: number;
+    esgConservative?: number;
+    esgMeasured?: number;
+    esgBalanced?: number;
+    esgAggressive?: number;
+    esgVeryAggressive?: number;
+    factorsTotal?: number;
+    factorsVeryConservative?: number;
+    factorsConservative?: number;
+    factorsMeasured?: number;
+    factorsBalanced?: number;
+    factorsAggressive?: number;
+    factorsVeryAggressive?: number;
+  };
+  satellite: {
+    technology?: number;
+    chinaEquities?: number;
+    realAssets?: number;
+    megatrends?: number;
+  };
+  cashSmart: {
+    secure?: number;
+    enhanced?: number;
+    ultra?: number;
+  };
+  income: {
+    stableIncome?: number;
+    higherIncome?: number;
+    futureIncome?: number;
+  };
+  [key: string]: { [key: string]: number | undefined };
+}
+
+export const defaultEndowus: EndowusInterface = {
+  core: {
+    flagshipTotal: 0,
+    flagshipVeryConservative: 0,
+    flagshipConservative: 0,
+    flagshipMeasured: 0,
+    flagshipBalanced: 0,
+    flagshipAggressive: 0,
+    flagshipVeryAggressive: 0,
+    esgTotal: 0,
+    esgVeryConservative: 0,
+    esgConservative: 0,
+    esgMeasured: 0,
+    esgBalanced: 0,
+    esgAggressive: 0,
+    esgVeryAggressive: 0,
+    factorsTotal: 0,
+    factorsVeryConservative: 0,
+    factorsConservative: 0,
+    factorsMeasured: 0,
+    factorsBalanced: 0,
+    factorsAggressive: 0,
+    factorsVeryAggressive: 0,
+  },
+  satellite: {
+    technology: 0,
+    chinaEquities: 0,
+    realAssets: 0,
+    megatrends: 0,
+  },
+  cashSmart: {
+    secure: 0,
+    enhanced: 0,
+    ultra: 0,
+  },
+  income: {
+    stableIncome: 0,
+    higherIncome: 0,
+    futureIncome: 0,
+  },
+};
+
+export const ENDOWUS_INTERFACE_KEYS: (keyof EndowusInterface)[] = [
+  "core",
+  "satellite",
+  "cashSmart",
+  "income",
+];
+
+export function isCustomEndowusPortfolio(key: string) {
+  return !ENDOWUS_INTERFACE_KEYS.includes(key as keyof EndowusInterface);
+}
+
 export interface BankEditForm {
   [key: string]: number | string;
 }
@@ -161,6 +258,17 @@ export interface SyfeDeleteRequest {
   uid: string;
   portfolioToDelete: string;
   syfeAllocation: SyfeInterface;
+}
+
+export interface EndowusSaveRequest {
+  uid: string;
+  endowusAllocation: EndowusInterface;
+}
+
+export interface EndowusDeleteRequest {
+  uid: string;
+  portfolioToDelete: string;
+  endowusAllocation: EndowusInterface;
 }
 
 export interface RecommendationDeleteRequest {
@@ -193,12 +301,28 @@ export function CleanUpSyfeCustomFromEditForm(editForm: SyfeInterface) {
   return updatedForm;
 }
 
+export function CleanUpEndowusCustomFromEditForm(editForm: EndowusInterface) {
+  const updatedForm: EndowusInterface = { ...editForm };
+  for (const portfolio in editForm) {
+    Object.keys(editForm[portfolio]).forEach((account) => {
+      if (
+        editForm[portfolio][account] === 0 &&
+        isCustomEndowusPortfolio(portfolio)
+      ) {
+        delete updatedForm[portfolio][account];
+      }
+    });
+  }
+  return updatedForm;
+}
+
 export function defaultAssetAllocations(uid: string): AssetAllocations {
   return {
     uid,
     Bank: {},
     Robos: {
       Syfe: { ...defaultSyfe },
+      Endowus: { ...defaultEndowus },
     },
     Investments: {},
     CPF: {},

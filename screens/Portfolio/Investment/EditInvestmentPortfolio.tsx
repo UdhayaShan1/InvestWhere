@@ -11,19 +11,19 @@ import {
   formatCurrency,
   PORTFOLIO_COLORS,
   portFolioStyles as styles,
-} from "../../types/wealth.types";
-import { styles as portfolioStyles } from "../Profile/styles";
+} from "../../../types/wealth.types";
+import { styles as portfolioStyles } from "../../Profile/styles";
 import { useEffect, useState } from "react";
-import { useAppDispatch, useAppSelector } from "../../store/rootTypes";
+import { useAppDispatch, useAppSelector } from "../../../store/rootTypes";
 import {
   assetAllocationSelector,
   isLoadingSelector,
-} from "../../store/portfolio/portfolioSelector";
+} from "../../../store/portfolio/portfolioSelector";
 import { Ionicons } from "@expo/vector-icons";
 import { TextInput } from "react-native";
-import LoadingButton from "../../component/LoadingButton";
-import { portfolioAction } from "../../store/portfolio/portfolioSlice";
-import { currentUidSelector } from "../../store/auth/authSelector";
+import LoadingButton from "../../../component/LoadingButton";
+import { portfolioAction } from "../../../store/portfolio/portfolioSlice";
+import { currentUidSelector } from "../../../store/auth/authSelector";
 
 interface EditInvestmentPortfolioProps {
   editModal: boolean;

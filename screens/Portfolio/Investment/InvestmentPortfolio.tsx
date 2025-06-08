@@ -3,14 +3,14 @@ import {
   calculateCategoryTotalRecursively,
   calculatePercentage,
   toggleSection,
-} from "../../constants/helper";
+} from "../../../constants/helper";
 import {
   AssetAllocations,
   formatCurrency,
   InvestmentItems,
   PORTFOLIO_COLORS,
-} from "../../types/wealth.types";
-import { portFolioStyles as styles } from "../../types/wealth.types";
+} from "../../../types/wealth.types";
+import { portFolioStyles as styles } from "../../../types/wealth.types";
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
 import { EditInvestmentPortfolio } from "./EditInvestmentPortfolio";
@@ -108,9 +108,6 @@ export function InvestmentPortfolio({
   const renderBroker = () => {
     const expanded = expandedSections["Investments"];
     const percentage = calculatePercentage(investmentsTotal, totalNetWorth);
-    if (!assetAllocation?.Investments || investmentsTotal === 0) {
-      return null;
-    }
 
     return (
       <View style={styles.categoryContainer}>

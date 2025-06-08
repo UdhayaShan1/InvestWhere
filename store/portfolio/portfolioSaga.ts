@@ -9,6 +9,9 @@ import {
   AssetComponents,
   BankEditForm,
   defaultSyfe,
+  defaultEndowus,
+  EndowusSaveRequest,
+  EndowusDeleteRequest,
   InvestmentEditForm,
   NetWorthSummary,
   RecommendationDeleteRequest,
@@ -42,12 +45,17 @@ export function* loadWealthProfileWorker(actions: PayloadAction<string>) {
 
     // Add null checking and ensure Robos structure exists
     if (assetSummary && !assetSummary.Robos) {
-      assetSummary.Robos = { Syfe: defaultSyfe };
+      assetSummary.Robos = { Syfe: defaultSyfe, Endowus: defaultEndowus };
     }
 
     // Ensure Syfe exists within Robos
     if (assetSummary && assetSummary.Robos && !assetSummary.Robos.Syfe) {
       assetSummary.Robos.Syfe = defaultSyfe;
+    }
+
+    // Ensure Endowus exists within Robos
+    if (assetSummary && assetSummary.Robos && !assetSummary.Robos.Endowus) {
+      assetSummary.Robos.Endowus = defaultEndowus;
     }
 
     const allocationList: AssetAllocationsList = yield call(
@@ -237,7 +245,7 @@ export function* saveNewSyfePortfolioWorker(
     const syfeAllocation: SyfeInterface = syfeDetail.syfeAllocation;
 
     if (!updatedAllocations.Robos) {
-      updatedAllocations.Robos = { Syfe: defaultSyfe };
+      updatedAllocations.Robos = { Syfe: defaultSyfe, Endowus: defaultEndowus };
     }
 
     updatedAllocations.Robos.Syfe = syfeAllocation;
@@ -305,7 +313,7 @@ export function* deleteSyfePortfolioWorker(
     const portfolioName = syfeDeleteRequest.portfolioToDelete as string;
 
     if (!updatedAllocations.Robos) {
-      updatedAllocations.Robos = { Syfe: defaultSyfe };
+      updatedAllocations.Robos = { Syfe: defaultSyfe, Endowus: defaultEndowus };
     }
 
     delete updatedAllocations.Robos.Syfe[portfolioName];
@@ -348,6 +356,139 @@ export function* deleteSyfePortfolioWorker(
     console.log("Error deleting syfe portfolio in saga", error);
     const errorMessage = error instanceof Error ? error.message : String(error);
     yield put(portfolioAction.deleteSyfePortfolioFail(errorMessage));
+  }
+}
+
+export function* saveNewEndowusPortfolioWorker(
+  actions: PayloadAction<EndowusSaveRequest>
+) {
+  try {
+    console.log("saga ENDOWUS", actions.payload);
+    const endowusDetail = actions.payload;
+    const uid = endowusDetail["uid"] as string;
+    if (!uid) {
+      throw new Error("User ID is missing");
+    }
+
+    const currentAssetAllocations: AssetAllocations = yield call(
+      getAssetAllocations,
+      uid
+    );
+    if (!currentAssetAllocations) {
+      throw new Error("Failed to retrieve current asset allocations");
+    }
+    const updatedAllocations = { ...currentAssetAllocations };
+    const endowusAllocation = endowusDetail.endowusAllocation;
+
+    if (!updatedAllocations.Robos) {
+      updatedAllocations.Robos = { Syfe: defaultSyfe, Endowus: defaultEndowus };
+    }
+
+    updatedAllocations.Robos.Endowus = endowusAllocation;
+    console.log("saga updated", updatedAllocations);
+
+    yield call(saveAssetAllocations, updatedAllocations);
+
+    const netWorthSummary: NetWorthSummary = yield call(
+      getNetWorthSummary,
+      uid
+    );
+    if (netWorthSummary) {
+      const today = getCurrentDateString();
+      if (!netWorthSummary.History[today]) {
+        netWorthSummary.History[today] = {};
+      }
+      for (const Component of AssetComponents) {
+        const key = Component as keyof typeof updatedAllocations;
+        const componentTotal = calculateCategoryTotalRecursively(
+          updatedAllocations[key]
+        );
+        netWorthSummary.History[today][key] = componentTotal;
+      }
+      const newTotal = calculateCategoryTotalRecursively(updatedAllocations);
+      netWorthSummary.History[today]["Total"] = newTotal;
+
+      yield call(saveNetWorthSummary, netWorthSummary);
+      yield put(portfolioAction.saveEndowusPortfolioSuccess());
+
+      //update asset allocation list's current
+      yield call(
+        saveAssetAllocationsListWithCurrentAllocation,
+        updatedAllocations
+      );
+      //load everything for ui
+      yield put(portfolioAction.loadWealthProfile(uid));
+    }
+  } catch (error) {
+    console.log("Error saving Endowus portfolio in saga", error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    yield put(portfolioAction.saveEndowusPortfolioFail(errorMessage));
+  }
+}
+
+export function* deleteEndowusPortfolioWorker(
+  actions: PayloadAction<EndowusDeleteRequest>
+) {
+  try {
+    const endowusDeleteRequest = actions.payload;
+    const uid = endowusDeleteRequest["uid"] as string;
+    if (!uid) {
+      throw new Error("User ID is missing");
+    }
+
+    const currentAssetAllocations: AssetAllocations = yield call(
+      getAssetAllocations,
+      uid
+    );
+    if (!currentAssetAllocations) {
+      throw new Error("Failed to retrieve current asset allocations");
+    }
+    const updatedAllocations = { ...currentAssetAllocations };
+    const portfolioName = endowusDeleteRequest.portfolioToDelete as string;
+
+    if (!updatedAllocations.Robos) {
+      updatedAllocations.Robos = { Syfe: defaultSyfe, Endowus: defaultEndowus };
+    }
+
+    delete updatedAllocations.Robos.Endowus[portfolioName];
+
+    yield call(saveAssetAllocations, updatedAllocations);
+
+    const netWorthSummary: NetWorthSummary = yield call(
+      getNetWorthSummary,
+      uid
+    );
+    if (netWorthSummary) {
+      const today = getCurrentDateString();
+      if (!netWorthSummary.History[today]) {
+        netWorthSummary.History[today] = {};
+      }
+      for (const Component of AssetComponents) {
+        const key = Component as keyof typeof updatedAllocations;
+        const componentTotal = calculateCategoryTotalRecursively(
+          updatedAllocations[key]
+        );
+        netWorthSummary.History[today][key] = componentTotal;
+      }
+      const newTotal = calculateCategoryTotalRecursively(updatedAllocations);
+      netWorthSummary.History[today]["Total"] = newTotal;
+
+      yield call(saveNetWorthSummary, netWorthSummary);
+      yield put(portfolioAction.deleteEndowusPortfolioSuccess());
+
+      //update asset allocation list's current
+      yield call(
+        saveAssetAllocationsListWithCurrentAllocation,
+        updatedAllocations
+      );
+
+      //load everything for ui
+      yield put(portfolioAction.loadWealthProfile(uid));
+    }
+  } catch (error) {
+    console.log("Error deleting endowus portfolio in saga", error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    yield put(portfolioAction.deleteEndowusPortfolioFail(errorMessage));
   }
 }
 
@@ -744,6 +885,14 @@ export function* portfolioWatcher() {
   yield takeEvery(
     portfolioAction.deleteSyfePortfolio,
     deleteSyfePortfolioWorker
+  );
+  yield takeEvery(
+    portfolioAction.saveEndowusPortfolio,
+    saveNewEndowusPortfolioWorker
+  );
+  yield takeEvery(
+    portfolioAction.deleteEndowusPortfolio,
+    deleteEndowusPortfolioWorker
   );
   yield takeEvery(
     portfolioAction.saveInvestmentDetails,
