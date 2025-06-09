@@ -564,21 +564,6 @@ export default function RecommendPortfolioTab() {
                   <Text style={styles.quotaTotal}> / 5 remaining</Text>
                 </View>
               </View>
-              <View style={styles.quotaBadgeContainer}>
-                <View
-                  style={[
-                    styles.quotaBadge,
-                    {
-                      backgroundColor:
-                        currentQuota > 2
-                          ? "#28a745"
-                          : currentQuota > 0
-                            ? "#ffc107"
-                            : "#dc3545",
-                    },
-                  ]}
-                ></View>
-              </View>
             </View>
           )}
 
