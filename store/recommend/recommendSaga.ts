@@ -16,6 +16,12 @@ import {
 import { AssetAllocations } from "../../types/wealth.types";
 import { portfolioAction } from "../portfolio/portfolioSlice";
 import { getCurrentDateString } from "../../constants/date_helper";
+import { decreaseApiQuota, InvestUserProfile } from "../../types/auth.types";
+import {
+  getUserProfile,
+  saveUserProfile,
+} from "../../firebase/services/profileService";
+import { authAction } from "../auth/authSlice";
 
 export function* getRecommendationWorker(
   actions: PayloadAction<RecommendationForm>
@@ -96,6 +102,7 @@ export function* getRecommendationWorker(
     console.error("Error in getRecommendationWorker:", error);
     const errorMsg =
       error instanceof Error ? error.message : "Error getting recommendation";
+    alert(errorMsg);
     yield put(recommendAction.getRecommendationFail(errorMsg));
   }
 }
@@ -163,6 +170,19 @@ export function* getAnalysisWorker(
 
     // Save updated asset allocation
     yield call(saveAssetAllocations, assetAllocation);
+
+    //update quota
+    const currentUserProfile: InvestUserProfile = yield call(
+      getUserProfile,
+      uid,
+      auth.currentUser?.email || ""
+    );
+    if (currentUserProfile) {
+      const updatedUserProfile: InvestUserProfile =
+        decreaseApiQuota(currentUserProfile);
+      yield call(saveUserProfile, updatedUserProfile);
+      yield put(authAction.decreaseApiQuotaSuccess(updatedUserProfile));
+    }
 
     // Dispatch success action first
     yield put(recommendAction.getAnalysisSuccess(data));

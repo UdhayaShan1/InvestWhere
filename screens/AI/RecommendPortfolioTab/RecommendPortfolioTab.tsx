@@ -21,18 +21,32 @@ import {
   RecommendationForm,
   riskLabels,
 } from "../../../types/recommend.types";
-import { loggedInUserSelector } from "../../../store/auth/authSelector";
-import { yearDifference } from "../../../constants/date_helper";
+import {
+  isVerifiedSelector,
+  loggedInUserSelector,
+} from "../../../store/auth/authSelector";
+import {
+  getCurrentDateString,
+  yearDifference,
+} from "../../../constants/date_helper";
 import Slider from "@react-native-community/slider";
 import { recommendStyles as styles } from "../../../types/recommend.types";
 import { recommendAction } from "../../../store/recommend/recommendSlice";
 import { isLoadingSelector } from "../../../store/recommend/recommendSelector";
+import { useNavigation } from "@react-navigation/native";
+import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
+import { BottomTabParamList } from "../../../navigation/BottomTabNavigator";
+import { getApiQuota } from "../../../types/auth.types";
+
+type UserPortfolioNavigationProp = BottomTabNavigationProp<BottomTabParamList>;
 
 export default function RecommendPortfolioTab() {
+  const navigation = useNavigation<UserPortfolioNavigationProp>();
   const [showIncomeDropdown, setShowIncomeDropdown] = useState(false);
   const isGenerating = useAppSelector(isLoadingSelector);
   const assetAllocation = useAppSelector(assetAllocationSelector);
   const userProfile = useAppSelector(loggedInUserSelector).UserProfile;
+  const isVerified = useAppSelector(isVerifiedSelector);
   const assetAllocationTotal =
     calculateCategoryTotalRecursively(assetAllocation);
   const dispatch = useAppDispatch();
@@ -504,6 +518,125 @@ export default function RecommendPortfolioTab() {
     );
   };
 
+  const renderRecommendButton = () => {
+    let currentQuota = 0;
+    if (userProfile) {
+      currentQuota = getApiQuota(userProfile, getCurrentDateString());
+    }
+
+    if (isVerified) {
+      return (
+        <View style={styles.submitContainer}>
+          {/* Improved Quota Display */}
+          {userProfile && (
+            <View style={styles.quotaDisplayContainer}>
+              <View style={styles.quotaIconContainer}>
+                <Ionicons
+                  name="flash"
+                  size={20}
+                  color={
+                    currentQuota > 2
+                      ? "#28a745"
+                      : currentQuota > 0
+                        ? "#ffc107"
+                        : "#dc3545"
+                  }
+                />
+              </View>
+              <View style={styles.quotaTextContainer}>
+                <Text style={styles.quotaLabel}>Daily AI Recommendations</Text>
+                <View style={styles.quotaValueContainer}>
+                  <Text
+                    style={[
+                      styles.quotaValue,
+                      {
+                        color:
+                          currentQuota > 2
+                            ? "#28a745"
+                            : currentQuota > 0
+                              ? "#ffc107"
+                              : "#dc3545",
+                      },
+                    ]}
+                  >
+                    {currentQuota}
+                  </Text>
+                  <Text style={styles.quotaTotal}> / 5 remaining</Text>
+                </View>
+              </View>
+            </View>
+          )}
+
+          <TouchableOpacity
+            style={[
+              styles.submitButton,
+              (isGenerating || currentQuota === 0) &&
+                styles.submitButtonDisabled,
+            ]}
+            disabled={isGenerating || currentQuota === 0}
+            onPress={() => {
+              console.log("Generating AI recommendation with form:", form);
+              dispatch(recommendAction.getRecommendation(form));
+            }}
+          >
+            {currentQuota === 0 ? (
+              <>
+                <Ionicons
+                  name="ban-outline"
+                  size={20}
+                  color="#fff"
+                  style={{ marginRight: 8 }}
+                />
+                <Text style={styles.submitButtonText}>
+                  Daily Quota Exceeded
+                </Text>
+              </>
+            ) : isGenerating ? (
+              <>
+                <Ionicons
+                  name="sync-outline"
+                  size={20}
+                  color="#fff"
+                  style={[styles.spinning, { marginRight: 8 }]}
+                />
+                <Text style={styles.submitButtonText}>Generating...</Text>
+              </>
+            ) : (
+              <>
+                <Ionicons
+                  name="rocket-outline"
+                  size={20}
+                  color="#fff"
+                  style={{ marginRight: 8 }}
+                />
+                <Text style={styles.submitButtonText}>
+                  Generate Recommendation
+                </Text>
+              </>
+            )}
+          </TouchableOpacity>
+        </View>
+      );
+    }
+
+    return (
+      <View style={styles.submitContainer}>
+        <TouchableOpacity
+          style={[styles.submitButton, styles.submitButtonDisabled]}
+          onPress={() => navigation.navigate("ProfileTab")}
+        >
+          <Ionicons
+            name="person-circle-outline"
+            size={20}
+            color="#fff"
+            style={{ marginRight: 8 }}
+          />
+          <Text style={styles.submitButtonText}>Verify Email to Continue</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       <View style={styles.headerContainer}>
@@ -524,43 +657,7 @@ export default function RecommendPortfolioTab() {
       {renderInvestmentSection()}
       {renderAdditionalCommentsSection()}
 
-      <View style={styles.submitContainer}>
-        <TouchableOpacity
-          style={[
-            styles.submitButton,
-            isGenerating && styles.submitButtonDisabled,
-          ]}
-          disabled={isGenerating}
-          onPress={() => {
-            console.log("Generating AI recommendation with form:", form);
-            dispatch(recommendAction.getRecommendation(form));
-          }}
-        >
-          {isGenerating ? (
-            <>
-              <Ionicons
-                name="sync-outline"
-                size={20}
-                color="#fff"
-                style={styles.spinning}
-              />
-              <Text style={styles.submitButtonText}>Generating...</Text>
-            </>
-          ) : (
-            <>
-              <Ionicons
-                name="rocket-outline"
-                size={20}
-                color="#fff"
-                style={{ marginRight: 8 }}
-              />
-              <Text style={styles.submitButtonText}>
-                Generate Recommendation
-              </Text>
-            </>
-          )}
-        </TouchableOpacity>
-      </View>
+      <View style={styles.submitContainer}>{renderRecommendButton()}</View>
 
       {/* Income Level Modal */}
       <Modal

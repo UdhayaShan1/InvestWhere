@@ -17,9 +17,14 @@ const isLoadingSelector = (state : RootState) => {
     return state.auth.isLoading;
 }
 
+const isVerifiedSelector = (state : RootState) => {
+    return state.auth.CredProfile?.emailVerified;
+}
+
 export {
     loggedInUserSelector,
     isLoadingSelector,
     errorSelector,
-    currentUidSelector
+    currentUidSelector,
+    isVerifiedSelector
 }

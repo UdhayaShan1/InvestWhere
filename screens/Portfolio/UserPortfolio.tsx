@@ -15,7 +15,10 @@ import {
 import { portfolioAction } from "../../store/portfolio/portfolioSlice";
 import { Dimensions } from "react-native";
 import { PORTFOLIO_COLORS } from "../../types/wealth.types";
-import { loggedInUserSelector } from "../../store/auth/authSelector";
+import {
+  isVerifiedSelector,
+  loggedInUserSelector,
+} from "../../store/auth/authSelector";
 import { portFolioStyles as styles } from "../../types/wealth.types";
 import { calculateCategoryTotalRecursively } from "../../constants/helper";
 import { SummaryPortfolio } from "./SummaryPortfolio";
@@ -26,14 +29,26 @@ import { Ionicons } from "@expo/vector-icons";
 import { isLoadingSelector } from "../../store/recommend/recommendSelector";
 import { recommendAction } from "../../store/recommend/recommendSlice";
 import { BankPortfolio } from "./Bank/BankPortfolio";
+import { useNavigation } from "@react-navigation/native";
+import type { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
+import { BottomTabParamList } from "../../navigation/BottomTabNavigator";
+import { getApiQuota } from "../../types/auth.types";
+import {
+  getCurrentDateString,
+  stringToDate,
+} from "../../constants/date_helper";
+
+type UserPortfolioNavigationProp = BottomTabNavigationProp<BottomTabParamList>;
 
 const screenWidth = Dimensions.get("window").width;
 
 export function UserPortfolio() {
+  const navigation = useNavigation<UserPortfolioNavigationProp>();
   const dispatch = useAppDispatch();
   const currentUser = useAppSelector(loggedInUserSelector);
   const assetAllocation = useAppSelector(assetAllocationSelector);
   const netWorthSummary = useAppSelector(netWorthSelector);
+  const isVerified = useAppSelector(isVerifiedSelector);
   const [refreshing, setRefreshing] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
   const isGenerating = useAppSelector(isLoadingSelector);
@@ -169,22 +184,172 @@ export function UserPortfolio() {
   }
 
   const renderFeedback = () => {
+    let currentQuota = 0;
+    if (currentUser && currentUser.UserProfile) {
+      currentQuota = getApiQuota(
+        currentUser.UserProfile,
+        getCurrentDateString()
+      );
+    }
+    console.log("Current quota", currentQuota);
     if (
       !assetAllocation?.portfolioStrategy ||
       !assetAllocation.projectedReturns
     ) {
+      if (!isVerified) {
+        return (
+          <View style={styles.feedbackContainer}>
+            <TouchableOpacity
+              style={[
+                styles.generateAnalysisButton,
+                isGenerating && styles.submitButtonDisabled,
+              ]}
+              onPress={() => navigation.navigate("ProfileTab")}
+            >
+              <View style={styles.generateAnalysisContent}>
+                <Ionicons
+                  name="person-circle-outline"
+                  size={28}
+                  color="#4A6FA5"
+                />
+                <View style={styles.generateAnalysisText}>
+                  <Text style={styles.generateAnalysisTitle}>Get Verified</Text>
+                  <Text style={styles.generateAnalysisSubtitle}>
+                    Please verify your email to unlock personalized AI
+                    investment insights and analysis.
+                  </Text>
+                </View>
+                <Ionicons
+                  name="arrow-forward-circle-outline"
+                  size={24}
+                  color="#4A6FA5"
+                />
+              </View>
+            </TouchableOpacity>
+          </View>
+        );
+      }
+
+      if (currentQuota > 0) {
+        return (
+          <View style={styles.feedbackContainer}>
+            <View style={styles.quotaDisplayContainer}>
+              <View style={styles.quotaIconContainer}>
+                <Ionicons
+                  name="flash"
+                  size={20}
+                  color={
+                    currentQuota > 2
+                      ? "#28a745"
+                      : currentQuota > 0
+                        ? "#ffc107"
+                        : "#dc3545"
+                  }
+                />
+              </View>
+              <View style={styles.quotaTextContainer}>
+                <Text style={styles.quotaLabel}>Daily AI Analysis</Text>
+                <View style={styles.quotaValueContainer}>
+                  <Text
+                    style={[
+                      styles.quotaValue,
+                      {
+                        color:
+                          currentQuota > 2
+                            ? "#28a745"
+                            : currentQuota > 0
+                              ? "#ffc107"
+                              : "#dc3545",
+                      },
+                    ]}
+                  >
+                    {currentQuota}
+                  </Text>
+                  <Text style={styles.quotaTotal}> / 5 remaining</Text>
+                </View>
+              </View>
+              <View style={styles.quotaBadgeContainer}>
+                <View
+                  style={[
+                    styles.quotaBadge,
+                    {
+                      backgroundColor:
+                        currentQuota > 2
+                          ? "#28a745"
+                          : currentQuota > 0
+                            ? "#ffc107"
+                            : "#dc3545",
+                    },
+                  ]}
+                >
+                  <Text style={styles.quotaBadgeText}>
+                    {currentQuota > 2
+                      ? "Good"
+                      : currentQuota > 0
+                        ? "Low"
+                        : "Empty"}
+                  </Text>
+                </View>
+              </View>
+            </View>
+
+            <TouchableOpacity
+              style={[
+                styles.generateAnalysisButton,
+                isGenerating && styles.submitButtonDisabled,
+              ]}
+              onPress={() => {
+                console.log("Generate AI analysis");
+                dispatch(recommendAction.getAnalysis(assetAllocation));
+              }}
+              disabled={isGenerating}
+            >
+              <View style={styles.generateAnalysisContent}>
+                {isGenerating ? (
+                  <Ionicons name="sync-outline" size={28} color="#4A6FA5" />
+                ) : (
+                  <Ionicons name="sparkles-outline" size={28} color="#4A6FA5" />
+                )}
+                <View style={styles.generateAnalysisText}>
+                  <Text style={styles.generateAnalysisTitle}>
+                    {isGenerating
+                      ? "Generating...."
+                      : "Generate AI Investment Analysis"}
+                  </Text>
+                  <Text style={styles.generateAnalysisSubtitle}>
+                    Get personalized strategy analysis and projected returns
+                    based on your current portfolio
+                  </Text>
+                </View>
+                <Ionicons
+                  name="arrow-forward-circle-outline"
+                  size={24}
+                  color="#4A6FA5"
+                />
+              </View>
+            </TouchableOpacity>
+          </View>
+        );
+      }
+
       return (
         <View style={styles.feedbackContainer}>
+          <View style={styles.quotaExhaustedContainer}>
+            <View style={styles.quotaExhaustedIcon}>
+              <Ionicons name="battery-dead-outline" size={32} color="#dc3545" />
+            </View>
+            <View style={styles.quotaExhaustedContent}>
+              <Text style={styles.quotaExhaustedTitle}>
+                Daily Quota Reached
+              </Text>
+              <Text style={styles.quotaExhaustedSubtitle}>
+                You've used all 5 AI analyses for today.
+              </Text>
+            </View>
+          </View>
+
           <TouchableOpacity
-            style={[
-              styles.generateAnalysisButton,
-              isGenerating && styles.submitButtonDisabled,
-            ]}
-            onPress={() => {
-              console.log("Generate AI analysis");
-              dispatch(recommendAction.getAnalysis(assetAllocation));
-            }}
-            disabled={isGenerating}
+            style={[styles.generateAnalysisButton, styles.submitButtonDisabled]}
           >
             <View style={styles.generateAnalysisContent}>
               {isGenerating ? (
@@ -194,13 +359,7 @@ export function UserPortfolio() {
               )}
               <View style={styles.generateAnalysisText}>
                 <Text style={styles.generateAnalysisTitle}>
-                  {isGenerating
-                    ? "Generating...."
-                    : "Generate AI Investment Analysis"}
-                </Text>
-                <Text style={styles.generateAnalysisSubtitle}>
-                  Get personalized strategy analysis and projected returns based
-                  on your current portfolio
+                  {"You have zero quota for the day, try again tomorrow!"}
                 </Text>
               </View>
               <Ionicons
@@ -217,6 +376,16 @@ export function UserPortfolio() {
     if (!showFeedback) {
       return (
         <View style={styles.feedbackContainer}>
+          {currentUser.UserProfile && (
+            <View style={styles.compactQuotaContainer}>
+              <Ionicons name="flash-outline" size={16} color="#4A6FA5" />
+              <Text style={styles.compactQuotaText}>
+                {getApiQuota(currentUser.UserProfile, getCurrentDateString())} /
+                5 analyses left today
+              </Text>
+            </View>
+          )}
+
           <TouchableOpacity
             style={styles.feedbackToggleButton}
             onPress={() => setShowFeedback(true)}
@@ -239,12 +408,13 @@ export function UserPortfolio() {
             style={[
               styles.generateAgainButton,
               isGenerating && styles.submitButtonDisabled,
+              styles.getVerifiedButton,
             ]}
             onPress={() => {
               console.log("Generate analysis again");
               dispatch(recommendAction.getAnalysis(assetAllocation));
             }}
-            disabled={isGenerating}
+            disabled={isGenerating || currentQuota === 0}
           >
             <View style={styles.generateAgainContent}>
               {isGenerating ? (
@@ -253,7 +423,11 @@ export function UserPortfolio() {
                 <Ionicons name="refresh-outline" size={20} color="#4A6FA5" />
               )}
               <Text style={styles.generateAgainText}>
-                {isGenerating ? "Generating..." : "Generate Fresh Analysis"}
+                {isGenerating
+                  ? "Generating..."
+                  : currentQuota > 0
+                    ? "Generate Fresh Analysis"
+                    : "No Quota Available"}
               </Text>
             </View>
           </TouchableOpacity>

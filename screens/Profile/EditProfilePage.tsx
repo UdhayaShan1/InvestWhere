@@ -6,6 +6,7 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  ScrollView, // Add ScrollView import
 } from "react-native";
 import { InvestUserProfile } from "../../types/auth.types";
 import { useEffect, useState } from "react";
@@ -54,63 +55,98 @@ export function EditProfileScreen({ UserProfile }: EditProfileProps) {
         title="Edit Profile"
         color="green"
         onPress={() => setEditModal(true)}
-      ></Button>
+      />
 
       <Modal visible={editModal} transparent={true} animationType="fade">
         <View style={styles.modalContainer}>
           <View style={styles.modalView}>
             <Text style={styles.modalTitle}>Edit your profile here</Text>
-            <View style={styles.profileInfo}>
-              <Text style={styles.label}>Name:</Text>
-              <TextInput
-                style={styles.modalInput}
-                placeholder={UserProfile.displayName ?? "Set a name"}
-                value={form.displayName ?? ""}
-                autoCapitalize="words"
-                onChangeText={(e) =>
-                  setForm((prev) => ({ ...prev, displayName: e }))
-                }
-              />
-            </View>
 
-            <View style={styles.profileInfo}>
-              <Text style={styles.label}>Birthday:</Text>
-              <TouchableOpacity
-                style={styles.modalInput}
-                onPress={() => setShowDatePicker(true)}
-              >
-                <Text style={{ fontSize: 16 }}>
-                  {form.birthday
-                    ? form.birthday
-                    : "Set your birthday"}
+            <ScrollView
+              style={{ width: "100%" }}
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{ paddingBottom: 20 }}
+            >
+              {/* Name Field */}
+              <View style={{ marginBottom: 20 }}>
+                <Text style={[styles.label, { marginBottom: 8 }]}>Name:</Text>
+                <TextInput
+                  style={styles.modalInput}
+                  placeholder={UserProfile.displayName ?? "Set a name"}
+                  value={form.displayName ?? ""}
+                  autoCapitalize="words"
+                  onChangeText={(e) =>
+                    setForm((prev) => ({ ...prev, displayName: e }))
+                  }
+                />
+              </View>
+
+              {/* Birthday Field */}
+              <View style={{ marginBottom: 20 }}>
+                <Text style={[styles.label, { marginBottom: 8 }]}>
+                  Birthday:
                 </Text>
-              </TouchableOpacity>
-            </View>
+                <TouchableOpacity
+                  style={[
+                    styles.modalInput,
+                    {
+                      justifyContent: "center",
+                      backgroundColor: "#f8f9fa",
+                    },
+                  ]}
+                  onPress={() => setShowDatePicker(true)}
+                >
+                  <Text
+                    style={{
+                      fontSize: 16,
+                      color: form.birthday ? "#22223b" : "#999",
+                    }}
+                  >
+                    {form.birthday ? form.birthday : "Set your birthday"}
+                  </Text>
+                </TouchableOpacity>
+              </View>
 
-            {showDatePicker && (
-              <DateTimePicker
-                value={stringToDate(form.birthday)}
-                mode="date"
-                display="default"
-                onChange={onDateChange}
-                maximumDate={new Date()}
-              />
-            )}
+              {showDatePicker && (
+                <DateTimePicker
+                  value={stringToDate(form.birthday)}
+                  mode="date"
+                  display="default"
+                  onChange={onDateChange}
+                  maximumDate={new Date()}
+                />
+              )}
 
-            <LoadingButton
-              title="Submit"
-              isLoading={loading ?? false}
-              onPress={() => {
-                dispatch(authAction.editUserProfile(form));
-                setEditModal(false);
-              }}
-            ></LoadingButton>
-            <View style={{ height: 20 }} />
-            <Button
-              color={"red"}
-              title="Cancel"
-              onPress={() => setEditModal(false)}
-            ></Button>
+              {/* Buttons */}
+              <View style={{ marginTop: 20 }}>
+                <LoadingButton
+                  title="Submit"
+                  isLoading={loading ?? false}
+                  onPress={() => {
+                    dispatch(authAction.editUserProfile(form));
+                    setEditModal(false);
+                  }}
+                />
+
+                <View style={{ height: 16 }} />
+
+                <TouchableOpacity
+                  style={{
+                    backgroundColor: "#dc3545",
+                    paddingVertical: 12,
+                    borderRadius: 8,
+                    alignItems: "center",
+                  }}
+                  onPress={() => setEditModal(false)}
+                >
+                  <Text
+                    style={{ color: "#fff", fontSize: 16, fontWeight: "600" }}
+                  >
+                    Cancel
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </ScrollView>
           </View>
         </View>
       </Modal>

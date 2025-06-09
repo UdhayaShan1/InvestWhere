@@ -1058,4 +1058,115 @@ export const portFolioStyles = StyleSheet.create({
     color: "#4A6FA5",
     marginLeft: 6,
   },
+  getVerifiedButton: {
+    borderWidth: 2,
+    borderColor: "#4A6FA5",
+    borderStyle: "dashed",
+  },
+  quotaDisplayContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#f8fafe",
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: "#e8f2ff",
+  },
+  quotaIconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#ffffff",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  quotaTextContainer: {
+    flex: 1,
+  },
+  quotaLabel: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: "#64748b",
+    marginBottom: 2,
+  },
+  quotaValueContainer: {
+    flexDirection: "row",
+    alignItems: "baseline",
+  },
+  quotaValue: {
+    fontSize: 20,
+    fontWeight: "700",
+  },
+  quotaTotal: {
+    fontSize: 14,
+    color: "#64748b",
+    fontWeight: "500",
+  },
+  quotaBadgeContainer: {
+    marginLeft: 8,
+  },
+  quotaBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  quotaBadgeText: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#ffffff",
+  },
+
+  // Quota Exhausted Styles
+  quotaExhaustedContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#fef2f2",
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: "#fecaca",
+  },
+  quotaExhaustedIcon: {
+    marginRight: 12,
+  },
+  quotaExhaustedContent: {
+    flex: 1,
+  },
+  quotaExhaustedTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#dc2626",
+    marginBottom: 4,
+  },
+  quotaExhaustedSubtitle: {
+    fontSize: 13,
+    color: "#7f1d1d",
+    lineHeight: 18,
+  },
+
+  // Compact Quota Styles
+  compactQuotaContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#f0f4f8",
+    borderRadius: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    marginBottom: 12,
+  },
+  compactQuotaText: {
+    fontSize: 13,
+    color: "#4A6FA5",
+    fontWeight: "500",
+    marginLeft: 6,
+  },
 });

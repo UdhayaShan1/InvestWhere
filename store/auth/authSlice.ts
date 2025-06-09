@@ -6,7 +6,7 @@ import {
   InvestUser,
   InvestUserProfile,
 } from "../../types/auth.types";
-import { User } from "firebase/auth";
+import { sendEmailVerification, User } from "firebase/auth";
 
 const initialState: InvestUser = {
   isLoading: false,
@@ -120,6 +120,28 @@ export const authSlice = createSlice({
       state.UserProfile = actions.payload.UserProfile;
     },
     refreshSessionFail: (state, actions: PayloadAction<string>) => {
+      state.isLoading = false;
+      state.error = actions.payload;
+    },
+    sendEmailVerification: (state) => {
+      state.isLoading = true;
+      state.error = null;
+    },
+    sendEmailVerificationSuccess: (state) => {
+      state.isLoading = false;
+    },
+    sendEmailVerificationFail: (state, actions: PayloadAction<string>) => {
+      state.isLoading = false;
+      state.error = actions.payload;
+    },
+    decreaseApiQuota(state, actions: PayloadAction<InvestUserProfile>) {
+      state.isLoading = true;
+    },
+    decreaseApiQuotaSuccess(state, actions: PayloadAction<InvestUserProfile>) {
+      state.isLoading = false;
+      state.UserProfile = actions.payload;
+    },
+    decreaseApiQuotaFail(state, actions: PayloadAction<string>) {
       state.isLoading = false;
       state.error = actions.payload;
     },

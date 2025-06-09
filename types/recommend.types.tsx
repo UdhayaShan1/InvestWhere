@@ -358,7 +358,10 @@ export const recommendStyles = StyleSheet.create({
   },
   submitContainer: {
     padding: 20,
-    paddingHorizontal: 8,
+    paddingHorizontal: 16,
+    backgroundColor: "#fff",
+    borderTopWidth: 1,
+    borderTopColor: "#e5e7eb",
   },
   submitButton: {
     backgroundColor: "#4A6FA5",
@@ -383,7 +386,7 @@ export const recommendStyles = StyleSheet.create({
     fontWeight: "700",
   },
   spinning: {
-    marginRight: 8,
+    // You can add transform animations here if needed
   },
   modalOverlay: {
     flex: 1,
@@ -573,5 +576,71 @@ export const recommendStyles = StyleSheet.create({
     color: "#065f46",
     fontWeight: "600",
     marginLeft: 8,
+  },
+
+  // Enhanced Quota Display Styles
+  quotaDisplayContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#f8fafe",
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: "#e8f2ff",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  quotaIconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#ffffff",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  quotaTextContainer: {
+    flex: 1,
+  },
+  quotaLabel: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: "#64748b",
+    marginBottom: 2,
+  },
+  quotaValueContainer: {
+    flexDirection: "row",
+    alignItems: "baseline",
+  },
+  quotaValue: {
+    fontSize: 20,
+    fontWeight: "700",
+  },
+  quotaTotal: {
+    fontSize: 14,
+    color: "#64748b",
+    fontWeight: "500",
+  },
+  quotaBadgeContainer: {
+    marginLeft: 8,
+  },
+  quotaBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  quotaBadgeText: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#ffffff",
   },
 });
