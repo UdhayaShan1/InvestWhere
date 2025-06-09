@@ -359,7 +359,7 @@ export function UserPortfolio() {
               )}
               <View style={styles.generateAnalysisText}>
                 <Text style={styles.generateAnalysisTitle}>
-                  {"You have have zero quota for the day, try again tommorow!"}
+                  {"You have zero quota for the day, try again tomorrow!"}
                 </Text>
               </View>
               <Ionicons
