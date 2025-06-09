@@ -44,7 +44,6 @@ export interface AuthSuccessPayload {
 export const API_QUOTA_PER_DAY = 5;
 
 export function getApiQuota(user: InvestUserProfile, date: string): number {
-  console.log("serious", user, date);
   if (!user.apiCallsQuota || user.apiCallsQuota[date] === undefined) {
     return API_QUOTA_PER_DAY;
   }
