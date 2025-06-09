@@ -49,7 +49,7 @@ export const recommendSlice = createSlice({
       state.isLoading = false;
       state.currentAssetFeedback = null;
       state.error = actions.payload;
-    },
+    }
   },
 });
 

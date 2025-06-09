@@ -134,6 +134,17 @@ export const authSlice = createSlice({
       state.isLoading = false;
       state.error = actions.payload;
     },
+    decreaseApiQuota(state, actions: PayloadAction<InvestUserProfile>) {
+      state.isLoading = true;
+    },
+    decreaseApiQuotaSuccess(state, actions: PayloadAction<InvestUserProfile>) {
+      state.isLoading = false;
+      state.UserProfile = actions.payload;
+    },
+    decreaseApiQuotaFail(state, actions: PayloadAction<string>) {
+      state.isLoading = false;
+      state.error = actions.payload;
+    },
   },
 });
 

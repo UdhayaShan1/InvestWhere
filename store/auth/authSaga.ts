@@ -12,6 +12,7 @@ import {
 import { PayloadAction } from "@reduxjs/toolkit";
 import {
   CredentialUserProfile,
+  decreaseApiQuota,
   FirebaseLoginRegisterProp,
   InvestUserProfile,
 } from "../../types/auth.types";
@@ -201,6 +202,22 @@ export function* sendEmailVerificationWorker() {
   }
 }
 
+export function* decreaseApiQuotaWorker(
+  action: PayloadAction<InvestUserProfile>
+) {
+  try {
+    const editUser = decreaseApiQuota(action.payload);
+    yield call(saveUserProfile, editUser);
+    yield put(authAction.decreaseApiQuotaSuccess(editUser));
+  } catch (error) {
+    const errMsg =
+      error instanceof Error ? error.message : "Failed to update api quota!";
+    console.error(errMsg);
+    alert(errMsg);
+    yield put(authAction.decreaseApiQuotaFail(errMsg));
+  }
+}
+
 export function* authWatcher() {
   yield takeEvery(
     authAction.signInWithEmailAndPassword,
@@ -218,4 +235,5 @@ export function* authWatcher() {
     authAction.sendEmailVerification,
     sendEmailVerificationWorker
   );
+  yield takeEvery(authAction.decreaseApiQuota, decreaseApiQuotaWorker);
 }

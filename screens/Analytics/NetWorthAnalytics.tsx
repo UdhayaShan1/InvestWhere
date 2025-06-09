@@ -123,24 +123,42 @@ export default function NetWorthAnalytics() {
             displayLabels = [labels[0], labels[labels.length - 1]];
         }
 
-        const dataPoints = filteredDates.map((date) => history[date]["Total"]);
-        setChartData({
-          labels: displayLabels,
-          datasets: [
-            {
-              data: dataPoints,
-              color: (opacity = 1) => `rgba(74, 165, 225, ${opacity})`,
-              strokeWidth: 2,
-            },
-          ],
-          legend: ["Net Worth History"],
+        const dataPoints = filteredDates.map((date) => {
+          const value = history[date]["Total"];
+          return typeof value === "number" && !isNaN(value) ? value : 0;
         });
+
+        if (dataPoints.length > 0 && dataPoints.some((point) => point > 0)) {
+          setChartData({
+            labels: displayLabels,
+            datasets: [
+              {
+                data: dataPoints,
+                color: (opacity = 1) => `rgba(74, 165, 225, ${opacity})`,
+                strokeWidth: 2,
+              },
+            ],
+            legend: ["Net Worth History"],
+          });
+        } else {
+          setChartData(initialChartData);
+        }
       } else {
         setChartData(initialChartData);
       }
       setIsLoading(false);
     } else {
-      setChartData(initialChartData);
+      setChartData({
+        labels: [],
+        datasets: [
+          {
+            data: [],
+            color: (opacity = 1) => `rgba(74, 165, 225, ${opacity})`,
+            strokeWidth: 2,
+          },
+        ],
+        legend: ["Net Worth History"],
+      });
       setIsLoading(false);
     }
   }, [netWorthData, selectedRange]);
@@ -190,7 +208,8 @@ export default function NetWorthAnalytics() {
 
   const noDataAvailable =
     !chartData.datasets[0]?.data?.length ||
-    chartData.datasets[0].data.every((val) => val === 0);
+    chartData.datasets[0].data.length === 0 ||
+    chartData.datasets[0].data.every((val) => val === 0 || isNaN(val));
 
   const renderLineChart = () => {
     return (
@@ -199,7 +218,11 @@ export default function NetWorthAnalytics() {
         {noDataAvailable ? (
           <View style={styles.centered}>
             <Text style={styles.noDataText}>
-              No historical data available for the selected range.
+              {!netWorthData ||
+              !netWorthData.History ||
+              Object.keys(netWorthData.History).length === 0
+                ? "Start building your portfolio to see your net worth history here."
+                : "No historical data available for the selected range."}
             </Text>
           </View>
         ) : (
@@ -235,6 +258,7 @@ export default function NetWorthAnalytics() {
             fromZero={true}
             formatYLabel={(yLabel) => {
               const num = Number(yLabel);
+              if (isNaN(num)) return "0";
               if (num >= 1000) return `${(num / 1000).toFixed(0)}`;
               return `${num.toFixed(0)}`;
             }}
@@ -246,7 +270,11 @@ export default function NetWorthAnalytics() {
 
   const handleAnalyze = () => {
     console.log("Analyze button pressed", netWorthData);
-    if (netWorthData) {
+    if (
+      netWorthData &&
+      netWorthData.History &&
+      Object.keys(netWorthData.History).length > 0
+    ) {
       if (loggedInUser.UserProfile?.birthday) {
         const age = yearDifference(loggedInUser.UserProfile?.birthday);
         dispatch(
@@ -263,7 +291,7 @@ export default function NetWorthAnalytics() {
         );
       }
     } else {
-      console.log("No netWorthData available");
+      console.log("No netWorthData available for analysis");
     }
   };
 
@@ -284,11 +312,22 @@ export default function NetWorthAnalytics() {
               flexDirection: "row",
               alignItems: "center",
               justifyContent: "center",
-              opacity: isAnalyzing ? 0.7 : 1,
+              opacity:
+                isAnalyzing ||
+                !netWorthData ||
+                !netWorthData.History ||
+                Object.keys(netWorthData.History).length === 0
+                  ? 0.7
+                  : 1,
             },
           ]}
           onPress={handleAnalyze}
-          disabled={isAnalyzing || !netWorthData}
+          disabled={
+            isAnalyzing ||
+            !netWorthData ||
+            !netWorthData.History ||
+            Object.keys(netWorthData.History).length === 0
+          }
         >
           {isAnalyzing ? (
             <>
@@ -308,7 +347,11 @@ export default function NetWorthAnalytics() {
                 style={{ marginRight: 8 }}
               />
               <Text style={[styles.rangeButtonTextSelected]}>
-                Analyze with AI
+                {!netWorthData ||
+                !netWorthData.History ||
+                Object.keys(netWorthData.History).length === 0
+                  ? "Add Portfolio Data First"
+                  : "Analyze with AI"}
               </Text>
             </>
           )}
