@@ -268,29 +268,6 @@ export function UserPortfolio() {
                   <Text style={styles.quotaTotal}> / 5 remaining</Text>
                 </View>
               </View>
-              <View style={styles.quotaBadgeContainer}>
-                <View
-                  style={[
-                    styles.quotaBadge,
-                    {
-                      backgroundColor:
-                        currentQuota > 2
-                          ? "#28a745"
-                          : currentQuota > 0
-                            ? "#ffc107"
-                            : "#dc3545",
-                    },
-                  ]}
-                >
-                  <Text style={styles.quotaBadgeText}>
-                    {currentQuota > 2
-                      ? "Good"
-                      : currentQuota > 0
-                        ? "Low"
-                        : "Empty"}
-                  </Text>
-                </View>
-              </View>
             </View>
 
             <TouchableOpacity

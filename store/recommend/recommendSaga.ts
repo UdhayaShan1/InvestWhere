@@ -111,7 +111,12 @@ export function* getAnalysisWorker(
   actions: PayloadAction<AssetAllocations>
 ): Generator<any, void, any> {
   try {
-    const requestString = JSON.stringify(actions.payload);
+    const checkPayload: AssetAllocations = JSON.parse(
+      JSON.stringify(actions.payload)
+    );
+    delete checkPayload.projectedReturns;
+    delete checkPayload.portfolioStrategy;
+    const requestString = JSON.stringify(checkPayload);
     console.log(requestString, "Check req string for analysis");
 
     const authUser = auth.currentUser;

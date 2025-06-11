@@ -127,6 +127,8 @@ export default function NetWorthAnalytics() {
           const value = history[date]["Total"];
           return typeof value === "number" && !isNaN(value) ? value : 0;
         });
+        console.log("Huhj", filteredDates)
+        console.log("DP", dataPoints)
 
         if (dataPoints.length > 0 && dataPoints.some((point) => point > 0)) {
           setChartData({

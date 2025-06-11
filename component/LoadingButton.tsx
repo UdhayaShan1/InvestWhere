@@ -5,14 +5,14 @@ interface LoadingButtonProps {
     title: string;
     onPress: () => void;
     isLoading: boolean;
-    color?: string; 
+    color?: string;
 }
 
 export default function LoadingButton({
     title,
     onPress,
     isLoading,
-    color 
+    color,
 }: LoadingButtonProps) {
     if (isLoading) {
         return <ActivityIndicator size="small" />;

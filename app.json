@@ -21,7 +21,8 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.udhayashan.InvestWhere"
+      "package": "com.udhayashan.InvestWhere",
+      "versionCode": 5
     },
     "web": {
       "favicon": "./assets/favicon.png"

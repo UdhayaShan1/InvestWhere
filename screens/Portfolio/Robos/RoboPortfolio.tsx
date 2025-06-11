@@ -780,7 +780,7 @@ export function RoboPortfolio({
             }
 
             {/* ENDOWUS PLATFORM */}
-            {endowusTotal > 0 && (
+            { (
               <View style={styles.platformContainer}>
                 <TouchableOpacity
                   style={styles.platformHeader}
