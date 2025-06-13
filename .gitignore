@@ -37,3 +37,6 @@ yarn-error.*
 *.tsbuildinfo
 
 .VSCodeCounter
+.env.local
+
+sentry.properties

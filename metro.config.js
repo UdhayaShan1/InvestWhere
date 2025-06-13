@@ -1,7 +1,8 @@
-// metro.config.js
-const { getDefaultConfig } = require("expo/metro-config");
+const {
+  getSentryExpoConfig
+} = require("@sentry/react-native/metro");
 
-const config = getDefaultConfig(__dirname);
+const config = getSentryExpoConfig(__dirname);
 
 // -----------------------------------------------------------------------------
 // Firebase / Expo SDK 53: allow “.cjs” files and use classic Node “exports”

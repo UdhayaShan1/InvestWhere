@@ -1,5 +1,5 @@
 import { deleteDoc, doc, getDoc, setDoc } from "firebase/firestore";
-import { InvestUserProfile } from "../../types/auth.types";
+import { API_QUOTA_PER_DAY, InvestUserProfile } from "../../types/auth.types";
 import { db } from "../firebase";
 import { getCurrentDateString } from "../../constants/date_helper";
 
@@ -34,10 +34,11 @@ export async function saveUserProfile(
       apiCallsQuota: profile.apiCallsQuota,
       lastUpdated: getCurrentDateString(),
     };
+    console.log(toSave);
     await setDoc(userDocRef, toSave);
     return true;
   } catch (error) {
-    console.error("Error saving profile");
+    console.error("Error saving profile", error);
     return false;
   }
 }
@@ -51,6 +52,8 @@ export async function createDefaultProfile(
     email,
     displayName: null,
     birthday: null,
+    apiCallsQuota :{
+    },
     creationDate: getCurrentDateString(),
     lastUpdated: getCurrentDateString(),
   };

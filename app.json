@@ -31,6 +31,16 @@
       "eas": {
         "projectId": "b8734503-c75a-4663-9029-3d7310dea8b9"
       }
-    }
+    },
+    "plugins": [
+      [
+        "@sentry/react-native/expo",
+        {
+          "url": "https://sentry.io/",
+          "project": "react-native",
+          "organization": "udhaya"
+        }
+      ]
+    ]
   }
 }
