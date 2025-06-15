@@ -70,6 +70,7 @@ export interface CPFItems {
   OA: number;
   SA: number;
   MA: number;
+  [key: string]: number;
 }
 
 export function isCustomSyfePortfolio(key: string) {
