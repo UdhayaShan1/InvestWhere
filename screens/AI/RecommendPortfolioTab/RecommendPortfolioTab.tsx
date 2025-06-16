@@ -32,7 +32,10 @@ import {
 import Slider from "@react-native-community/slider";
 import { recommendStyles as styles } from "../../../types/recommend.types";
 import { recommendAction } from "../../../store/recommend/recommendSlice";
-import { isLoadingSelector } from "../../../store/recommend/recommendSelector";
+import {
+  apiQuotaSelector,
+  isLoadingSelector,
+} from "../../../store/recommend/recommendSelector";
 import { useNavigation } from "@react-navigation/native";
 import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import { BottomTabParamList } from "../../../navigation/BottomTabNavigator";
@@ -47,6 +50,7 @@ export default function RecommendPortfolioTab() {
   const assetAllocation = useAppSelector(assetAllocationSelector);
   const userProfile = useAppSelector(loggedInUserSelector).UserProfile;
   const isVerified = useAppSelector(isVerifiedSelector);
+  const dailyQuota = useAppSelector(apiQuotaSelector);
   const assetAllocationTotal =
     calculateCategoryTotalRecursively(assetAllocation);
   const dispatch = useAppDispatch();
@@ -61,6 +65,7 @@ export default function RecommendPortfolioTab() {
     preferredRobos: {
       syfe: false,
       endowus: false,
+      noRobosStrictly: false,
     },
     customRobos: "",
     preferredBrokers: {
@@ -342,6 +347,20 @@ export default function RecommendPortfolioTab() {
     return (
       <View style={styles.sectionContainer}>
         <Text style={styles.sectionTitle}>RoboAdvisors Preferences</Text>
+
+        {/* Add disclaimer for Singapore residents */}
+        <View style={styles.riskDescription}>
+          <Ionicons
+            name="information-circle-outline"
+            size={16}
+            color="#4A6FA5"
+          />
+          <Text style={styles.riskDescriptionText}>
+            Note: Syfe and Endowus are robo-advisors mainly used by
+            Singaporeans. Do check regulatory measures.
+          </Text>
+        </View>
+
         {Object.entries(form.preferredRobos).map(([key, value]) => {
           return (
             <View key={key} style={styles.checkboxContainer}>
@@ -364,7 +383,7 @@ export default function RecommendPortfolioTab() {
                   ? "Syfe"
                   : key === "endowus"
                     ? "Endowus"
-                    : "No Preference"}
+                    : "Don't Use Robos"}
               </Text>
             </View>
           );
@@ -521,7 +540,11 @@ export default function RecommendPortfolioTab() {
   const renderRecommendButton = () => {
     let currentQuota = 0;
     if (userProfile) {
-      currentQuota = getApiQuota(userProfile, getCurrentDateString());
+      currentQuota = getApiQuota(
+        userProfile,
+        getCurrentDateString(),
+        dailyQuota ?? 0
+      );
     }
 
     if (isVerified) {

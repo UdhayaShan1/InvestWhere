@@ -26,6 +26,8 @@ import {
 import { portfolioAction } from "../portfolio/portfolioSlice";
 import { deleteWealthProfile } from "../../firebase/services/portfolioService";
 import { Alert } from "react-native";
+import { useAppSelector } from "../rootTypes";
+import { apiQuotaSelector } from "../recommend/recommendSelector";
 
 export function* signInWithEmailAndPasswordWorker(
   action: PayloadAction<FirebaseLoginRegisterProp>
@@ -206,7 +208,11 @@ export function* decreaseApiQuotaWorker(
   action: PayloadAction<InvestUserProfile>
 ) {
   try {
-    const editUser = decreaseApiQuota(action.payload);
+    const dailyQuota = useAppSelector(apiQuotaSelector);
+    if (!dailyQuota) {
+      throw new Error("Daily quota not set");
+    }
+    const editUser = decreaseApiQuota(action.payload, dailyQuota);
     yield call(saveUserProfile, editUser);
     yield put(authAction.decreaseApiQuotaSuccess(editUser));
   } catch (error) {

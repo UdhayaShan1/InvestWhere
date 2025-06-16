@@ -1,5 +1,5 @@
 import { deleteDoc, doc, getDoc, setDoc } from "firebase/firestore";
-import { API_QUOTA_PER_DAY, InvestUserProfile } from "../../types/auth.types";
+import { InvestUserProfile } from "../../types/auth.types";
 import { db } from "../firebase";
 import { getCurrentDateString } from "../../constants/date_helper";
 

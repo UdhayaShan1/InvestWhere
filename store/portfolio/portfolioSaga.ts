@@ -686,7 +686,8 @@ export function* saveNewOtherAssetWorker(
     if (!updatedAllocations.Others) {
       updatedAllocations.Others = {};
     }
-    updatedAllocations.Others[assetName] = EmptyEditForm;
+    const { AssetKey, ...otherAssetData } = EmptyEditForm;
+    updatedAllocations.Others[assetName] = otherAssetData;
     updatedAllocations.Others[assetName].amount = otherAssetDetail.amount;
     updatedAllocations.Others[assetName].label = otherAssetDetail.label;
 
