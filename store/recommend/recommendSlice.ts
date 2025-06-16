@@ -14,6 +14,7 @@ const initialState: RecommendInitialState = {
   feedback: null,
   error: "",
   isLoading: false,
+  apiQuota: null,
 };
 
 // store logged in user information
@@ -49,7 +50,18 @@ export const recommendSlice = createSlice({
       state.isLoading = false;
       state.currentAssetFeedback = null;
       state.error = actions.payload;
-    }
+    },
+    getApiQuota(state) {
+      state.isLoading = true;
+    },
+    getApiQuotaSuccess(state, actions: PayloadAction<number>) {
+      state.isLoading = false;
+      state.apiQuota = actions.payload;
+    },
+    getApiQuotaFail(state, actions: PayloadAction<string>) {
+      state.isLoading = false;
+      state.error = actions.payload;
+    },
   },
 });
 

@@ -11,3 +11,7 @@ export const recommendAssetAllocationSelector = (state: RootState) => {
 export const isLoadingSelector = (state: RootState) => {
   return state.recommend.isLoading;
 };
+
+export const apiQuotaSelector = (state: RootState) => {
+  return state.recommend.apiQuota;
+}

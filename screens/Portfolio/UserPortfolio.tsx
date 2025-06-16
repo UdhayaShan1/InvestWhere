@@ -26,7 +26,10 @@ import { RoboPortfolio } from "./Robos/RoboPortfolio";
 import { InvestmentPortfolio } from "./Investment/InvestmentPortfolio";
 import { MarkdownFormattedText } from "../../component/MarkdownFormattedText";
 import { Ionicons } from "@expo/vector-icons";
-import { isLoadingSelector } from "../../store/recommend/recommendSelector";
+import {
+  apiQuotaSelector,
+  isLoadingSelector,
+} from "../../store/recommend/recommendSelector";
 import { recommendAction } from "../../store/recommend/recommendSlice";
 import { BankPortfolio } from "./Bank/BankPortfolio";
 import { useNavigation } from "@react-navigation/native";
@@ -37,6 +40,7 @@ import {
   getCurrentDateString,
   stringToDate,
 } from "../../constants/date_helper";
+import { OtherPortfolio } from "./Other/OtherPortfolio";
 
 type UserPortfolioNavigationProp = BottomTabNavigationProp<BottomTabParamList>;
 
@@ -49,6 +53,7 @@ export function UserPortfolio() {
   const assetAllocation = useAppSelector(assetAllocationSelector);
   const netWorthSummary = useAppSelector(netWorthSelector);
   const isVerified = useAppSelector(isVerifiedSelector);
+  const dailyQuota = useAppSelector(apiQuotaSelector);
   const [refreshing, setRefreshing] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
   const isGenerating = useAppSelector(isLoadingSelector);
@@ -185,10 +190,11 @@ export function UserPortfolio() {
 
   const renderFeedback = () => {
     let currentQuota = 0;
-    if (currentUser && currentUser.UserProfile) {
+    if (currentUser && currentUser.UserProfile && dailyQuota) {
       currentQuota = getApiQuota(
         currentUser.UserProfile,
-        getCurrentDateString()
+        getCurrentDateString(),
+        dailyQuota
       );
     }
     console.log("Current quota", currentQuota);
@@ -357,7 +363,7 @@ export function UserPortfolio() {
             <View style={styles.compactQuotaContainer}>
               <Ionicons name="flash-outline" size={16} color="#4A6FA5" />
               <Text style={styles.compactQuotaText}>
-                {getApiQuota(currentUser.UserProfile, getCurrentDateString())} /
+                {getApiQuota(currentUser.UserProfile, getCurrentDateString(), dailyQuota ?? 0)} /
                 5 analyses left today
               </Text>
             </View>
@@ -506,6 +512,12 @@ export function UserPortfolio() {
         totalNetWorth={totalNetWorth}
       />
       <InvestmentPortfolio
+        totalNetWorth={totalNetWorth}
+        expandedSections={expandedSections}
+        setExpandedSections={setExpandedSections}
+        assetAllocation={assetAllocation}
+      />
+      <OtherPortfolio
         totalNetWorth={totalNetWorth}
         expandedSections={expandedSections}
         setExpandedSections={setExpandedSections}

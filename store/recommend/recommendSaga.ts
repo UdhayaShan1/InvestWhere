@@ -4,7 +4,7 @@ import {
   RecommendationForm,
   RecommendationResponse,
 } from "../../types/recommend.types";
-import { call, put, takeEvery } from "redux-saga/effects";
+import { call, put, select, takeEvery } from "redux-saga/effects";
 import { recommendAction } from "./recommendSlice";
 import { auth } from "../../firebase/firebase";
 import { getIdToken } from "firebase/auth";
@@ -22,6 +22,8 @@ import {
   saveUserProfile,
 } from "../../firebase/services/profileService";
 import { authAction } from "../auth/authSlice";
+import { RootState } from "../rootTypes";
+import { apiQuotaSelector } from "./recommendSelector";
 
 export function* getRecommendationWorker(
   actions: PayloadAction<RecommendationForm>
@@ -111,6 +113,9 @@ export function* getAnalysisWorker(
   actions: PayloadAction<AssetAllocations>
 ): Generator<any, void, any> {
   try {
+    const state: RootState = yield select();
+    const dailyQuota = apiQuotaSelector(state);
+
     const checkPayload: AssetAllocations = JSON.parse(
       JSON.stringify(actions.payload)
     );
@@ -183,8 +188,10 @@ export function* getAnalysisWorker(
       auth.currentUser?.email || ""
     );
     if (currentUserProfile) {
-      const updatedUserProfile: InvestUserProfile =
-        decreaseApiQuota(currentUserProfile);
+      const updatedUserProfile: InvestUserProfile = decreaseApiQuota(
+        currentUserProfile,
+        dailyQuota ?? 0
+      );
       yield call(saveUserProfile, updatedUserProfile);
       yield put(authAction.decreaseApiQuotaSuccess(updatedUserProfile));
     }
@@ -204,7 +211,51 @@ export function* getAnalysisWorker(
   }
 }
 
+export function* getApiQuotaWorker(): Generator<any, void, any> {
+  try {
+    const authUser = auth.currentUser;
+    const jwtToken: string = yield call(() => getIdToken(authUser!, true));
+    if (!jwtToken) {
+      throw new Error("JWT token not retrievable.");
+    }
+
+    const response: Response = yield call(
+      fetch,
+      "https://4vwz0sp71i.execute-api.us-east-1.amazonaws.com/dev/getApiQuota",
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "text/plain",
+          Authorization: `Bearer ${jwtToken}`,
+        },
+      }
+    );
+    if (!response.ok) {
+      const errorText = yield call([response, "text"]);
+      console.error("API Error Response:", errorText);
+      throw new Error(
+        `HTTP error! status: ${response.status} - ${errorText}. Contact Dev with Screenshot`
+      );
+    }
+
+    const data = yield call([response, "json"]);
+    console.log("Quota Data Received:", data);
+
+    if (!data || !data.quota) {
+      throw new Error("Invalid quota response format - missing quota");
+    }
+
+    yield put(recommendAction.getApiQuotaSuccess(data.quota));
+  } catch (error) {
+    console.error("Error in getApiQuotaWorker:", error);
+    const errorMsg =
+      error instanceof Error ? error.message : "Error getting api quota";
+    yield put(recommendAction.getApiQuotaFail(errorMsg));
+  }
+}
+
 export function* recommendWatcher() {
   yield takeEvery(recommendAction.getRecommendation, getRecommendationWorker);
   yield takeEvery(recommendAction.getAnalysis, getAnalysisWorker);
+  yield takeEvery(recommendAction.getApiQuota, getApiQuotaWorker);
 }

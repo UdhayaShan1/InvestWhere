@@ -1,4 +1,4 @@
-import { takeEvery, call, put } from "redux-saga/effects";
+import { takeEvery, call, put, select } from "redux-saga/effects";
 import { authAction } from "./authSlice";
 import {
   signInWithEmailAndPassword,
@@ -26,6 +26,8 @@ import {
 import { portfolioAction } from "../portfolio/portfolioSlice";
 import { deleteWealthProfile } from "../../firebase/services/portfolioService";
 import { Alert } from "react-native";
+import { useAppSelector } from "../rootTypes";
+import { apiQuotaSelector } from "../recommend/recommendSelector";
 
 export function* signInWithEmailAndPasswordWorker(
   action: PayloadAction<FirebaseLoginRegisterProp>
@@ -204,9 +206,13 @@ export function* sendEmailVerificationWorker() {
 
 export function* decreaseApiQuotaWorker(
   action: PayloadAction<InvestUserProfile>
-) {
+): Generator<any, void, any> {
   try {
-    const editUser = decreaseApiQuota(action.payload);
+    const dailyQuota = yield select(apiQuotaSelector);
+    if (!dailyQuota) {
+      throw new Error("Daily quota not set");
+    }
+    const editUser = decreaseApiQuota(action.payload, dailyQuota);
     yield call(saveUserProfile, editUser);
     yield put(authAction.decreaseApiQuotaSuccess(editUser));
   } catch (error) {

@@ -58,6 +58,7 @@ export interface RecommendInitialState {
   feedback: LLMFeedback | null;
   error: string;
   isLoading: boolean;
+  apiQuota: number | null;
 }
 
 export interface LLMFeedback {

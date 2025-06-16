@@ -1,4 +1,4 @@
-import { dateToString, getCurrentDateString } from "../constants/date_helper";
+import { getCurrentDateString } from "../constants/date_helper";
 
 export interface InvestUser {
   isLoading: boolean | null;
@@ -41,23 +41,28 @@ export interface AuthSuccessPayload {
   UserProfile: InvestUserProfile | null;
 }
 
-export const API_QUOTA_PER_DAY = 5;
-
-export function getApiQuota(user: InvestUserProfile, date: string): number {
+export function getApiQuota(
+  user: InvestUserProfile,
+  date: string,
+  dailyQuota: number
+): number {
   if (!user.apiCallsQuota || user.apiCallsQuota[date] === undefined) {
-    return API_QUOTA_PER_DAY;
+    return dailyQuota;
   }
   return user.apiCallsQuota[date];
 }
 
-export function decreaseApiQuota(user: InvestUserProfile): InvestUserProfile {
+export function decreaseApiQuota(
+  user: InvestUserProfile,
+  dailyQuota: number
+): InvestUserProfile {
   const updatedUser = { ...user };
   if (!updatedUser.apiCallsQuota) {
     updatedUser.apiCallsQuota = {};
   }
   const currentDate = getCurrentDateString();
   if (!updatedUser.apiCallsQuota[currentDate]) {
-    updatedUser.apiCallsQuota[currentDate] = API_QUOTA_PER_DAY;
+    updatedUser.apiCallsQuota[currentDate] = dailyQuota;
   }
   if (updatedUser.apiCallsQuota[currentDate] > 0) {
     updatedUser.apiCallsQuota[currentDate] -= 1;

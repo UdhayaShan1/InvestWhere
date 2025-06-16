@@ -24,6 +24,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import { BottomTabParamList } from "../navigation/BottomTabNavigator";
 import { useNavigation } from "@react-navigation/native";
+import { recommendAction } from "../store/recommend/recommendSlice";
 
 type UserPortfolioNavigationProp = BottomTabNavigationProp<BottomTabParamList>;
 
@@ -35,6 +36,10 @@ export default function HomeScreen() {
   const authUser = auth.currentUser;
   const [currentTime, setCurrentTime] = useState(new Date());
   const navigation = useNavigation<UserPortfolioNavigationProp>();
+
+  useEffect(() => {
+    dispatch(recommendAction.getApiQuota());
+  }, []);
 
   useEffect(() => {
     const fetchToken = async () => {

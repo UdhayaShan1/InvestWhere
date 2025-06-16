@@ -8,6 +8,7 @@ import { loggedInUserSelector } from "../store/auth/authSelector";
 import BottomTabNavigator from "./BottomTabNavigator";
 import { getAuth, onAuthStateChanged, User } from "firebase/auth";
 import { authAction } from "../store/auth/authSlice";
+import { recommendAction } from "../store/recommend/recommendSlice";
 
 export type RootStackParamList = {
   Login: undefined;
