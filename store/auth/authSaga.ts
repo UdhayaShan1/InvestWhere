@@ -1,4 +1,4 @@
-import { takeEvery, call, put } from "redux-saga/effects";
+import { takeEvery, call, put, select } from "redux-saga/effects";
 import { authAction } from "./authSlice";
 import {
   signInWithEmailAndPassword,
@@ -206,9 +206,9 @@ export function* sendEmailVerificationWorker() {
 
 export function* decreaseApiQuotaWorker(
   action: PayloadAction<InvestUserProfile>
-) {
+): Generator<any, void, any> {
   try {
-    const dailyQuota = useAppSelector(apiQuotaSelector);
+    const dailyQuota = yield select(apiQuotaSelector);
     if (!dailyQuota) {
       throw new Error("Daily quota not set");
     }
