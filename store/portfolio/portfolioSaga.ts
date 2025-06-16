@@ -1,5 +1,5 @@
 import { PayloadAction } from "@reduxjs/toolkit";
-import { call, put, takeEvery } from "redux-saga/effects";
+import { call, put, take, takeEvery } from "redux-saga/effects";
 import { portfolioAction } from "./portfolioSlice";
 import {
   ApplyRecommendationCompostionRequest,
@@ -18,6 +18,8 @@ import {
   SyfeDeleteRequest,
   SyfeInterface,
   SyfeSaveRequest,
+  OtherEditForm,
+  EmptyEditForm,
 } from "../../types/wealth.types";
 import {
   getAssetAllocations,
@@ -33,6 +35,7 @@ import {
   recursiveMapper,
 } from "../../constants/helper";
 import { getCurrentDateString } from "../../constants/date_helper";
+import { auth } from "../../firebase/firebase";
 
 export function* loadWealthProfileWorker(actions: PayloadAction<string>) {
   try {
@@ -659,6 +662,138 @@ export function* getAssetAllocationsListWorker(
   }
 }
 
+export function* saveNewOtherAssetWorker(
+  actions: PayloadAction<OtherEditForm>
+) {
+  try {
+    console.log("other saga", actions.payload);
+    const otherAssetDetail: OtherEditForm = actions.payload;
+    const uid = auth.currentUser?.uid;
+    if (!uid) {
+      throw new Error("User ID is missing");
+    }
+
+    const currentAssetAllocations: AssetAllocations = yield call(
+      getAssetAllocations,
+      uid
+    );
+    if (!currentAssetAllocations) {
+      throw new Error("Failed to retrieve current asset allocations");
+    }
+    const updatedAllocations = { ...currentAssetAllocations };
+    const assetName = otherAssetDetail.AssetKey as string;
+
+    if (!updatedAllocations.Others) {
+      updatedAllocations.Others = {};
+    }
+    updatedAllocations.Others[assetName] = EmptyEditForm;
+    updatedAllocations.Others[assetName].amount = otherAssetDetail.amount;
+    updatedAllocations.Others[assetName].label = otherAssetDetail.label;
+
+    console.log("others alloc saga updated", updatedAllocations);
+
+    yield call(saveAssetAllocations, updatedAllocations);
+
+    const netWorthSummary: NetWorthSummary = yield call(
+      getNetWorthSummary,
+      uid
+    );
+    if (netWorthSummary) {
+      const today = getCurrentDateString();
+      if (!netWorthSummary.History[today]) {
+        netWorthSummary.History[today] = {};
+      }
+      for (const Component of AssetComponents) {
+        const key = Component as keyof typeof updatedAllocations;
+        const componentTotal = calculateCategoryTotalRecursively(
+          updatedAllocations[key]
+        );
+        const today = getCurrentDateString();
+        netWorthSummary.History[today][key] = componentTotal;
+      }
+      const newTotal = calculateCategoryTotalRecursively(updatedAllocations);
+      netWorthSummary.History[today]["Total"] = newTotal;
+
+      yield call(saveNetWorthSummary, netWorthSummary);
+      yield put(portfolioAction.saveSyfePortfolioSuccess());
+
+      //update asset allocation list's current
+      yield call(
+        saveAssetAllocationsListWithCurrentAllocation,
+        updatedAllocations
+      );
+      //load everything for ui
+      yield put(portfolioAction.loadWealthProfile(uid));
+    }
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    yield put(portfolioAction.saveInvestmentDetailsFail(errorMessage));
+  }
+}
+
+export function* deleteOtherAssetWorker(actions: PayloadAction<OtherEditForm>) {
+  try {
+    const otherAssetDetail: OtherEditForm = actions.payload;
+    const uid = auth.currentUser?.uid;
+    if (!uid) {
+      throw new Error("User ID is missing");
+    }
+
+    const currentAssetAllocations: AssetAllocations = yield call(
+      getAssetAllocations,
+      uid
+    );
+    if (!currentAssetAllocations) {
+      throw new Error("Failed to retrieve current asset allocations");
+    }
+    const updatedAllocations = { ...currentAssetAllocations };
+    const otherAssetName = otherAssetDetail.AssetKey as string;
+
+    if (!updatedAllocations.Others) {
+      updatedAllocations.Others = {};
+    }
+
+    delete updatedAllocations.Others[otherAssetName];
+
+    yield call(saveAssetAllocations, updatedAllocations);
+
+    const netWorthSummary: NetWorthSummary = yield call(
+      getNetWorthSummary,
+      uid
+    );
+    if (netWorthSummary) {
+      const today = getCurrentDateString();
+      if (!netWorthSummary.History[today]) {
+        netWorthSummary.History[today] = {};
+      }
+      for (const Component of AssetComponents) {
+        const key = Component as keyof typeof updatedAllocations;
+        const componentTotal = calculateCategoryTotalRecursively(
+          updatedAllocations[key]
+        );
+        const today = getCurrentDateString();
+        netWorthSummary.History[today][key] = componentTotal;
+      }
+      const newTotal = calculateCategoryTotalRecursively(updatedAllocations);
+      netWorthSummary.History[today]["Total"] = newTotal;
+
+      yield call(saveNetWorthSummary, netWorthSummary);
+      yield put(portfolioAction.saveSyfePortfolioSuccess());
+
+      //update asset allocation list's current
+      yield call(
+        saveAssetAllocationsListWithCurrentAllocation,
+        updatedAllocations
+      );
+      //load everything for ui
+      yield put(portfolioAction.loadWealthProfile(uid));
+    }
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    yield put(portfolioAction.deleteInvestmentDetailsFail(errorMessage));
+  }
+}
+
 export function* deleteRecommendationWorker(
   actions: PayloadAction<RecommendationDeleteRequest>
 ) {
@@ -917,5 +1052,13 @@ export function* portfolioWatcher() {
   yield takeEvery(
     portfolioAction.applyRecommendationComposition,
     applyRecommendationCompositionWorker
+  );
+  yield takeEvery(
+    portfolioAction.saveOtherAssetDetails,
+    saveNewOtherAssetWorker
+  );
+  yield takeEvery(
+    portfolioAction.deleteOtherAssetDetails,
+    deleteOtherAssetWorker
   );
 }

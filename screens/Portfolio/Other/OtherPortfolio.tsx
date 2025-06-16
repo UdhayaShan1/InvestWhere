@@ -14,6 +14,7 @@ import {
 import { portFolioStyles as styles } from "../../../types/wealth.types";
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
+import { EditOtherPortfolio } from "./EditOtherPortfolio";
 
 interface OtherPortfolioProps {
   totalNetWorth: number;
@@ -70,9 +71,6 @@ export function OtherPortfolio({
               <Text style={styles.assetName}>
                 {others.label || "Other Asset"}
               </Text>
-              {others.label && (
-                <Text style={styles.assetNote}>Custom investment category</Text>
-              )}
             </View>
           </View>
           <Text style={styles.assetValue}>{formatCurrency(others.amount)}</Text>
@@ -162,11 +160,11 @@ export function OtherPortfolio({
               title="Edit"
               onPress={() => setEditModal(true)}
             ></Button>
-            {/* <EditInvestmentPortfolio
+            <EditOtherPortfolio
               editModal={editModal}
               setEditModal={setEditModal}
-              setMainInvestmentSelections={setInvestmentSelections}
-            ></EditInvestmentPortfolio> */}
+              setMainOtherSelections={setOtherSelections}
+            ></EditOtherPortfolio>
           </View>
         )}
       </View>

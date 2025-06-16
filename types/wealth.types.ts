@@ -54,7 +54,7 @@ export interface AssetAllocationsList {
 
 export interface OtherAssetItem {
   amount: number;
-  label?: string;
+  label: string;
 }
 
 export interface BankItems {
@@ -247,6 +247,19 @@ export interface BankEditForm {
 export interface InvestmentEditForm {
   [key: string]: number | string;
 }
+
+export interface OtherEditForm {
+  AssetKey: string;
+  amount: number;
+  label: string;
+}
+
+export const EmptyEditForm: OtherEditForm = {
+  AssetKey: "",
+  amount: 0,
+  label: "",
+};
+
 
 export interface SyfeSaveRequest {
   uid: string;

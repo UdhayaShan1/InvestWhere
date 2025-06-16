@@ -14,6 +14,7 @@ import {
   EndowusDeleteRequest,
   EndowusSaveRequest,
   InvestmentEditForm,
+  OtherEditForm,
   RecommendationDeleteRequest,
   SyfeDeleteRequest,
   SyfeInterface,
@@ -106,6 +107,28 @@ export const portfolioSlice = createSlice({
       state.isLoading = false;
     },
     saveInvestmentDetailsFail: (state, actions: PayloadAction<string>) => {
+      state.isLoading = false;
+      state.error = actions.payload;
+    },
+    saveOtherAssetDetails: (state, actions: PayloadAction<OtherEditForm>) => {
+      state.isLoading = true;
+      state.error = null;
+    },
+    saveOtherAssetDetailsSuccess: (state) => {
+      state.isLoading = false;
+    },
+    saveOtherAssetDetailsFail: (state, actions: PayloadAction<string>) => {
+      state.isLoading = false;
+      state.error = actions.payload;
+    },
+    deleteOtherAssetDetails: (state, actions: PayloadAction<OtherEditForm>) => {
+      state.isLoading = true;
+      state.error = null;
+    },
+    deleteOtherAssetDetailsSuccess: (state) => {
+      state.isLoading = false;
+    },
+    deleteOtherAssetDetailsFail: (state, actions: PayloadAction<string>) => {
       state.isLoading = false;
       state.error = actions.payload;
     },
