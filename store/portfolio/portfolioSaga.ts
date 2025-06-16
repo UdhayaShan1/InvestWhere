@@ -728,7 +728,7 @@ export function* saveNewOtherAssetWorker(
     }
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    yield put(portfolioAction.saveInvestmentDetailsFail(errorMessage));
+    yield put(portfolioAction.saveOtherAssetDetailsFail(errorMessage));
   }
 }
 
