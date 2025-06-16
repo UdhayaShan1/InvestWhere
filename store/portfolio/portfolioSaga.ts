@@ -779,7 +779,7 @@ export function* deleteOtherAssetWorker(actions: PayloadAction<OtherEditForm>) {
       netWorthSummary.History[today]["Total"] = newTotal;
 
       yield call(saveNetWorthSummary, netWorthSummary);
-      yield put(portfolioAction.saveSyfePortfolioSuccess());
+      yield put(portfolioAction.deleteOtherAssetDetailsSuccess());
 
       //update asset allocation list's current
       yield call(
