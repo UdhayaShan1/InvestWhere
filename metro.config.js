@@ -1,23 +1,14 @@
-const {
-  getSentryExpoConfig
-} = require("@sentry/react-native/metro");
+const { getDefaultConfig } = require("expo/metro-config");
 
-const config = getSentryExpoConfig(__dirname);
+const config = getDefaultConfig(__dirname);
 
-// -----------------------------------------------------------------------------
-// Firebase / Expo SDK 53: allow “.cjs” files and use classic Node “exports”
-// resolution so Firebase sub‑packages are bundled correctly.
-// -----------------------------------------------------------------------------
+// Allow ".cjs" files for Firebase compatibility with Expo SDK 53
 config.resolver.sourceExts = config.resolver.sourceExts || [];
 if (!config.resolver.sourceExts.includes("cjs")) {
-config.resolver.sourceExts.push("cjs");
+  config.resolver.sourceExts.push("cjs");
 }
 
-// Disable the new, stricter “package.json exports” resolution until every
-// dependency (Firebase, React‑Native‑WebView, etc.) ships full export maps.
+// Disable the new "package.json exports" resolution for better compatibility
 config.resolver.unstable_enablePackageExports = false;
 
-// -----------------------------------------------------------------------------
-// That’s it – export the tweaked config.
-// -----------------------------------------------------------------------------
 module.exports = config;
