@@ -116,6 +116,7 @@ export function EditInvestmentPortfolio({
 
   //Get all investment names
   useEffect(() => {
+    console.log("Huh", editForm)
     if (assetAllocation && brokerSelected) {
       const editFormKeys = Object.keys(editForm).filter(
         (key) => key !== "Broker"

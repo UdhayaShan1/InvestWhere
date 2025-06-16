@@ -55,7 +55,6 @@ export interface AssetAllocationsList {
 export interface OtherAssetItem {
   amount: number;
   label?: string;
-  notes?: string;
 }
 
 export interface BankItems {
@@ -70,7 +69,6 @@ export interface CPFItems {
   OA: number;
   SA: number;
   MA: number;
-  [key: string]: number;
 }
 
 export function isCustomSyfePortfolio(key: string) {

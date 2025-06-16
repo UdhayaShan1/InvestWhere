@@ -37,6 +37,7 @@ import {
   getCurrentDateString,
   stringToDate,
 } from "../../constants/date_helper";
+import { OtherPortfolio } from "./Other/OtherPortfolio";
 
 type UserPortfolioNavigationProp = BottomTabNavigationProp<BottomTabParamList>;
 
@@ -506,6 +507,12 @@ export function UserPortfolio() {
         totalNetWorth={totalNetWorth}
       />
       <InvestmentPortfolio
+        totalNetWorth={totalNetWorth}
+        expandedSections={expandedSections}
+        setExpandedSections={setExpandedSections}
+        assetAllocation={assetAllocation}
+      />
+      <OtherPortfolio
         totalNetWorth={totalNetWorth}
         expandedSections={expandedSections}
         setExpandedSections={setExpandedSections}
