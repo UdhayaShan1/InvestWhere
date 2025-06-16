@@ -22,7 +22,7 @@ import {
   saveUserProfile,
 } from "../../firebase/services/profileService";
 import { authAction } from "../auth/authSlice";
-import { RootState, useAppSelector } from "../rootTypes";
+import { RootState } from "../rootTypes";
 import { apiQuotaSelector } from "./recommendSelector";
 
 export function* getRecommendationWorker(
