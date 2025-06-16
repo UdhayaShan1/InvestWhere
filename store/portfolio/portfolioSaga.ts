@@ -791,7 +791,7 @@ export function* deleteOtherAssetWorker(actions: PayloadAction<OtherEditForm>) {
     }
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    yield put(portfolioAction.deleteInvestmentDetailsFail(errorMessage));
+    yield put(portfolioAction.deleteOtherAssetDetailsFail(errorMessage));
   }
 }
 
