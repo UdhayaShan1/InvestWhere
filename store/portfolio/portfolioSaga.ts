@@ -1,5 +1,5 @@
 import { PayloadAction } from "@reduxjs/toolkit";
-import { call, put, take, takeEvery } from "redux-saga/effects";
+import { call, put, takeEvery } from "redux-saga/effects";
 import { portfolioAction } from "./portfolioSlice";
 import {
   ApplyRecommendationCompostionRequest,
