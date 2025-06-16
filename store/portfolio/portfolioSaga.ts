@@ -716,7 +716,7 @@ export function* saveNewOtherAssetWorker(
       netWorthSummary.History[today]["Total"] = newTotal;
 
       yield call(saveNetWorthSummary, netWorthSummary);
-      yield put(portfolioAction.saveSyfePortfolioSuccess());
+      yield put(portfolioAction.saveOtherAssetDetailsSuccess());
 
       //update asset allocation list's current
       yield call(
